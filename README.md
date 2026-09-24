@@ -1,61 +1,93 @@
 # Planificador de Eventos — Frontend
 
-Frontend del MVP (Sprint 0) para el planificador de eventos dirigido a organizadores independientes. Permite gestionar el plan de trabajo logístico de cada evento, ver las tareas del día, la reprogramación ante conflictos de horas y el progreso global de preparativos.
+Frontend del MVP para el planificador de eventos dirigido a organizadores independientes. Permite crear eventos, organizar su plan logístico y consultar el avance de las tareas.
 
 ## Stack
 
-- **React 19 + Vite 8** — JS/JSX puro, sin TypeScript
-- **React Router 7** (`react-router-dom`) — SPA con rutas centralizadas en un solo archivo
-- **oxlint** — linter principal (config en `.oxlintrc.json`)
-- **Prettier** — formato (config en `.prettierrc`)
+- **React 19 + Vite 8** — JS/JSX puro, sin TypeScript.
+- **React Router 7** (`react-router-dom`) — SPA con rutas centralizadas.
+- **Tailwind CSS 4** — estilos visuales de la interfaz.
+- **oxlint** — linter principal (configuración en `.oxlintrc.json`).
+- **Prettier** — formato ad hoc (configuración en `.prettierrc`).
 
 ## Comandos
 
-| Comando           | Descripción                                              |
-| ----------------- | -------------------------------------------------------- |
-| `npm run dev`     | Levanta el servidor de desarrollo con HMR                |
-| `npm run build`   | Genera el build de producción en `dist/`                 |
-| `npm run preview` | Sirve el build generado                                  |
-| `npm run lint`    | Ejecuta oxlint (`eslint.config.js` no se usa en scripts) |
+| Comando           | Descripción                                |
+| ----------------- | ------------------------------------------ |
+| `npm run dev`     | Levanta el servidor de desarrollo con HMR. |
+| `npm run build`   | Genera el build de producción en `dist/`.  |
+| `npm run preview` | Sirve el build generado.                   |
+| `npm run lint`    | Ejecuta oxlint.                            |
 
-No hay script de formato; se formatea ad-hoc con `npx prettier --write <archivo>`. No existe framework de tests ni typecheck.
+No existe framework de tests ni script de typecheck. Para formatear un archivo concreto:
 
-## Estructura del proyecto
-
-La aplicación está desacoplada por responsabilidad: cada pantalla vive en un archivo propio de `src/pages/`, el router centraliza todas las rutas en `src/routes/` y los componentes compartidos van en `src/components/`.
-
+```bash
+npx prettier --write <archivo>
 ```
+
+## Estructura
+
+```text
 src/
-├── main.jsx                   # Bootstrap de React
-├── App.jsx                    # Monta las rutas
-├── pages/                     # Una pantalla por archivo (Sprint 0)
-│   ├── HoyPage.jsx             # Panel del día (T2): estado vacío + CTA a /crear
-│   ├── CrearPage.jsx           # Crear evento (T1)
-│   ├── DetallePage.jsx         # Detalle y reprogramación de un evento (T3)
-│   ├── ProgresoPage.jsx        # Barra de avance de preparativos (T4)
-│   └── LoginPage.jsx           # Acceso de organizadores (US-11)
+├── main.jsx                    # Bootstrap de React
+├── App.jsx                     # Monta el enrutador
 ├── routes/
-│   └── AppRoutes.jsx          # BrowserRouter + todas las rutas de la SPA
-└── components/
-    └── SimulatedLoader.jsx    # Spinner que simula la carga inicial en cada ruta
+│   └── AppRoutes.jsx           # Rutas, layout y carga inicial simulada
+├── pages/
+│   ├── HoyPage.jsx             # Panel del día
+│   ├── CrearPage.jsx           # Entrada de creación de evento
+│   ├── DetallePage.jsx         # Entrada del detalle de evento
+│   ├── ProgresoPage.jsx        # Vista de progreso
+│   └── LoginPage.jsx           # Acceso de organizadores
+├── views/
+│   ├── CreateEventView.jsx     # Formulario US-01
+│   └── EventDetailView.jsx     # Detalle, subtareas y progreso US-02/US-03
+├── components/
+│   ├── states/                 # Empty, Error y Loading
+│   └── ui/                     # Button, Layout, Modal, ProgressBar y EventCard
+├── services/
+│   └── api.js                  # Cliente HTTP y contrato de API
+└── index.css                   # Tailwind y estilos globales
 ```
+
+También se documentan las decisiones de UX, el microcopy y la auditoría de accesibilidad en `docs/decisiones-ux.md`, `docs/guia-microcopy.md` y `docs/auditoria-a11y.md`.
 
 ## Rutas
 
-| Ruta          | Pantalla                                   | Componente     |
-| ------------- | ------------------------------------------ | -------------- |
-| `/hoy`        | Panel principal del día                    | `HoyPage`      |
-| `/crear`      | Crear evento                               | `CrearPage`    |
-| `/evento/:id` | Detalle de evento                          | `DetallePage`  |
-| `/progreso`   | Progreso del evento                        | `ProgresoPage` |
-| `/login`      | Inicio de sesión                           | `LoginPage`    |
-| `*`           | Cualquier otra ruta → `/login` (`replace`) | `Navigate`     |
+| Ruta          | Pantalla               | Componente                        |
+| ------------- | ---------------------- | --------------------------------- |
+| `/`           | Redirección a `/hoy`   | `Navigate`                        |
+| `/hoy`        | Panel del día          | `HoyPage`                         |
+| `/crear`      | Crear evento           | `CrearPage` / `CreateEventView`   |
+| `/evento/:id` | Detalle y subtareas    | `DetallePage` / `EventDetailView` |
+| `/progreso`   | Progreso global        | `ProgresoPage`                    |
+| `/login`      | Acceso                 | `LoginPage`                       |
+| `*`           | Redirección a `/login` | `Navigate`                        |
 
-## Convenciones
+## API
 
-- Textos de UI, comentarios y mensajes de commit en español
-- JS/JSX puro, sin TypeScript
-- Una pantalla = un archivo en `src/pages/`, con export nombrado
-- Todas las rutas se envuelven en `SimulatedLoader` para simular coherencia visual de carga inicial
-- Sin librería de componentes: la UI usa estilos inline
-- La ruta de detalle usa el parámetro `/evento/:id` (no `/actividad`)
+El cliente utiliza `VITE_API_URL`, con `http://localhost:8080` como valor local por defecto. Copiar `.env.example` a `.env` y ajustar los valores:
+
+```bash
+cp .env.example .env
+```
+
+Variables disponibles para Vite:
+
+| Variable       | Uso                                                                          |
+| -------------- | ---------------------------------------------------------------------------- |
+| `VITE_API_URL` | URL base del backend Spring Boot.                                            |
+| `VITE_USER_ID` | Identificador temporal del organizador mientras se implementa autenticación. |
+
+El frontend espera el contrato de eventos y subtareas definido por el backend. La fecha del formulario se convierte a `LocalDateTime` antes de enviarse.
+
+## Despliegue
+
+`vercel.json` incluye la reescritura de rutas para que React Router funcione al recargar una URL directa de la SPA en Vercel. El build de Vercel debe usar `npm run build` y publicar `dist/`.
+
+## Estado actual
+
+- La interfaz de creación, detalle, estados visuales, validaciones y eliminación segura está implementada.
+- La capa de API está conectada mediante `src/services/api.js`.
+- La persistencia real depende de que el backend exponga los endpoints de eventos y subtareas con el contrato documentado.
+- La autenticación y la selección definitiva del organizador siguen fuera de alcance; `VITE_USER_ID` es una configuración temporal de desarrollo.
