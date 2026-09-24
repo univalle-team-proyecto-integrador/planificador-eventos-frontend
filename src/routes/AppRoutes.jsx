@@ -1,60 +1,43 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { Layout } from '../components/ui/Layout';
+import { SimulatedLoader } from '../components/states/SimulatedLoader';
 import { HoyPage } from '../pages/HoyPage';
 import { CrearPage } from '../pages/CrearPage';
 import { DetallePage } from '../pages/DetallePage';
 import { ProgresoPage } from '../pages/ProgresoPage';
 import { LoginPage } from '../pages/LoginPage';
-import { SimulatedLoader } from '../components/SimulatedLoader';
 
-export const AppRoutes = () => {
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Rutas principales del MVP */}
+const withLoader = (element, label) => (
+  <SimulatedLoader label={label}>{element}</SimulatedLoader>
+);
+
+export const AppRoutes = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={<Navigate to="/hoy" replace />} />
         <Route
           path="/hoy"
-          element={
-            <SimulatedLoader>
-              <HoyPage />
-            </SimulatedLoader>
-          }
+          element={withLoader(<HoyPage />, 'Cargando el panel de hoy')}
         />
         <Route
           path="/crear"
-          element={
-            <SimulatedLoader>
-              <CrearPage />
-            </SimulatedLoader>
-          }
+          element={withLoader(<CrearPage />, 'Cargando el formulario')}
         />
         <Route
           path="/evento/:id"
-          element={
-            <SimulatedLoader>
-              <DetallePage />
-            </SimulatedLoader>
-          }
+          element={withLoader(<DetallePage />, 'Cargando el evento')}
         />
         <Route
           path="/progreso"
-          element={
-            <SimulatedLoader>
-              <ProgresoPage />
-            </SimulatedLoader>
-          }
+          element={withLoader(<ProgresoPage />, 'Cargando el progreso')}
         />
         <Route
           path="/login"
-          element={
-            <SimulatedLoader>
-              <LoginPage />
-            </SimulatedLoader>
-          }
+          element={withLoader(<LoginPage />, 'Cargando el acceso')}
         />
-
-        {/* Redirección por defecto si escriben cualquier otra ruta */}
         <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </BrowserRouter>
-  );
-};
+      </Route>
+    </Routes>
+  </BrowserRouter>
+);

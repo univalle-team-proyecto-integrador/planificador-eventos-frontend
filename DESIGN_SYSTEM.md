@@ -1,0 +1,232 @@
+# Design System — Planificador de Eventos
+
+**Versión:** 1.0 · **Fecha:** 2026-09-24 · **Ámbito:** SPA React + Tailwind CSS 4 · **Enfoque:** escritorio primero, adaptable a pantallas estrechas
+
+## 1. Principios
+
+- Claridad antes que decoración.
+- Una acción destructiva siempre se distingue y se confirma.
+- Los estados vacío, error y carga son parte normal de cada flujo.
+- Los mensajes explican qué pasó y cómo corregirlo.
+- La interfaz no depende únicamente del color.
+- Los componentes deben ser reutilizables y composables.
+- La navegación por teclado y el foco visible son obligatorios.
+
+## 2. Paleta de colores
+
+Los nombres corresponden a las clases Tailwind actualmente utilizadas.
+
+### Marca y acciones
+
+| Token         | HEX       | Uso                                   |
+| ------------- | --------- | ------------------------------------- |
+| `primary-50`  | `#EFF6FF` | Fondos suaves de marca y badges       |
+| `primary-500` | `#3B82F6` | Elementos secundarios de marca        |
+| `primary-600` | `#2563EB` | Botones primarios, enlaces y progreso |
+| `primary-700` | `#1D4ED8` | Hover de acciones principales         |
+| `primary-800` | `#1E40AF` | Énfasis de marca en textos            |
+
+### Neutros y superficies
+
+| Token         | HEX       | Uso                                     |
+| ------------- | --------- | --------------------------------------- |
+| `white`       | `#FFFFFF` | Tarjetas, header y superficies elevadas |
+| `neutral-50`  | `#F9FAFB` | Fondo general de la aplicación          |
+| `neutral-100` | `#F3F4F6` | Fondos de formularios y estados vacíos  |
+| `neutral-200` | `#E5E7EB` | Bordes y separadores                    |
+| `neutral-300` | `#D1D5DB` | Bordes de controles                     |
+| `neutral-500` | `#6B7280` | Texto secundario y placeholders         |
+| `neutral-600` | `#4B5563` | Texto de apoyo                          |
+| `neutral-700` | `#374151` | Labels y texto de controles             |
+| `neutral-900` | `#111827` | Títulos y texto principal               |
+
+### Error y alerta
+
+| Token        | HEX       | Uso                                       |
+| ------------ | --------- | ----------------------------------------- |
+| `danger-50`  | `#FEF2F2` | Fondo de error y acción destructiva suave |
+| `danger-100` | `#FEE2E2` | Borde de estado de error                  |
+| `danger-500` | `#EF4444` | Iconos de error                           |
+| `danger-600` | `#DC2626` | Botón destructivo y texto de error        |
+| `danger-700` | `#B91C1C` | Hover destructivo                         |
+
+### Éxito y advertencia reservados
+
+Para estados futuros se reservan estas familias; no deben reemplazar la semántica de los estados actuales.
+
+| Token         | HEX       | Uso                                |
+| ------------- | --------- | ---------------------------------- |
+| `success-50`  | `#ECFDF5` | Fondo de éxito                     |
+| `success-600` | `#059669` | Confirmación y tarea completada    |
+| `warning-50`  | `#FFFBEB` | Fondo de advertencia               |
+| `warning-600` | `#D97706` | Advertencias de conflicto o tiempo |
+
+## 3. Tipografía
+
+La fuente actual es el stack del sistema con `Inter` como primera opción:
+
+```css
+font-family:
+  Inter,
+  ui-sans-serif,
+  system-ui,
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  sans-serif;
+```
+
+| Uso                 | Clase Tailwind          | Tamaño / peso  |
+| ------------------- | ----------------------- | -------------- |
+| Título principal    | `text-3xl font-bold`    | 30 px / 700    |
+| Título de sección   | `text-2xl font-bold`    | 24 px / 700    |
+| Título de tarjeta   | `text-lg font-semibold` | 18 px / 600    |
+| Texto principal     | `text-sm` o `text-base` | 14–16 px / 400 |
+| Label de formulario | `text-sm font-medium`   | 14 px / 500    |
+| Texto secundario    | `text-xs text-gray-500` | 12 px / 400    |
+| Botón               | `text-sm font-semibold` | 14 px / 600    |
+
+Reglas:
+
+- Máximo dos niveles de jerarquía dentro de una tarjeta.
+- No usar color como único indicador.
+- Los mensajes de error deben tener contraste suficiente y texto explicativo.
+
+## 4. Espaciado y layout
+
+Se utiliza la escala estándar de Tailwind:
+
+| Clase | Valor | Uso típico                   |
+| ----- | ----: | ---------------------------- |
+| `1`   |  4 px | Ajuste interno pequeño       |
+| `2`   |  8 px | Gap entre controles          |
+| `3`   | 12 px | Padding de badges            |
+| `4`   | 16 px | Padding de tarjetas y labels |
+| `5`   | 20 px | Separación de campos         |
+| `6`   | 24 px | Padding de contenido         |
+| `8`   | 32 px | Separación entre secciones   |
+| `10`  | 40 px | Bloques grandes              |
+| `12`  | 48 px | Espaciado excepcional        |
+
+Reglas de composición:
+
+- Contenedor principal: `max-w-5xl`, centrado y con `p-6`.
+- Formulario principal: `max-w-3xl`.
+- Detalle de evento: `max-w-5xl`.
+- Tarjetas: fondo blanco, borde `border-gray-200`, esquinas `rounded-lg` y sombra ligera.
+- Layout de escritorio: header horizontal; en viewport estrecho pasa a vertical flexible.
+- No usar espaciado menor que `gap-2` entre acciones principales.
+
+## 5. Componentes
+
+### 5.1 Botón
+
+Archivo: `src/components/ui/Button.jsx`
+
+Variantes:
+
+| Variante  | Uso                                    | Comportamiento                    |
+| --------- | -------------------------------------- | --------------------------------- |
+| `primary` | Guardar, crear, confirmar              | Fondo azul, texto blanco          |
+| `neutral` | Cancelar, volver, acciones secundarias | Fondo blanco, borde gris          |
+| `danger`  | Eliminar                               | Fondo rojo, solo con confirmación |
+
+Propiedades obligatorias:
+
+- `type="button"` por defecto.
+- `disabled` para operaciones en curso.
+- Foco visible mediante `focus-visible`.
+- Soporte de `aria-busy`, `aria-label` y demás atributos.
+- Para navegación usar `Button as={Link}`; nunca anidar un botón dentro de un enlace.
+
+### 5.2 Campo de texto y select
+
+- Label visible y asociado con `htmlFor`/`id`.
+- `name` coherente con el DTO cuando aplique.
+- `required` para campos obligatorios.
+- `aria-invalid="true"` cuando existe error.
+- `aria-describedby` apunta al mensaje inline.
+- Placeholder como ejemplo, nunca como sustituto del label.
+- Fecha de evento: `<input type="date">`; el cliente la convierte a `LocalDateTime`.
+- Horas: `<input type="number" min="1" step="1">`.
+
+Mensajes de validación:
+
+```text
+Qué ocurrió + cómo corregirlo.
+```
+
+### 5.3 Estados
+
+| Componente        | Contrato                                            |
+| ----------------- | --------------------------------------------------- |
+| `SimulatedLoader` | `role="status"`, `aria-live="polite"` y `aria-busy` |
+| `EmptyState`      | Explica qué falta y ofrece una acción               |
+| `ErrorState`      | `role="alert"`, explica el error y ofrece reintento |
+| `ProgressBar`     | `role="progressbar"` con valores 0–100              |
+
+### 5.4 Modal de confirmación
+
+Archivo: `src/components/ui/ConfirmModal.jsx`
+
+- `role="dialog"`.
+- `aria-modal="true"`.
+- `aria-labelledby` y `aria-describedby`.
+- Foco inicial dentro del diálogo.
+- Tab y Shift+Tab permanecen dentro del modal.
+- `Escape` cancela cuando no hay una operación en curso.
+- El foco vuelve al elemento que abrió el modal.
+- No se permite cerrar accidentalmente durante una eliminación.
+
+### 5.5 Layout y navegación
+
+Archivo: `src/components/ui/Layout.jsx`
+
+- Header persistente.
+- `nav` con etiqueta accesible.
+- Enlaces a Hoy, Progreso y Crear Evento.
+- Enlace `Saltar al contenido`.
+- `Outlet` para renderizar la pantalla activa.
+
+## 6. Reglas de accesibilidad
+
+- Mantener contraste mínimo AA en texto normal.
+- No comunicar estados exclusivamente mediante color.
+- Proporcionar texto visible para errores.
+- Mantener foco visible en todos los controles.
+- Respetar el orden natural de tabulación.
+- No eliminar el foco sin reemplazarlo por un elemento equivalente.
+- Usar `aria-hidden="true"` en iconos decorativos.
+- Usar `role="status"` para progreso y `role="alert"` para errores.
+- Evitar animaciones que bloqueen la interacción.
+
+## 7. Ejemplos de uso
+
+```jsx
+<Button type="submit" variant="primary" disabled={isSubmitting}>
+  {isSubmitting ? 'Guardando...' : 'Guardar evento'}
+</Button>
+```
+
+```jsx
+<ErrorState
+  title="No pudimos cargar el evento"
+  message="Revisa tu conexión e inténtalo de nuevo."
+  onRetry={reload}
+/>
+```
+
+```jsx
+<ConfirmModal
+  open={Boolean(deleteTarget)}
+  title="Eliminar gestión"
+  message="Esta acción no se puede deshacer."
+  onCancel={closeModal}
+  onConfirm={deleteSubtask}
+  confirmLabel="Eliminar"
+/>
+```
+
+## 8. Mantenimiento
+
+Cualquier nuevo color, espaciado, componente o patrón de microcopy debe documentarse aquí antes de consolidarse en la interfaz.

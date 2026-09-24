@@ -1,23 +1,51 @@
 # planificador-eventos-frontend
 
-Sprint 0 MVP. React 19 + Vite + React Router 7 (`react-router-dom`), plain JSX (no TypeScript). UI text, comments, and commit messages are in Spanish.
+Frontend del Planificador de Eventos. React 19 + Vite 8 + React Router 7, JS/JSX puro y Tailwind CSS 4. Los textos de UI, comentarios y documentación están en español.
 
-## Commands
-- `npm run dev` — Vite dev server (HMR)
-- `npm run build` — production build to `dist/`
-- `npm run preview` — serve the built app
-- `npm run lint` — **oxlint** (not ESLint); config in `.oxlintrc.json`. A second ESLint config (`eslint.config.js`) exists but no script runs it.
-- No test framework or typecheck script — don't run `npm test` or `tsc`
-- No format script; Prettier config is `.prettierrc` (single quotes, semicolons, width 80). Format ad-hoc with `npx prettier --write <file>`
+## Comandos
 
-## Structure & conventions
-- One page component per file in `src/pages/` (named exports, e.g. `HoyPage`), each mapping to a screen from Sprint 0 tasks (T1–T4, US-11).
-- Routes are defined in `src/routes/AppRoutes.jsx`, mounted by `src/App.jsx`; unknown paths redirect to `/login`. Every route element is wrapped in `SimulatedLoader` (a brief spinner, `src/components/SimulatedLoader.jsx`) to fake an initial loading state.
-- `/hoy` (`HoyPage.jsx`) renders a simulated empty state with a CTA linking to `/crear`; the exact copy is business-accepted text kept editable in that file.
-- `src/App.css` is leftover Vite template styling and `src/index.css` only holds global styles plus the `spin` keyframe used by the loader — new UI doesn't need to reuse them.
-- No component library; UI uses inline styles.
-- Naming convention: `:id` param routes use `/evento/:id` (not `/actividad`).
+- `npm run dev` — servidor de desarrollo con HMR.
+- `npm run build` — build de producción en `dist/`.
+- `npm run preview` — sirve el build generado.
+- `npm run lint` — **oxlint** (no ESLint); configuración en `.oxlintrc.json`.
+- No hay framework de tests ni typecheck. No ejecutar `npm test` ni `tsc`.
+- Formatear de forma ad hoc con `npx prettier --write <archivo>`.
 
-## Gotchas
-- `.env` exists locally but is gitignored; values are placeholders and none are `VITE_`-prefixed, so Vite never exposes them to the app.
-- Active work is on local branch `frontend/lead` (pushed to `origin/frontend/lead`); `main` tracks `origin/main`.
+## Estructura y convenciones
+
+- Las rutas viven en `src/routes/AppRoutes.jsx` y `src/App.jsx` solo monta el enrutador.
+- Las pantallas tienen una entrada en `src/pages/` y la lógica de las vistas nuevas en `src/views/`.
+- Las rutas se registran bajo `Layout`, que usa `Outlet` y el Header global.
+- Cada ruta se envuelve con `SimulatedLoader`; las vistas manejan sus estados de red reales con `ErrorState` y mensajes `aria-live`.
+- La ruta de detalle es `/evento/:id`; no usar `/actividad`.
+- Los componentes compartidos de interfaz viven en `src/components/ui/` y los estados visuales en `src/components/states/`.
+- No anidar un `button` dentro de un `Link`; usar `Button as={Link}`.
+- Las acciones destructivas usan `ConfirmModal` y deben tener confirmación, `Escape`, focus trap y restauración del foco.
+- Los formularios deben asociar `label`/`input`, usar `aria-invalid`/`aria-describedby` y mensajes con la regla “qué pasó + cómo corregirlo”.
+- Las llamadas HTTP se centralizan en `src/services/api.js`; no usar URLs hardcodeadas en las vistas.
+- No guardar secretos en el frontend. Usar `VITE_API_URL` y `VITE_USER_ID` solo para configuración no sensible.
+- `vercel.json` mantiene el fallback de React Router para recargas directas en Vercel.
+
+## API y datos
+
+El contrato de frontend debe coincidir con los DTO del backend:
+
+- Evento: `idUsuario`, `idTipoEvento`, `nombre`, `cliente`, `fechaEvento`, `lugar`.
+- Tipo de evento: `idTipoEvento`, `nombre`; el catálogo se obtiene de `/api/tipos-evento`.
+- Subtarea: `idEvento`, `nombreGestion`, `horasEstimadas`, `fechaObjetivo`, `estado`.
+
+La fecha del evento de `<input type="date">` se convierte a `LocalDateTime`; la fecha objetivo de una subtarea se envía como `LocalDate`. No marcar la API como verificada hasta ejecutar una prueba contra los endpoints reales.
+
+## Documentación de producto y arquitectura
+
+La fuente de verdad de producto, diseño y arquitectura está en los archivos de la raíz:
+
+- `PRD.md` — visión, alcance, historias y criterios de aceptación.
+- `DESIGN_SYSTEM.md` — tokens visuales, componentes y reglas de accesibilidad.
+- `ARCHITECTURE.md` — capas, API, entidades, configuración y despliegue.
+
+Antes de cambiar textos o interacciones, revisar también `docs/decisiones-ux.md`, `docs/guia-microcopy.md` y `docs/auditoria-a11y.md`.
+
+## Bóveda del proyecto
+
+La bóveda del backend se mantiene en `planificador-eventos-backend/boveda/` para registrar únicamente mejoras del backend e integración. La documentación funcional del frontend vive en este repositorio mediante `PRD.md`, `DESIGN_SYSTEM.md` y `ARCHITECTURE.md`.
