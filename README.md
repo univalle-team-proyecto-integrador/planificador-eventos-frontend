@@ -50,6 +50,8 @@ src/
 └── index.css                   # Tailwind y estilos globales
 ```
 
+La bóveda de Obsidian del frontend está en `boveda/` y registra sus mejoras sin duplicar los documentos canónicos.
+
 La documentación principal del proyecto está en:
 
 - `PRD.md` — visión, alcance, historias y criterios de aceptación.
