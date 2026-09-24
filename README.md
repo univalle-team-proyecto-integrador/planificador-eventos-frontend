@@ -50,7 +50,14 @@ src/
 └── index.css                   # Tailwind y estilos globales
 ```
 
-También se documentan las decisiones de UX, el microcopy y la auditoría de accesibilidad en `docs/decisiones-ux.md`, `docs/guia-microcopy.md` y `docs/auditoria-a11y.md`.
+La documentación principal del proyecto está en:
+
+- `PRD.md` — visión, alcance, historias y criterios de aceptación.
+- `DESIGN_SYSTEM.md` — sistema visual, componentes y accesibilidad.
+- `ARCHITECTURE.md` — arquitectura frontend/backend, API, entidades y despliegue.
+- `docs/decisiones-ux.md` — decisiones de UX.
+- `docs/guia-microcopy.md` — guía de textos.
+- `docs/auditoria-a11y.md` — checklist de accesibilidad.
 
 ## Rutas
 

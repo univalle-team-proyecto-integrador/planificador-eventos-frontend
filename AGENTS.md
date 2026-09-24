@@ -35,10 +35,16 @@ El contrato de frontend debe coincidir con los DTO del backend:
 
 La fecha de `<input type="date">` se convierte a `LocalDateTime` en `src/services/api.js`. No marcar la API como verificada hasta ejecutar una prueba contra los endpoints reales.
 
-## Documentación UX
+## Documentación de producto y arquitectura
 
-Antes de cambiar textos o interacciones, revisar `docs/decisiones-ux.md` y `docs/guia-microcopy.md`. Toda nueva decisión o regla de mensajes debe quedar documentada.
+La fuente de verdad de producto, diseño y arquitectura está en los archivos de la raíz:
+
+- `PRD.md` — visión, alcance, historias y criterios de aceptación.
+- `DESIGN_SYSTEM.md` — tokens visuales, componentes y reglas de accesibilidad.
+- `ARCHITECTURE.md` — capas, API, entidades, configuración y despliegue.
+
+Antes de cambiar textos o interacciones, revisar también `docs/decisiones-ux.md`, `docs/guia-microcopy.md` y `docs/auditoria-a11y.md`.
 
 ## Bóveda del proyecto
 
-La bóveda Obsidian compartida vive en el repositorio hermano `planificador-eventos-backend/boveda/`, no en este repositorio. Las mejoras de frontend que afecten el contrato con backend deben registrarse allí en la rama `backend/lead`, siguiendo su índice y `lienzo-maestro.canvas`.
+La bóveda del backend se mantiene en `planificador-eventos-backend/boveda/` para registrar únicamente mejoras del backend e integración. La documentación funcional del frontend vive en este repositorio mediante `PRD.md`, `DESIGN_SYSTEM.md` y `ARCHITECTURE.md`.
