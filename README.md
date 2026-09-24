@@ -86,7 +86,7 @@ Variables disponibles para Vite:
 | `VITE_API_URL` | URL base del backend Spring Boot.                                            |
 | `VITE_USER_ID` | Identificador temporal del organizador mientras se implementa autenticación. |
 
-El frontend espera el contrato de eventos y subtareas definido por el backend. La fecha del evento se convierte a `LocalDateTime`; la fecha objetivo de una subtarea se envía como `LocalDate`.
+El frontend espera el contrato de eventos, tipos y subtareas definido por el backend. La fecha del evento se convierte a `LocalDateTime`; la fecha objetivo de una subtarea se envía como `LocalDate`. Las mutaciones solo actualizan la vista después de recibir una respuesta persistida del servidor.
 
 ## Despliegue
 

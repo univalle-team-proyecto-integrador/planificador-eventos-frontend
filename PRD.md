@@ -43,7 +43,8 @@ Ofrecer una SPA de escritorio, clara y accesible, para crear eventos, organizar 
 - Formulario de creación y edición de evento.
 - Validación de nombre, tipo, cliente, fecha y lugar.
 - Detalle de evento con lectura y edición.
-- Subtareas con nombre, horas estimadas, fecha límite y estado.
+- Catálogo de tipos de evento obtenido desde la API, sin IDs hardcodeados.
+- Subtareas con nombre, horas estimadas, fecha límite, estado y edición de sus campos.
 - Progreso logístico calculado sobre subtareas completadas.
 - Completar/reabrir subtareas.
 - Eliminación de subtareas mediante modal con focus trap.
@@ -114,6 +115,8 @@ Necesita consultar el avance de un evento, detectar tareas atrasadas y verificar
 
 - Los datos del evento se muestran en modo lectura.
 - El modo edición permite actualizar los campos permitidos.
+- La interfaz permite editar el nombre, la fecha límite y las horas de una subtarea.
+- Las mutaciones solo se reflejan localmente después de una respuesta persistida del servidor.
 - Eliminar una subtarea abre un modal de confirmación.
 - El modal se cierra con `Escape` o Cancelar.
 - El foco queda dentro del modal y se restaura al cerrarlo.

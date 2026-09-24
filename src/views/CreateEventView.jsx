@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ErrorState } from '../components/states/ErrorState';
 import { Button } from '../components/ui/Button';
@@ -26,12 +26,58 @@ const getToday = () => {
 const getErrorMessage = (error) =>
   error?.message || 'No pudimos guardar el evento. Inténtalo de nuevo.';
 
+const getTypesErrorMessage = (error) =>
+  error?.message ||
+  'No pudimos cargar los tipos de evento. Inténtalo de nuevo.';
+
+const normalizeEventType = (payload) => ({
+  id: payload?.id ?? payload?.idTipoEvento,
+  name: payload?.nombre ?? payload?.name ?? '',
+});
+
 export function CreateEventView() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [eventTypes, setEventTypes] = useState([]);
+  const [isLoadingTypes, setIsLoadingTypes] = useState(true);
+  const [typesError, setTypesError] = useState('');
+
+  const loadEventTypes = useCallback(async () => {
+    setIsLoadingTypes(true);
+    setEventTypes([]);
+    setTypesError('');
+
+    try {
+      const response = unwrapData(await api.listEventTypes());
+      const types = Array.isArray(response)
+        ? response
+            .map(normalizeEventType)
+            .filter((type) => type.id && type.name)
+        : [];
+
+      if (types.length === 0) {
+        setTypesError(
+          'No hay tipos de evento configurados. Contacta al administrador del servicio.'
+        );
+        return;
+      }
+
+      setEventTypes(types);
+    } catch (error) {
+      setTypesError(getTypesErrorMessage(error));
+    } finally {
+      setIsLoadingTypes(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // El catálogo se carga antes de permitir la creación de un evento.
+    // oxlint-disable-next-line react/set-state-in-effect
+    void loadEventTypes();
+  }, [loadEventTypes]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -70,6 +116,16 @@ export function CreateEventView() {
   };
 
   const submitEvent = async () => {
+    if (isLoadingTypes) {
+      setSubmitError('Espera a que terminen de cargar los tipos de evento.');
+      return;
+    }
+
+    if (typesError) {
+      setSubmitError(typesError);
+      return;
+    }
+
     const validationErrors = validateForm();
 
     if (Object.keys(validationErrors).length > 0) {
@@ -148,7 +204,7 @@ export function CreateEventView() {
         onSubmit={handleSubmit}
         className="space-y-6"
         noValidate
-        aria-busy={isSubmitting}
+        aria-busy={isSubmitting || isLoadingTypes}
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div>
@@ -190,21 +246,40 @@ export function CreateEventView() {
             </label>
             <select
               {...fieldProps('tipoEvento')}
-              className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                errors.tipoEvento ? 'border-red-500' : 'border-gray-300'
+              aria-invalid={Boolean(errors.tipoEvento || typesError)}
+              aria-describedby={
+                typesError
+                  ? 'event-tipoEvento-load-error'
+                  : errors.tipoEvento
+                    ? 'event-tipoEvento-error'
+                    : undefined
+              }
+              className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 ${
+                errors.tipoEvento || typesError
+                  ? 'border-red-500'
+                  : 'border-gray-300'
               }`}
               value={formData.tipoEvento}
               onChange={(event) =>
                 updateField('tipoEvento', event.target.value)
               }
+              disabled={isLoadingTypes || Boolean(typesError)}
               required
             >
-              <option value="">Selecciona un tipo...</option>
-              <option value="1">Boda</option>
-              <option value="2">Corporativo</option>
-              <option value="3">Social</option>
-              <option value="4">Cumpleaños</option>
-              <option value="5">Otro</option>
+              {isLoadingTypes ? (
+                <option value="">Cargando tipos...</option>
+              ) : typesError ? (
+                <option value="">No se pudieron cargar los tipos</option>
+              ) : (
+                <>
+                  <option value="">Selecciona un tipo...</option>
+                  {eventTypes.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
+                </>
+              )}
             </select>
             {errors.tipoEvento && (
               <p
@@ -214,6 +289,23 @@ export function CreateEventView() {
               >
                 {errors.tipoEvento}
               </p>
+            )}
+            {typesError && (
+              <div
+                id="event-tipoEvento-load-error"
+                role="alert"
+                className="mt-1 flex items-center justify-between gap-2 text-xs text-red-600"
+              >
+                <span>{typesError}</span>
+                <button
+                  type="button"
+                  className="font-semibold underline hover:text-red-800"
+                  onClick={() => void loadEventTypes()}
+                  disabled={isLoadingTypes}
+                >
+                  Reintentar
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -321,8 +413,8 @@ export function CreateEventView() {
           <Button
             type="submit"
             variant="primary"
-            disabled={isSubmitting}
-            aria-busy={isSubmitting}
+            disabled={isSubmitting || isLoadingTypes || Boolean(typesError)}
+            aria-busy={isSubmitting || isLoadingTypes}
           >
             {isSubmitting ? 'Guardando...' : 'Guardar evento'}
           </Button>

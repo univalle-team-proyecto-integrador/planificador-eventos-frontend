@@ -18,6 +18,12 @@ const initialSubtaskData = {
   date: '',
 };
 
+const getToday = () => {
+  const now = new Date();
+  const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  return localDate.toISOString().slice(0, 10);
+};
+
 const getErrorMessage = (error) =>
   error?.message || 'No pudimos conectar con el servidor. Inténtalo de nuevo.';
 
@@ -60,19 +66,40 @@ const formatDate = (value) => {
   });
 };
 
-const normalizeEvent = (payload, fallbackId) => {
+const normalizeEventType = (payload) => ({
+  id: payload?.id ?? payload?.idTipoEvento,
+  name: payload?.nombre ?? payload?.name ?? '',
+});
+
+const normalizeEvent = (payload, fallbackId, typeName = '') => {
   const source = payload || {};
 
   return {
     id: source.id ?? source.idEvento ?? fallbackId,
     idUsuario: source.idUsuario ?? getDefaultUserId(),
-    idTipoEvento: source.idTipoEvento ?? 1,
+    idTipoEvento: source.idTipoEvento ?? source.typeId ?? null,
     nombre: source.nombre ?? source.name ?? 'Evento sin nombre',
     cliente: source.cliente ?? source.client ?? 'Sin cliente',
     fechaEvento: source.fechaEvento ?? source.date ?? '',
     lugar: source.lugar ?? source.location ?? 'Sin lugar',
-    tipo: source.tipoEvento?.nombre ?? source.type ?? 'Sin tipo',
+    tipo:
+      source.tipoEvento?.nombre ??
+      source.tipoEventoNombre ??
+      (typeName || source.type || 'Sin tipo'),
   };
+};
+
+const requireEventResponse = (payload, fallbackId, typeName = '') => {
+  const source = payload || {};
+  const id = source.id ?? source.idEvento;
+
+  if (id === undefined || id === null) {
+    throw new Error(
+      'La respuesta del servidor no incluye el evento solicitado.'
+    );
+  }
+
+  return normalizeEvent(source, id, typeName);
 };
 
 const eventToForm = (event) => ({
@@ -82,7 +109,7 @@ const eventToForm = (event) => ({
   lugar: event.lugar,
 });
 
-const normalizeSubtask = (payload, fallbackId = Date.now()) => {
+const normalizeSubtask = (payload, fallbackId) => {
   const source = payload || {};
 
   return {
@@ -92,6 +119,22 @@ const normalizeSubtask = (payload, fallbackId = Date.now()) => {
     date: source.fechaObjetivo ?? source.date ?? '',
     state: source.estado ?? source.state ?? 'pendiente',
   };
+};
+
+const requireSubtaskResponse = (payload, currentSubtask = null) => {
+  const source = payload || {};
+  const id = source.id ?? source.idSubtarea;
+
+  if (id === undefined || id === null) {
+    throw new Error(
+      'La respuesta del servidor no incluye la subtarea actualizada.'
+    );
+  }
+
+  return normalizeSubtask(
+    currentSubtask ? { ...currentSubtask, ...source } : source,
+    id
+  );
 };
 
 const validateSubtask = (formData) => {
@@ -129,6 +172,9 @@ const validateEventForm = (formData) => {
   if (!formData.fecha) {
     newErrors.fecha =
       'La fecha está vacía. Selecciona el día en que se realizará el evento.';
+  } else if (formData.fecha < getToday()) {
+    newErrors.fecha =
+      'La fecha ya pasó. Selecciona hoy o una fecha futura para el evento.';
   }
   if (!formData.lugar.trim()) {
     newErrors.lugar =
@@ -177,24 +223,51 @@ export function EventDetailView() {
   const [deleteError, setDeleteError] = useState('');
 
   const [updatingSubtaskId, setUpdatingSubtaskId] = useState(null);
+  const [editingSubtaskId, setEditingSubtaskId] = useState(null);
+  const [editingSubtaskData, setEditingSubtaskData] = useState({
+    title: '',
+    hours: '',
+    date: '',
+  });
+  const [editingErrors, setEditingErrors] = useState({});
+  const [isSavingSubtaskEdit, setIsSavingSubtaskEdit] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setLoadError('');
 
     try {
-      const [eventResponse, subtasksResponse] = await Promise.all([
-        api.getEvent(id),
-        api.getSubtasks(id),
-      ]);
-      const loadedEvent = normalizeEvent(unwrapData(eventResponse), id);
+      const [eventResponse, subtasksResponse, typesResponse] =
+        await Promise.all([
+          api.getEvent(id),
+          api.getSubtasks(id),
+          api.listEventTypes(),
+        ]);
+      const rawEvent = unwrapData(eventResponse);
+      const rawTypes = unwrapData(typesResponse);
+      const normalizedTypes = (Array.isArray(rawTypes) ? rawTypes : [])
+        .map(normalizeEventType)
+        .filter((type) => type.id && type.name);
+      if (normalizedTypes.length === 0) {
+        throw new Error(
+          'No pudimos cargar el catálogo de tipos de evento. Inténtalo de nuevo.'
+        );
+      }
+      const typeNames = new Map(
+        normalizedTypes.map((type) => [String(type.id), type.name])
+      );
+      const loadedEvent = requireEventResponse(
+        rawEvent,
+        id,
+        typeNames.get(String(rawEvent?.idTipoEvento))
+      );
       const loadedSubtasks = unwrapData(subtasksResponse);
 
       setEvent(loadedEvent);
       setEventForm(eventToForm(loadedEvent));
       setSubtasks(
         Array.isArray(loadedSubtasks)
-          ? loadedSubtasks.map((subtask) => normalizeSubtask(subtask))
+          ? loadedSubtasks.map((subtask) => requireSubtaskResponse(subtask))
           : []
       );
     } catch (error) {
@@ -221,6 +294,29 @@ export function EventDetailView() {
   const updateSubtaskField = (field, value) => {
     setFormData((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: '' }));
+    setActionError('');
+  };
+
+  const startEditingSubtask = (subtask) => {
+    setEditingSubtaskId(subtask.id);
+    setEditingSubtaskData({
+      title: subtask.title,
+      hours: String(subtask.hours ?? ''),
+      date: toDateInputValue(subtask.date),
+    });
+    setEditingErrors({});
+    setActionError('');
+  };
+
+  const cancelEditingSubtask = () => {
+    setEditingSubtaskId(null);
+    setEditingSubtaskData({ title: '', hours: '', date: '' });
+    setEditingErrors({});
+  };
+
+  const updateEditingSubtaskField = (field, value) => {
+    setEditingSubtaskData((current) => ({ ...current, [field]: value }));
+    setEditingErrors((current) => ({ ...current, [field]: '' }));
     setActionError('');
   };
 
@@ -252,16 +348,7 @@ export function EventDetailView() {
           estado: 'pendiente',
         })
       );
-      const newSubtask = normalizeSubtask(
-        response || {
-          idSubtarea: Date.now(),
-          nombreGestion: formData.title.trim(),
-          horasEstimadas: Number(formData.hours),
-          fechaObjetivo: formData.date,
-          estado: 'pendiente',
-        },
-        Date.now()
-      );
+      const newSubtask = requireSubtaskResponse(response);
 
       setSubtasks((current) => [...current, newSubtask]);
       setFormData(initialSubtaskData);
@@ -290,16 +377,7 @@ export function EventDetailView() {
           estado: nextState,
         })
       );
-      const updatedSubtask = normalizeSubtask(
-        response || {
-          idSubtarea: subtask.id,
-          nombreGestion: subtask.title,
-          horasEstimadas: subtask.hours,
-          fechaObjetivo: subtask.date,
-          estado: nextState,
-        },
-        subtask.id
-      );
+      const updatedSubtask = requireSubtaskResponse(response, subtask);
       setSubtasks((current) =>
         current.map((item) => (item.id === subtask.id ? updatedSubtask : item))
       );
@@ -307,6 +385,49 @@ export function EventDetailView() {
       setActionError(getErrorMessage(error));
     } finally {
       setUpdatingSubtaskId(null);
+    }
+  };
+
+  const handleSaveSubtask = async (event) => {
+    event.preventDefault();
+
+    if (!editingSubtaskId) {
+      return;
+    }
+
+    const validationErrors = validateSubtask(editingSubtaskData);
+    if (Object.keys(validationErrors).length > 0) {
+      setEditingErrors(validationErrors);
+      return;
+    }
+
+    setEditingErrors({});
+    setActionError('');
+    setIsSavingSubtaskEdit(true);
+
+    try {
+      const response = unwrapData(
+        await api.updateSubtaskDetails(editingSubtaskId, {
+          nombreGestion: editingSubtaskData.title.trim(),
+          horasEstimadas: Number(editingSubtaskData.hours),
+          fechaObjetivo: editingSubtaskData.date,
+        })
+      );
+      const currentSubtask = subtasks.find(
+        (subtask) => subtask.id === editingSubtaskId
+      );
+      const updatedSubtask = requireSubtaskResponse(response, currentSubtask);
+
+      setSubtasks((current) =>
+        current.map((subtask) =>
+          subtask.id === editingSubtaskId ? updatedSubtask : subtask
+        )
+      );
+      cancelEditingSubtask();
+    } catch (error) {
+      setActionError(getErrorMessage(error));
+    } finally {
+      setIsSavingSubtaskEdit(false);
     }
   };
 
@@ -354,9 +475,16 @@ export function EventDetailView() {
         lugar: eventForm.lugar.trim(),
       };
       const response = unwrapData(await api.updateEvent(event.id, payload));
-      const updatedEvent = normalizeEvent(
-        { ...event, ...payload, ...(response || {}) },
-        event.id
+      const responseId = response?.id ?? response?.idEvento;
+      if (responseId === undefined || responseId === null) {
+        throw new Error(
+          'La respuesta del servidor no incluye el evento actualizado.'
+        );
+      }
+      const updatedEvent = requireEventResponse(
+        { ...event, ...payload, ...response },
+        responseId,
+        event.tipo
       );
 
       setEvent(updatedEvent);
@@ -516,6 +644,7 @@ export function EventDetailView() {
                 id="edit-event-date"
                 name="fecha"
                 type="date"
+                min={getToday()}
                 value={eventForm.fecha}
                 onChange={(event) =>
                   updateEventField('fecha', event.target.value)
@@ -817,6 +946,154 @@ export function EventDetailView() {
           </form>
         )}
 
+        {editingSubtaskId !== null && (
+          <form
+            onSubmit={handleSaveSubtask}
+            className="mb-5 space-y-4 rounded-md border border-blue-200 bg-blue-50/40 p-4"
+            noValidate
+            aria-busy={isSavingSubtaskEdit}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h4 className="text-sm font-semibold text-gray-800">
+                  Editar gestión
+                </h4>
+                <p className="mt-1 text-xs text-gray-600">
+                  Modifica el nombre, la fecha límite o las horas estimadas.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="neutral"
+                onClick={cancelEditingSubtask}
+                disabled={isSavingSubtaskEdit}
+              >
+                Cancelar
+              </Button>
+            </div>
+
+            <div>
+              <label
+                htmlFor="edit-subtask-title"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
+                Nombre de la gestión *
+              </label>
+              <input
+                id="edit-subtask-title"
+                name="title"
+                type="text"
+                value={editingSubtaskData.title}
+                onChange={(event) =>
+                  updateEditingSubtaskField('title', event.target.value)
+                }
+                aria-invalid={Boolean(editingErrors.title)}
+                aria-describedby={
+                  editingErrors.title ? 'edit-subtask-title-error' : undefined
+                }
+                className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  editingErrors.title ? 'border-red-500' : 'border-gray-300'
+                }`}
+                required
+              />
+              {editingErrors.title && (
+                <p
+                  id="edit-subtask-title-error"
+                  role="alert"
+                  className="mt-1 text-xs text-red-600"
+                >
+                  {editingErrors.title}
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label
+                  htmlFor="edit-subtask-hours"
+                  className="mb-1 block text-sm font-medium text-gray-700"
+                >
+                  Horas estimadas *
+                </label>
+                <input
+                  id="edit-subtask-hours"
+                  name="hours"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={editingSubtaskData.hours}
+                  onChange={(event) =>
+                    updateEditingSubtaskField('hours', event.target.value)
+                  }
+                  aria-invalid={Boolean(editingErrors.hours)}
+                  aria-describedby={
+                    editingErrors.hours ? 'edit-subtask-hours-error' : undefined
+                  }
+                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                    editingErrors.hours ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  required
+                />
+                {editingErrors.hours && (
+                  <p
+                    id="edit-subtask-hours-error"
+                    role="alert"
+                    className="mt-1 text-xs text-red-600"
+                  >
+                    {editingErrors.hours}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="edit-subtask-date"
+                  className="mb-1 block text-sm font-medium text-gray-700"
+                >
+                  Fecha límite *
+                </label>
+                <input
+                  id="edit-subtask-date"
+                  name="date"
+                  type="date"
+                  value={editingSubtaskData.date}
+                  onChange={(event) =>
+                    updateEditingSubtaskField('date', event.target.value)
+                  }
+                  aria-invalid={Boolean(editingErrors.date)}
+                  aria-describedby={
+                    editingErrors.date ? 'edit-subtask-date-error' : undefined
+                  }
+                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                    editingErrors.date ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  required
+                />
+                {editingErrors.date && (
+                  <p
+                    id="edit-subtask-date-error"
+                    role="alert"
+                    className="mt-1 text-xs text-red-600"
+                  >
+                    {editingErrors.date}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={isSavingSubtaskEdit}
+                aria-busy={isSavingSubtaskEdit}
+              >
+                {isSavingSubtaskEdit ? 'Guardando...' : 'Guardar cambios'}
+              </Button>
+            </div>
+          </form>
+        )}
+
         {subtasks.length > 0 && (
           <ul className="space-y-2" aria-live="polite">
             {subtasks.map((subtask) => (
@@ -850,8 +1127,26 @@ export function EventDetailView() {
                     type="button"
                     variant="neutral"
                     className="px-2 py-1 text-xs"
+                    onClick={() => startEditingSubtask(subtask)}
+                    disabled={
+                      updatingSubtaskId === subtask.id ||
+                      isSavingSubtaskEdit ||
+                      editingSubtaskId === subtask.id
+                    }
+                    aria-label={`Editar ${subtask.title}`}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="neutral"
+                    className="px-2 py-1 text-xs"
                     onClick={() => void handleToggleSubtask(subtask)}
-                    disabled={updatingSubtaskId === subtask.id}
+                    disabled={
+                      updatingSubtaskId === subtask.id ||
+                      isSavingSubtaskEdit ||
+                      editingSubtaskId === subtask.id
+                    }
                     aria-label={
                       subtask.state === 'ejecutada'
                         ? `Marcar ${subtask.title} como pendiente`
@@ -868,6 +1163,11 @@ export function EventDetailView() {
                       setDeleteError('');
                       setDeleteTarget(subtask);
                     }}
+                    disabled={
+                      updatingSubtaskId === subtask.id ||
+                      isSavingSubtaskEdit ||
+                      editingSubtaskId === subtask.id
+                    }
                     aria-label={`Eliminar ${subtask.title}`}
                   >
                     Eliminar

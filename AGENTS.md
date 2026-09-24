@@ -31,9 +31,10 @@ Frontend del Planificador de Eventos. React 19 + Vite 8 + React Router 7, JS/JSX
 El contrato de frontend debe coincidir con los DTO del backend:
 
 - Evento: `idUsuario`, `idTipoEvento`, `nombre`, `cliente`, `fechaEvento`, `lugar`.
+- Tipo de evento: `idTipoEvento`, `nombre`; el catálogo se obtiene de `/api/tipos-evento`.
 - Subtarea: `idEvento`, `nombreGestion`, `horasEstimadas`, `fechaObjetivo`, `estado`.
 
-La fecha de `<input type="date">` se convierte a `LocalDateTime` en `src/services/api.js`. No marcar la API como verificada hasta ejecutar una prueba contra los endpoints reales.
+La fecha del evento de `<input type="date">` se convierte a `LocalDateTime`; la fecha objetivo de una subtarea se envía como `LocalDate`. No marcar la API como verificada hasta ejecutar una prueba contra los endpoints reales.
 
 ## Documentación de producto y arquitectura
 

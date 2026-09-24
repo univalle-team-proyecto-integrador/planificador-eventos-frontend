@@ -94,6 +94,10 @@ export const api = {
     });
   },
 
+  listEventTypes() {
+    return request('/api/tipos-evento');
+  },
+
   listEvents(usuarioId) {
     const query = usuarioId
       ? `?usuarioId=${encodeURIComponent(usuarioId)}`
@@ -124,6 +128,17 @@ export const api = {
         horasEstimadas: Number(payload.horasEstimadas),
         fechaObjetivo: payload.fechaObjetivo,
         notaExplicativa: payload.notaExplicativa ?? null,
+      }),
+    });
+  },
+
+  updateSubtaskDetails(id, payload) {
+    return request(`/api/subtareas/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        nombreGestion: payload.nombreGestion,
+        horasEstimadas: Number(payload.horasEstimadas),
+        fechaObjetivo: payload.fechaObjetivo,
       }),
     });
   },

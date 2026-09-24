@@ -92,12 +92,12 @@ src/main/java/uv/isj/planificadoreventosbackend/
 ├── controller/
 │   ├── HealthController.java
 │   ├── EventoController.java
-│   └── SubtareaController.java
+│   ├── SubtareaController.java
+│   └── TipoEventoController.java
 ├── service/
 │   ├── HealthService.java
 │   ├── EventoService.java
 │   ├── SubtareaService.java
-│   ├── UsuarioService.java
 │   └── TipoEventoService.java
 ├── repository/
 │   ├── EventoRepository.java
@@ -113,7 +113,7 @@ src/main/java/uv/isj/planificadoreventosbackend/
 │   └── dto/
 └── exception/
     ├── RecursoNoEncontradoException.java
-    └── ManejadorExcepcionesGlobal.java
+    └── GlobalExceptionHandler.java
 ```
 
 ## 6. Contrato HTTP
@@ -121,6 +121,7 @@ src/main/java/uv/isj/planificadoreventosbackend/
 | Método   | Endpoint                          | Propósito                            |
 | -------- | --------------------------------- | ------------------------------------ |
 | `GET`    | `/api/health`                     | Estado de aplicación y base de datos |
+| `GET`    | `/api/tipos-evento`               | Catálogo de tipos de evento          |
 | `GET`    | `/api/eventos?usuarioId={id}`     | Lista eventos del organizador        |
 | `GET`    | `/api/eventos/{id}`               | Obtiene un evento                    |
 | `GET`    | `/api/eventos/{id}/subtareas`     | Lista subtareas de un evento         |
@@ -130,6 +131,7 @@ src/main/java/uv/isj/planificadoreventosbackend/
 | `POST`   | `/api/eventos/{id}/subtareas`     | Crea una subtarea                    |
 | `GET`    | `/api/subtareas?eventoId={id}`    | Lista subtareas de un evento         |
 | `GET`    | `/api/subtareas/{id}`             | Obtiene una subtarea                 |
+| `PUT`    | `/api/subtareas/{id}`             | Actualiza los datos de una subtarea  |
 | `PATCH`  | `/api/subtareas/{id}/estado`      | Cambia el estado de una subtarea     |
 | `PATCH`  | `/api/subtareas/{id}/reprogramar` | Reprograma y evalúa el límite diario |
 | `DELETE` | `/api/subtareas/{id}`             | Elimina una subtarea                 |
@@ -153,6 +155,13 @@ lugar
 fechaCreacion
 ```
 
+#### TipoEventoDTO
+
+```text
+idTipoEvento
+nombre
+```
+
 #### SubtareaDTO
 
 ```text
@@ -164,6 +173,14 @@ horasEstimadas (mínimo 1)
 estado (pendiente | ejecutada | pospuesta)
 notaExplicativa
 fechaCreacion
+```
+
+#### SubtareaActualizacionDTO
+
+```text
+nombreGestion
+fechaObjetivo (LocalDate)
+horasEstimadas (mínimo 1)
 ```
 
 ## 7. Flujo de datos
@@ -189,11 +206,11 @@ fechaCreacion
 
 ### Actualizar/eliminar subtarea
 
-1. La persona completa, reabre o solicita eliminar una subtarea.
-2. El frontend envía `PATCH` a `/api/subtareas/{id}/estado` o `DELETE` a `/api/subtareas/{id}`.
+1. La persona edita los campos de una subtarea, la completa/reabre o solicita eliminarla.
+2. El frontend envía `PUT` a `/api/subtareas/{id}`, `PATCH` a `/api/subtareas/{id}/estado` o `DELETE` a `/api/subtareas/{id}`.
 3. El controller busca el recurso y mapea el DTO.
 4. El service aplica la transacción.
-5. La vista actualiza el estado local después de una respuesta exitosa.
+5. La vista solo actualiza el estado local después de recibir un DTO persistido del servidor.
 
 ## 8. Modelo de entidades
 
@@ -310,7 +327,7 @@ La prueba de API usa MockMvc y H2 con perfil `test`. La validación end-to-end c
 3. Configurar `VITE_API_URL` en Vercel.
 4. Ejecutar una prueba end-to-end con datos reales.
 5. Implementar autenticación y reemplazar `VITE_USER_ID`.
-6. Añadir reglas de límite horario y reprogramación.
+6. Exponer la consulta de la vista «Hoy» cuando se implemente su flujo de UI.
 7. Ejecutar Lighthouse/axe y pruebas con lector de pantalla sobre el despliegue.
 
 ## 13. Referencias
