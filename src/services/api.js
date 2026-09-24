@@ -20,7 +20,7 @@ const getServerMessage = (payload, fallback) => {
   }
 
   if (payload && typeof payload === 'object') {
-    return payload.message || payload.error || fallback;
+    return payload.detail || payload.message || payload.error || fallback;
   }
 
   return fallback;
@@ -113,24 +113,28 @@ export const api = {
   },
 
   getSubtasks(eventId) {
-    const query = new URLSearchParams({ eventoId: String(eventId) });
-    return request(`/api/subtareas?${query.toString()}`);
+    return request(`/api/eventos/${encodeURIComponent(eventId)}/subtareas`);
   },
 
   createSubtask(eventId, payload) {
-    return request('/api/subtareas', {
+    return request(`/api/eventos/${encodeURIComponent(eventId)}/subtareas`, {
       method: 'POST',
       body: JSON.stringify({
-        ...payload,
-        idEvento: Number(eventId),
+        nombreGestion: payload.nombreGestion,
+        horasEstimadas: Number(payload.horasEstimadas),
+        fechaObjetivo: payload.fechaObjetivo,
+        notaExplicativa: payload.notaExplicativa ?? null,
       }),
     });
   },
 
   updateSubtask(id, payload) {
-    return request(`/api/subtareas/${encodeURIComponent(id)}`, {
-      method: 'PUT',
-      body: JSON.stringify(payload),
+    return request(`/api/subtareas/${encodeURIComponent(id)}/estado`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        estado: payload.estado,
+        notaExplicativa: payload.notaExplicativa ?? null,
+      }),
     });
   },
 

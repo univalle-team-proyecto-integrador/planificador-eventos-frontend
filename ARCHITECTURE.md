@@ -118,21 +118,25 @@ src/main/java/uv/isj/planificadoreventosbackend/
 
 ## 6. Contrato HTTP
 
-| Método   | Endpoint                       | Propósito                                 |
-| -------- | ------------------------------ | ----------------------------------------- |
-| `GET`    | `/api/health`                  | Estado de aplicación y base de datos      |
-| `GET`    | `/api/eventos?usuarioId={id}`  | Lista eventos de un organizador           |
-| `GET`    | `/api/eventos/{id}`            | Obtiene un evento                         |
-| `POST`   | `/api/eventos`                 | Crea un evento                            |
-| `PUT`    | `/api/eventos/{id}`            | Actualiza un evento                       |
-| `DELETE` | `/api/eventos/{id}`            | Elimina un evento                         |
-| `GET`    | `/api/subtareas?eventoId={id}` | Lista subtareas de un evento              |
-| `GET`    | `/api/subtareas/{id}`          | Obtiene una subtarea                      |
-| `POST`   | `/api/subtareas`               | Crea una subtarea                         |
-| `PUT`    | `/api/subtareas/{id}`          | Actualiza una subtarea o cambia su estado |
-| `DELETE` | `/api/subtareas/{id}`          | Elimina una subtarea                      |
-| `GET`    | `/swagger-ui.html`             | Documentación interactiva                 |
-| `GET`    | `/v3/api-docs`                 | Especificación OpenAPI                    |
+| Método   | Endpoint                          | Propósito                            |
+| -------- | --------------------------------- | ------------------------------------ |
+| `GET`    | `/api/health`                     | Estado de aplicación y base de datos |
+| `GET`    | `/api/eventos?usuarioId={id}`     | Lista eventos del organizador        |
+| `GET`    | `/api/eventos/{id}`               | Obtiene un evento                    |
+| `GET`    | `/api/eventos/{id}/subtareas`     | Lista subtareas de un evento         |
+| `POST`   | `/api/eventos`                    | Crea un evento                       |
+| `PUT`    | `/api/eventos/{id}`               | Actualiza un evento                  |
+| `DELETE` | `/api/eventos/{id}`               | Elimina un evento                    |
+| `POST`   | `/api/eventos/{id}/subtareas`     | Crea una subtarea                    |
+| `GET`    | `/api/subtareas?eventoId={id}`    | Lista subtareas de un evento         |
+| `GET`    | `/api/subtareas/{id}`             | Obtiene una subtarea                 |
+| `PATCH`  | `/api/subtareas/{id}/estado`      | Cambia el estado de una subtarea     |
+| `PATCH`  | `/api/subtareas/{id}/reprogramar` | Reprograma y evalúa el límite diario |
+| `DELETE` | `/api/subtareas/{id}`             | Elimina una subtarea                 |
+| `GET`    | `/swagger-ui.html`                | Documentación interactiva            |
+| `GET`    | `/v3/api-docs`                    | Especificación OpenAPI               |
+
+El endpoint de estado acepta `pendiente` para reabrir una subtarea, además de `ejecutada` y `pospuesta`.
 
 ### DTOs
 
@@ -186,7 +190,7 @@ fechaCreacion
 ### Actualizar/eliminar subtarea
 
 1. La persona completa, reabre o solicita eliminar una subtarea.
-2. El frontend envía `PUT` o `DELETE` a `/api/subtareas/{id}`.
+2. El frontend envía `PATCH` a `/api/subtareas/{id}/estado` o `DELETE` a `/api/subtareas/{id}`.
 3. El controller busca el recurso y mapea el DTO.
 4. El service aplica la transacción.
 5. La vista actualiza el estado local después de una respuesta exitosa.
