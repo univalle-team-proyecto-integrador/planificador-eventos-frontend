@@ -9,3 +9,4 @@
 | 2026-09-25 | 005 | Toasts de éxito y modal de error cognitivo | [2026-09-25-005-sistema-notificaciones-toasts-y-error](2026-09-25-005-sistema-notificaciones-toasts-y-error.md) |
 | 2026-09-25 | 006 | Cierre de brechas Sprint 1: heurísticas de Nielsen y actualizaciones confirmadas | [2026-09-25-006-cierre-brechas-sprint-1-heuristicas-nielsen](2026-09-25-006-cierre-brechas-sprint-1-heuristicas-nielsen.md) |
 | 2026-09-25 | 007 | Eliminación de eventos y panel Hoy          | [2026-09-25-007-eliminacion-eventos-y-panel-hoy](2026-09-25-007-eliminacion-eventos-y-panel-hoy.md) |
+| 2026-09-25 | 008 | Cierre del modal de eliminación de eventos | [2026-09-25-008-cierre-modal-eliminacion-evento](2026-09-25-008-cierre-modal-eliminacion-evento.md) |

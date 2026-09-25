@@ -492,7 +492,9 @@ export function EventDetailView() {
         icon: 'trash',
         message: `El evento “${event.nombre}” se eliminó correctamente.`,
       });
-      navigate('/progreso');
+      setIsEventDeleteOpen(false);
+      setEventDeleteError('');
+      navigate('/progreso', { replace: true });
     } catch (error) {
       setEventDeleteError(getErrorMessage(error));
     } finally {
