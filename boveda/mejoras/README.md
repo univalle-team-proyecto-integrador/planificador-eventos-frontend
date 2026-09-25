@@ -10,3 +10,4 @@
 | 2026-09-25 | 006 | Cierre de brechas Sprint 1: heurísticas de Nielsen y actualizaciones confirmadas | [2026-09-25-006-cierre-brechas-sprint-1-heuristicas-nielsen](2026-09-25-006-cierre-brechas-sprint-1-heuristicas-nielsen.md) |
 | 2026-09-25 | 007 | Eliminación de eventos y panel Hoy          | [2026-09-25-007-eliminacion-eventos-y-panel-hoy](2026-09-25-007-eliminacion-eventos-y-panel-hoy.md) |
 | 2026-09-25 | 008 | Cierre del modal de eliminación de eventos | [2026-09-25-008-cierre-modal-eliminacion-evento](2026-09-25-008-cierre-modal-eliminacion-evento.md) |
+| 2026-09-25 | 009 | Jerarquía visual del panel Hoy                | [2026-09-25-009-jerarquia-visual-panel-hoy](2026-09-25-009-jerarquia-visual-panel-hoy.md) |
