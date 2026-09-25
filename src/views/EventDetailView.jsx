@@ -197,6 +197,7 @@ const getStateLabel = (state) => {
 export function EventDetailView() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const goToProgress = () => navigate('/progreso', { replace: true });
   const [event, setEvent] = useState(null);
   const [subtasks, setSubtasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -468,7 +469,7 @@ export function EventDetailView() {
       await api.deleteEvent(event.id);
       setIsEventDeleteOpen(false);
       setEventDeleteError('');
-      navigate('/progreso', { replace: true });
+      goToProgress();
     } catch (error) {
       setEventDeleteError(getErrorMessage(error));
     } finally {
@@ -562,12 +563,8 @@ export function EventDetailView() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="neutral"
-              onClick={() => navigate('/hoy')}
-            >
-              Volver a hoy
+            <Button type="button" variant="neutral" onClick={goToProgress}>
+              Volver a eventos
             </Button>
             <Button
               type="button"
