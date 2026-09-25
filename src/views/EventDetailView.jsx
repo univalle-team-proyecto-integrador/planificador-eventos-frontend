@@ -538,21 +538,18 @@ export function EventDetailView() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="neutral"
-              onClick={() => navigate('/hoy')}
-            >
-              Volver a hoy
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              onClick={() => setIsEditingEvent((current) => !current)}
-              disabled={isSavingEvent}
-            >
-              {isEditingEvent ? 'Cancelar edición' : 'Editar evento'}
-            </Button>
+
+            {!isEditingEvent && (
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => setIsEditingEvent((current) => !current)}
+                disabled={isSavingEvent}
+              >
+                Editar evento
+              </Button>
+            )}
+
           </div>
         </div>
 
@@ -582,9 +579,8 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.nombre ? 'edit-event-name-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  eventErrors.nombre ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${eventErrors.nombre ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 required
               />
               {eventErrors.nombre && (
@@ -617,9 +613,8 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.cliente ? 'edit-event-client-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  eventErrors.cliente ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${eventErrors.cliente ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 required
               />
               {eventErrors.cliente && (
@@ -653,9 +648,8 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.fecha ? 'edit-event-date-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  eventErrors.fecha ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${eventErrors.fecha ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 required
               />
               {eventErrors.fecha && (
@@ -688,9 +682,8 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.lugar ? 'edit-event-location-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  eventErrors.lugar ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${eventErrors.lugar ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 required
               />
               {eventErrors.lugar && (
@@ -830,9 +823,8 @@ export function EventDetailView() {
                 aria-describedby={
                   errors.title ? 'subtask-title-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  errors.title ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.title ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Ej: Reservar salón de eventos"
                 required
               />
@@ -869,9 +861,8 @@ export function EventDetailView() {
                   aria-describedby={
                     errors.hours ? 'subtask-hours-error' : undefined
                   }
-                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.hours ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.hours ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Ej: 4"
                   required
                 />
@@ -905,9 +896,8 @@ export function EventDetailView() {
                   aria-describedby={
                     errors.date ? 'subtask-date-error' : undefined
                   }
-                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.date ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.date ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   required
                 />
                 {errors.date && (
@@ -991,9 +981,8 @@ export function EventDetailView() {
                 aria-describedby={
                   editingErrors.title ? 'edit-subtask-title-error' : undefined
                 }
-                className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  editingErrors.title ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${editingErrors.title ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 required
               />
               {editingErrors.title && (
@@ -1029,9 +1018,8 @@ export function EventDetailView() {
                   aria-describedby={
                     editingErrors.hours ? 'edit-subtask-hours-error' : undefined
                   }
-                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    editingErrors.hours ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${editingErrors.hours ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   required
                 />
                 {editingErrors.hours && (
@@ -1064,9 +1052,8 @@ export function EventDetailView() {
                   aria-describedby={
                     editingErrors.date ? 'edit-subtask-date-error' : undefined
                   }
-                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    editingErrors.date ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${editingErrors.date ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   required
                 />
                 {editingErrors.date && (
@@ -1103,11 +1090,10 @@ export function EventDetailView() {
               >
                 <div className="min-w-0">
                   <p
-                    className={`font-medium ${
-                      subtask.state === 'ejecutada'
-                        ? 'text-gray-500 line-through'
-                        : 'text-gray-800'
-                    }`}
+                    className={`font-medium ${subtask.state === 'ejecutada'
+                      ? 'text-gray-500 line-through'
+                      : 'text-gray-800'
+                      }`}
                   >
                     {subtask.title}
                   </p>
