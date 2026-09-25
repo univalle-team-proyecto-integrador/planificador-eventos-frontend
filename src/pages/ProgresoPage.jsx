@@ -114,3 +114,5 @@ export const ProgresoPage = () => {
     </div>
   );
 };
+
+export default ProgresoPage;

@@ -16,7 +16,7 @@ Frontend del Planificador de Eventos. React 19 + Vite 8 + React Router 7, JS/JSX
 - Las rutas viven en `src/routes/AppRoutes.jsx` y `src/App.jsx` solo monta el enrutador.
 - Las pantallas tienen una entrada en `src/pages/` y la lógica de las vistas nuevas en `src/views/`.
 - Las rutas se registran bajo `Layout`, que usa `Outlet` y el Header global.
-- Cada ruta se envuelve con `SimulatedLoader`; las vistas manejan sus estados de red reales con `ErrorState` y mensajes `aria-live`.
+- Cada ruta se carga con `React.lazy` + `Suspense` (`fallback: <RouteLoader />` en `AppRoutes.jsx`); las páginas de `src/pages/` además del export nombrado deben tener un `export default` para que resuelva el `lazy`. Las vistas manejan sus estados de red reales con `ErrorState` y mensajes `aria-live`.
 - La ruta de detalle es `/evento/:id`; no usar `/actividad`.
 - Los componentes compartidos de interfaz viven en `src/components/ui/` y los estados visuales en `src/components/states/`.
 - No anidar un `button` dentro de un `Link`; usar `Button as={Link}`.

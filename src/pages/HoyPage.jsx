@@ -25,3 +25,5 @@ export const HoyPage = () => {
     </div>
   );
 };
+
+export default HoyPage;
