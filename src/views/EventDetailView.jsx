@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
@@ -198,6 +198,8 @@ const getStateLabel = (state) => {
 export function EventDetailView() {
   const { id } = useParams();
   const { notifySuccess, notifyError } = useNotifications();
+  const navigate = useNavigate();
+  const goToProgress = () => navigate('/progreso', { replace: true });
   const [event, setEvent] = useState(null);
   const [subtasks, setSubtasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -494,7 +496,7 @@ export function EventDetailView() {
       });
       setIsEventDeleteOpen(false);
       setEventDeleteError('');
-      navigate('/progreso', { replace: true });
+      goToProgress();
     } catch (error) {
       setEventDeleteError(getErrorMessage(error));
     } finally {
@@ -597,7 +599,7 @@ export function EventDetailView() {
             <Button
               type="button"
               variant="neutral"
-              onClick={() => navigate('/progreso')}
+              onClick={goToProgress}
               disabled={isSavingEvent || isDeletingEvent}
             >
               Volver a eventos

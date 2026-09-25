@@ -20,7 +20,9 @@
 		{"id":"m008","type":"file","file":"mejoras/2026-09-25-008-cierre-modal-eliminacion-evento.md","x":200,"y":1580,"width":300,"height":140},
 		{"id":"p008","type":"text","text":"Mejora 008\nCierre del modal\n2026-09-25","x":-240,"y":1580,"width":260,"height":120,"color":"1"},
 		{"id":"m009","type":"file","file":"mejoras/2026-09-25-009-jerarquia-visual-panel-hoy.md","x":200,"y":1780,"width":300,"height":140},
-		{"id":"p009","type":"text","text":"Mejora 009\nJerarquía visual de Hoy\n2026-09-25","x":-240,"y":1780,"width":260,"height":120,"color":"1"}
+		{"id":"p009","type":"text","text":"Mejora 009\nJerarquía visual de Hoy\n2026-09-25","x":-240,"y":1780,"width":260,"height":120,"color":"1"},
+		{"id":"m010","type":"file","file":"mejoras/2026-09-25-010-navegacion-detalle-evento.md","x":200,"y":1980,"width":300,"height":140},
+		{"id":"p010","type":"text","text":"Mejora 010\nNavegación del detalle\n2026-09-25","x":-240,"y":1980,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -42,6 +44,8 @@
 		{"id":"e17","fromNode":"indice","fromSide":"bottom","toNode":"m008","toSide":"top"},
 		{"id":"e18","fromNode":"p008","fromSide":"right","toNode":"m008","toSide":"left"},
 		{"id":"e19","fromNode":"indice","fromSide":"bottom","toNode":"m009","toSide":"top"},
-		{"id":"e20","fromNode":"p009","fromSide":"right","toNode":"m009","toSide":"left"}
+		{"id":"e20","fromNode":"p009","fromSide":"right","toNode":"m009","toSide":"left"},
+		{"id":"e21","fromNode":"indice","fromSide":"bottom","toNode":"m010","toSide":"top"},
+		{"id":"e22","fromNode":"p010","fromSide":"right","toNode":"m010","toSide":"left"}
 	]
 }
