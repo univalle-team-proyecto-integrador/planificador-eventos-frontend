@@ -466,7 +466,9 @@ export function EventDetailView() {
 
     try {
       await api.deleteEvent(event.id);
-      navigate('/progreso');
+      setIsEventDeleteOpen(false);
+      setEventDeleteError('');
+      navigate('/progreso', { replace: true });
     } catch (error) {
       setEventDeleteError(getErrorMessage(error));
     } finally {
