@@ -10,7 +10,9 @@
 		{"id":"m003","type":"file","file":"mejoras/2026-09-24-003-alineacion-cliente-api.md","x":200,"y":580,"width":300,"height":140},
 		{"id":"p003","type":"text","text":"Mejora 003\nCliente y API\n2026-09-24","x":-240,"y":580,"width":260,"height":120,"color":"1"},
 		{"id":"m004","type":"file","file":"mejoras/2026-09-24-004-edicion-subtareas-tipos.md","x":200,"y":780,"width":300,"height":140},
-		{"id":"p004","type":"text","text":"Mejora 004\nEdición y tipos\n2026-09-24","x":-240,"y":780,"width":260,"height":120,"color":"1"}
+		{"id":"p004","type":"text","text":"Mejora 004\nEdición y tipos\n2026-09-24","x":-240,"y":780,"width":260,"height":120,"color":"1"},
+		{"id":"m005","type":"file","file":"mejoras/2026-09-25-005-sistema-notificaciones-toasts-y-error.md","x":200,"y":980,"width":300,"height":140},
+		{"id":"p005","type":"text","text":"Mejora 005\nToasts y modal de error\n2026-09-25","x":-240,"y":980,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -22,6 +24,8 @@
 		{"id":"e7","fromNode":"indice","fromSide":"bottom","toNode":"m003","toSide":"top"},
 		{"id":"e8","fromNode":"p003","fromSide":"right","toNode":"m003","toSide":"left"},
 		{"id":"e9","fromNode":"indice","fromSide":"bottom","toNode":"m004","toSide":"top"},
-		{"id":"e10","fromNode":"p004","fromSide":"right","toNode":"m004","toSide":"left"}
+		{"id":"e10","fromNode":"p004","fromSide":"right","toNode":"m004","toSide":"left"},
+		{"id":"e11","fromNode":"indice","fromSide":"bottom","toNode":"m005","toSide":"top"},
+		{"id":"e12","fromNode":"p005","fromSide":"right","toNode":"m005","toSide":"left"}
 	]
 }

@@ -6,3 +6,4 @@
 | 2026-09-24 | 002 | SPA, UX y estados visuales                | [2026-09-24-002-spa-ux-estados](2026-09-24-002-spa-ux-estados.md)                   |
 | 2026-09-24 | 003 | Alineación inicial del cliente con la API | [2026-09-24-003-alineacion-cliente-api](2026-09-24-003-alineacion-cliente-api.md)   |
 | 2026-09-24 | 004 | Edición de subtareas y catálogo de tipos  | [2026-09-24-004-edicion-subtareas-tipos](2026-09-24-004-edicion-subtareas-tipos.md) |
+| 2026-09-25 | 005 | Toasts de éxito y modal de error cognitivo | [2026-09-25-005-sistema-notificaciones-toasts-y-error](2026-09-25-005-sistema-notificaciones-toasts-y-error.md) |
