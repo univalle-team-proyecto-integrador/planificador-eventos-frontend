@@ -452,8 +452,8 @@ export function EventDetailView() {
     }
   };
 
-  const handleSaveEvent = async (event) => {
-    event.preventDefault();
+  const handleSaveEvent = async (submitEvent) => {
+    submitEvent.preventDefault();
     const validationErrors = validateEventForm(eventForm);
 
     if (Object.keys(validationErrors).length > 0) {
