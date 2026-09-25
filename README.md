@@ -88,7 +88,7 @@ Variables disponibles para Vite:
 | `VITE_API_URL` | URL base del backend Spring Boot.                                            |
 | `VITE_USER_ID` | Identificador temporal del organizador mientras se implementa autenticación. |
 
-El frontend espera el contrato de eventos, tipos y subtareas definido por el backend. La fecha del evento se convierte a `LocalDateTime`; la fecha objetivo de una subtarea se envía como `LocalDate`. Las mutaciones solo actualizan la vista después de recibir una respuesta persistida del servidor.
+El frontend espera el contrato de eventos, tipos y subtareas definido por el backend. La fecha del evento se convierte a `LocalDateTime`; la fecha objetivo de una subtarea se envía como `LocalDate`. La vista `/hoy` consulta `GET /api/subtareas/hoy` con la fecha local y el identificador del organizador. Las mutaciones, incluida la eliminación de eventos, solo actualizan la vista después de recibir una respuesta persistida del servidor.
 
 ## Despliegue
 
@@ -96,7 +96,8 @@ El frontend espera el contrato de eventos, tipos y subtareas definido por el bac
 
 ## Estado actual
 
-- La interfaz de creación, detalle, estados visuales, validaciones y eliminación segura está implementada.
+- La interfaz de creación, detalle, panel de hoy, estados visuales, validaciones y eliminación segura está implementada.
+- La eliminación de eventos usa `DELETE /api/eventos/{id}` y redirige al listado de progreso.
 - La capa de API está conectada mediante `src/services/api.js`.
 - La persistencia real depende de que el backend exponga los endpoints de eventos y subtareas con el contrato documentado.
 - La autenticación y la selección definitiva del organizador siguen fuera de alcance; `VITE_USER_ID` es una configuración temporal de desarrollo.

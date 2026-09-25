@@ -116,8 +116,19 @@ export const api = {
     });
   },
 
+  deleteEvent(id) {
+    return request(`/api/eventos/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+  },
+
   getSubtasks(eventId) {
     return request(`/api/eventos/${encodeURIComponent(eventId)}/subtareas`);
+  },
+
+  listTodaySubtasks(usuarioId, fecha) {
+    const query = `?usuarioId=${encodeURIComponent(usuarioId)}&fecha=${encodeURIComponent(fecha)}`;
+    return request(`/api/subtareas/hoy${query}`);
   },
 
   createSubtask(eventId, payload) {

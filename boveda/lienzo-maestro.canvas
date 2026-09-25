@@ -10,7 +10,9 @@
 		{"id":"m003","type":"file","file":"mejoras/2026-09-24-003-alineacion-cliente-api.md","x":200,"y":580,"width":300,"height":140},
 		{"id":"p003","type":"text","text":"Mejora 003\nCliente y API\n2026-09-24","x":-240,"y":580,"width":260,"height":120,"color":"1"},
 		{"id":"m004","type":"file","file":"mejoras/2026-09-24-004-edicion-subtareas-tipos.md","x":200,"y":780,"width":300,"height":140},
-		{"id":"p004","type":"text","text":"Mejora 004\nEdición y tipos\n2026-09-24","x":-240,"y":780,"width":260,"height":120,"color":"1"}
+		{"id":"p004","type":"text","text":"Mejora 004\nEdición y tipos\n2026-09-24","x":-240,"y":780,"width":260,"height":120,"color":"1"},
+		{"id":"m007","type":"file","file":"mejoras/2026-09-25-007-eliminacion-eventos-y-panel-hoy.md","x":200,"y":1380,"width":300,"height":140},
+		{"id":"p007","type":"text","text":"Mejora 007\nEliminar eventos y Hoy\n2026-09-25","x":-240,"y":1380,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -22,6 +24,8 @@
 		{"id":"e7","fromNode":"indice","fromSide":"bottom","toNode":"m003","toSide":"top"},
 		{"id":"e8","fromNode":"p003","fromSide":"right","toNode":"m003","toSide":"left"},
 		{"id":"e9","fromNode":"indice","fromSide":"bottom","toNode":"m004","toSide":"top"},
-		{"id":"e10","fromNode":"p004","fromSide":"right","toNode":"m004","toSide":"left"}
+		{"id":"e10","fromNode":"p004","fromSide":"right","toNode":"m004","toSide":"left"},
+		{"id":"e15","fromNode":"indice","fromSide":"bottom","toNode":"m007","toSide":"top"},
+		{"id":"e16","fromNode":"p007","fromSide":"right","toNode":"m007","toSide":"left"}
 	]
 }

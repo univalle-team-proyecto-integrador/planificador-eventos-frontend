@@ -125,8 +125,12 @@ Necesita consultar el avance de un evento, detectar tareas atrasadas y verificar
 ### US-04 — Progreso
 
 - La vista global consulta eventos y sus subtareas.
+- La vista `/hoy` muestra las gestiones no ejecutadas cuya fecha objetivo es hoy, con su evento, fecha y horas.
+- La vista `/hoy` permite abrir el evento de cada gestión.
+- El estado vacío de `/hoy` ofrece crear el primer evento.
+- El error de carga de `/hoy` ofrece reintentar.
 - Cada tarjeta muestra nombre, cliente, fecha, lugar y progreso.
-- El estado vacío ofrece crear el primer evento.
+- El estado vacío de la vista global ofrece crear el primer evento.
 - Un error de red ofrece reintentar.
 - La barra de progreso expone valores accesibles.
 

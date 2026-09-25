@@ -222,6 +222,10 @@ export function EventDetailView() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
 
+  const [isEventDeleteOpen, setIsEventDeleteOpen] = useState(false);
+  const [isDeletingEvent, setIsDeletingEvent] = useState(false);
+  const [eventDeleteError, setEventDeleteError] = useState('');
+
   const [updatingSubtaskId, setUpdatingSubtaskId] = useState(null);
   const [editingSubtaskId, setEditingSubtaskId] = useState(null);
   const [editingSubtaskData, setEditingSubtaskData] = useState({
@@ -452,6 +456,24 @@ export function EventDetailView() {
     }
   };
 
+  const handleDeleteEvent = async () => {
+    if (!event || isDeletingEvent) {
+      return;
+    }
+
+    setIsDeletingEvent(true);
+    setEventDeleteError('');
+
+    try {
+      await api.deleteEvent(event.id);
+      navigate('/progreso');
+    } catch (error) {
+      setEventDeleteError(getErrorMessage(error));
+    } finally {
+      setIsDeletingEvent(false);
+    }
+  };
+
   const handleSaveEvent = async (event) => {
     event.preventDefault();
     const validationErrors = validateEventForm(eventForm);
@@ -549,9 +571,20 @@ export function EventDetailView() {
               type="button"
               variant="primary"
               onClick={() => setIsEditingEvent((current) => !current)}
-              disabled={isSavingEvent}
+              disabled={isSavingEvent || isDeletingEvent}
             >
               {isEditingEvent ? 'Cancelar edición' : 'Editar evento'}
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              onClick={() => {
+                setEventDeleteError('');
+                setIsEventDeleteOpen(true);
+              }}
+              disabled={isSavingEvent || isDeletingEvent}
+            >
+              Eliminar evento
             </Button>
           </div>
         </div>
@@ -1197,6 +1230,22 @@ export function EventDetailView() {
         onConfirm={() => void handleDeleteSubtask()}
         isConfirming={isDeleting}
         error={deleteError}
+      />
+
+      <ConfirmModal
+        open={isEventDeleteOpen}
+        title="¿Eliminar evento?"
+        message="Esta acción borrará el evento y su logística asociada. No se puede deshacer."
+        confirmLabel="Eliminar"
+        onCancel={() => {
+          if (!isDeletingEvent) {
+            setIsEventDeleteOpen(false);
+            setEventDeleteError('');
+          }
+        }}
+        onConfirm={() => void handleDeleteEvent()}
+        isConfirming={isDeletingEvent}
+        error={eventDeleteError}
       />
     </div>
   );
