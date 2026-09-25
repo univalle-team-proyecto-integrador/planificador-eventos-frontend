@@ -1,0 +1,27 @@
+{
+	"nodes":[
+		{"id":"proyecto","type":"file","file":"README.md","x":-240,"y":-120,"width":320,"height":160,"color":"3"},
+		{"id":"flujo","type":"text","text":"Bóveda de Obsidian del frontend\n\n1. Registrar cada mejora.\n2. Actualizar el índice.\n3. Añadir un nodo al canvas.\n\nDocumentos canónicos: PRD.md, DESIGN_SYSTEM.md, ARCHITECTURE.md y docs/.","x":180,"y":-220,"width":340,"height":180},
+		{"id":"indice","type":"file","file":"mejoras/README.md","x":160,"y":-20,"width":300,"height":140,"color":"2"},
+		{"id":"m001","type":"file","file":"mejoras/2026-09-24-001-boveda-frontend.md","x":200,"y":180,"width":300,"height":140},
+		{"id":"p001","type":"text","text":"Mejora 001\nBóveda del frontend\n2026-09-24","x":-240,"y":180,"width":260,"height":120,"color":"1"},
+		{"id":"m002","type":"file","file":"mejoras/2026-09-24-002-spa-ux-estados.md","x":200,"y":380,"width":300,"height":140},
+		{"id":"p002","type":"text","text":"Mejora 002\nSPA, UX y estados\n2026-09-24","x":-240,"y":380,"width":260,"height":120,"color":"1"},
+		{"id":"m003","type":"file","file":"mejoras/2026-09-24-003-alineacion-cliente-api.md","x":200,"y":580,"width":300,"height":140},
+		{"id":"p003","type":"text","text":"Mejora 003\nCliente y API\n2026-09-24","x":-240,"y":580,"width":260,"height":120,"color":"1"},
+		{"id":"m004","type":"file","file":"mejoras/2026-09-24-004-edicion-subtareas-tipos.md","x":200,"y":780,"width":300,"height":140},
+		{"id":"p004","type":"text","text":"Mejora 004\nEdición y tipos\n2026-09-24","x":-240,"y":780,"width":260,"height":120,"color":"1"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
+		{"id":"e2","fromNode":"proyecto","fromSide":"right","toNode":"indice","toSide":"left"},
+		{"id":"e3","fromNode":"indice","fromSide":"bottom","toNode":"m001","toSide":"top"},
+		{"id":"e4","fromNode":"p001","fromSide":"right","toNode":"m001","toSide":"left"},
+		{"id":"e5","fromNode":"indice","fromSide":"bottom","toNode":"m002","toSide":"top"},
+		{"id":"e6","fromNode":"p002","fromSide":"right","toNode":"m002","toSide":"left"},
+		{"id":"e7","fromNode":"indice","fromSide":"bottom","toNode":"m003","toSide":"top"},
+		{"id":"e8","fromNode":"p003","fromSide":"right","toNode":"m003","toSide":"left"},
+		{"id":"e9","fromNode":"indice","fromSide":"bottom","toNode":"m004","toSide":"top"},
+		{"id":"e10","fromNode":"p004","fromSide":"right","toNode":"m004","toSide":"left"}
+	]
+}

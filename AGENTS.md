@@ -48,4 +48,6 @@ Antes de cambiar textos o interacciones, revisar también `docs/decisiones-ux.md
 
 ## Bóveda del proyecto
 
-La bóveda del backend se mantiene en `planificador-eventos-backend/boveda/` para registrar únicamente mejoras del backend e integración. La documentación funcional del frontend vive en este repositorio mediante `PRD.md`, `DESIGN_SYSTEM.md` y `ARCHITECTURE.md`.
+La bóveda del frontend se mantiene en `boveda/` y registra mejoras de interfaz, UX, accesibilidad e integración desde el punto de vista del cliente. La documentación funcional canónica continúa en la raíz mediante `PRD.md`, `DESIGN_SYSTEM.md` y `ARCHITECTURE.md`.
+
+La bóveda del backend se mantiene en `planificador-eventos-backend/boveda/` para registrar mejoras de backend, persistencia e integración.
