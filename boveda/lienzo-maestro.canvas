@@ -12,7 +12,9 @@
 		{"id":"m004","type":"file","file":"mejoras/2026-09-24-004-edicion-subtareas-tipos.md","x":200,"y":780,"width":300,"height":140},
 		{"id":"p004","type":"text","text":"Mejora 004\nEdición y tipos\n2026-09-24","x":-240,"y":780,"width":260,"height":120,"color":"1"},
 		{"id":"m005","type":"file","file":"mejoras/2026-09-25-005-sistema-notificaciones-toasts-y-error.md","x":200,"y":980,"width":300,"height":140},
-		{"id":"p005","type":"text","text":"Mejora 005\nToasts y modal de error\n2026-09-25","x":-240,"y":980,"width":260,"height":120,"color":"1"}
+		{"id":"p005","type":"text","text":"Mejora 005\nToasts y modal de error\n2026-09-25","x":-240,"y":980,"width":260,"height":120,"color":"1"},
+		{"id":"m006","type":"file","file":"mejoras/2026-09-25-006-cierre-brechas-sprint-1-heuristicas-nielsen.md","x":200,"y":1180,"width":300,"height":140},
+		{"id":"p006","type":"text","text":"Mejora 006\nCierre brechas Sprint 1\n2026-09-25","x":-240,"y":1180,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -26,6 +28,8 @@
 		{"id":"e9","fromNode":"indice","fromSide":"bottom","toNode":"m004","toSide":"top"},
 		{"id":"e10","fromNode":"p004","fromSide":"right","toNode":"m004","toSide":"left"},
 		{"id":"e11","fromNode":"indice","fromSide":"bottom","toNode":"m005","toSide":"top"},
-		{"id":"e12","fromNode":"p005","fromSide":"right","toNode":"m005","toSide":"left"}
+		{"id":"e12","fromNode":"p005","fromSide":"right","toNode":"m005","toSide":"left"},
+		{"id":"e13","fromNode":"indice","fromSide":"bottom","toNode":"m006","toSide":"top"},
+		{"id":"e14","fromNode":"p006","fromSide":"right","toNode":"m006","toSide":"left"}
 	]
 }

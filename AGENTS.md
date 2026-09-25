@@ -8,7 +8,8 @@ Frontend del Planificador de Eventos. React 19 + Vite 8 + React Router 7, JS/JSX
 - `npm run build` — build de producción en `dist/`.
 - `npm run preview` — sirve el build generado.
 - `npm run lint` — **oxlint** (no ESLint); configuración en `.oxlintrc.json`.
-- No hay framework de tests ni typecheck. No ejecutar `npm test` ni `tsc`.
+- `npm run test` — **vitest**; tests unitarios de lógica pura en `src/**/*.test.js` (hoy `src/services/api.test.js`). Los tests no arrancan navegador (entorno `node` de vitest).
+- No hay typecheck. No ejecutar `tsc`.
 - Formatear de forma ad hoc con `npx prettier --write <archivo>`.
 
 ## Estructura y convenciones
@@ -30,7 +31,7 @@ Frontend del Planificador de Eventos. React 19 + Vite 8 + React Router 7, JS/JSX
 
 El contrato de frontend debe coincidir con los DTO del backend:
 
-- Evento: `idUsuario`, `idTipoEvento`, `nombre`, `cliente`, `fechaEvento`, `lugar`.
+- Evento: `idUsuario`, `idTipoEvento`, `nombre`, `cliente`, `fechaEvento`, `lugar`. El detalle `GET /api/eventos/{id}` incluye además `subtareas`: lista de `SubtareaDTO` (solo lectura; las vistas siguen consultando `GET /api/eventos/{id}/subtareas`).
 - Tipo de evento: `idTipoEvento`, `nombre`; el catálogo se obtiene de `/api/tipos-evento`.
 - Subtarea: `idEvento`, `nombreGestion`, `horasEstimadas`, `fechaObjetivo`, `estado`.
 
