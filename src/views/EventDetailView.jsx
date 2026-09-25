@@ -3,8 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
+import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 import { ProgressBar } from '../components/ui/ProgressBar';
+import { getEventTypeIcon } from '../utils/eventTypeIcons';
 import { useNotifications } from '../providers/notifications-context';
 import {
   api,
@@ -199,6 +202,7 @@ export function EventDetailView() {
   const { id } = useParams();
   const { notifySuccess, notifyError } = useNotifications();
   const navigate = useNavigate();
+  const goToToday = () => navigate('/hoy', { replace: true });
   const goToProgress = () => navigate('/progreso', { replace: true });
   const [event, setEvent] = useState(null);
   const [subtasks, setSubtasks] = useState([]);
@@ -563,7 +567,7 @@ export function EventDetailView() {
         aria-live="polite"
         aria-busy="true"
       >
-        Cargando evento...
+        Cargando información...
       </div>
     );
   }
@@ -582,51 +586,54 @@ export function EventDetailView() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <section className="rounded-lg bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase text-blue-600">
-              Evento #{event.id}
-            </span>
-            <h2 className="mt-2 text-2xl font-bold text-gray-900">
-              {event.nombre}
-            </h2>
-            <p className="mt-1 text-sm text-gray-600">
-              Plan logístico del evento
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="neutral"
-              onClick={goToProgress}
-              disabled={isSavingEvent || isDeletingEvent}
-            >
-              Volver a eventos
-            </Button>
-            {!isEditingEvent && (
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => setIsEditingEvent(true)}
-                disabled={isSavingEvent || isDeletingEvent}
-              >
-                Editar evento
-              </Button>
-            )}
-            {!isEditingEvent && (
-              <Button
-                type="button"
-                variant="danger"
-                onClick={() => {
-                  setEventDeleteError('');
-                  setIsEventDeleteOpen(true);
-                }}
-                disabled={isSavingEvent || isDeletingEvent}
-              >
-                Eliminar evento
-              </Button>
-            )}
+      <Card className="p-6">
+        <div className="space-y-4 border-b border-gray-200 pb-5">
+          <Button
+            type="button"
+            variant="neutral"
+            onClick={goToToday}
+            disabled={isSavingEvent || isDeletingEvent}
+          >
+            ← Volver a hoy
+          </Button>
+
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase text-blue-600">
+                Evento #{event.id}
+              </span>
+              <h2 className="mt-2 text-2xl font-bold text-gray-900">
+                {event.nombre}
+              </h2>
+              <p className="mt-1 text-sm text-gray-600">
+                Plan logístico del evento
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {!isEditingEvent && (
+                <Button
+                  type="button"
+                  variant="neutral"
+                  onClick={() => setIsEditingEvent(true)}
+                  disabled={isSavingEvent || isDeletingEvent}
+                >
+                  <span aria-hidden="true">✏️</span> Editar evento
+                </Button>
+              )}
+              {!isEditingEvent && (
+                <Button
+                  type="button"
+                  variant="danger"
+                  onClick={() => {
+                    setEventDeleteError('');
+                    setIsEventDeleteOpen(true);
+                  }}
+                  disabled={isSavingEvent || isDeletingEvent}
+                >
+                  Eliminar evento
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -636,7 +643,6 @@ export function EventDetailView() {
             className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2"
             noValidate
             aria-busy={isSavingEvent}
-
           >
             <div>
               <label
@@ -657,8 +663,9 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.nombre ? 'edit-event-name-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${eventErrors.nombre ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  eventErrors.nombre ? 'border-red-500' : 'border-gray-300'
+                }`}
                 required
               />
               {eventErrors.nombre && (
@@ -691,8 +698,9 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.cliente ? 'edit-event-client-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${eventErrors.cliente ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  eventErrors.cliente ? 'border-red-500' : 'border-gray-300'
+                }`}
                 required
               />
               {eventErrors.cliente && (
@@ -726,8 +734,9 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.fecha ? 'edit-event-date-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${eventErrors.fecha ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  eventErrors.fecha ? 'border-red-500' : 'border-gray-300'
+                }`}
                 required
               />
               {eventErrors.fecha && (
@@ -760,8 +769,9 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.lugar ? 'edit-event-location-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${eventErrors.lugar ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  eventErrors.lugar ? 'border-red-500' : 'border-gray-300'
+                }`}
                 required
               />
               {eventErrors.lugar && (
@@ -798,12 +808,18 @@ export function EventDetailView() {
           <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <span aria-hidden="true" className="mr-1">
+                  {getEventTypeIcon(event.tipo)}
+                </span>
                 Tipo
               </dt>
               <dd className="mt-1 text-sm text-gray-900">{event.tipo}</dd>
             </div>
             <div>
               <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <span aria-hidden="true" className="mr-1">
+                  📅
+                </span>
                 Fecha
               </dt>
               <dd className="mt-1 text-sm text-gray-900">
@@ -812,21 +828,27 @@ export function EventDetailView() {
             </div>
             <div>
               <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <span aria-hidden="true" className="mr-1">
+                  👤
+                </span>
                 Cliente / contacto
               </dt>
               <dd className="mt-1 text-sm text-gray-900">{event.cliente}</dd>
             </div>
             <div>
               <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <span aria-hidden="true" className="mr-1">
+                  📍
+                </span>
                 Lugar
               </dt>
               <dd className="mt-1 text-sm text-gray-900">{event.lugar}</dd>
             </div>
           </dl>
         )}
-      </section>
+      </Card>
 
-      <section className="rounded-lg bg-white p-6 shadow-sm">
+      <Card className="p-6">
         <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
@@ -849,15 +871,17 @@ export function EventDetailView() {
           )}
         </div>
 
-        <div className="py-5">
-          <ProgressBar value={progress} label="Progreso logístico" />
-        </div>
+        {subtasks.length > 0 && (
+          <div className="py-5">
+            <ProgressBar value={progress} label="Progreso logístico" />
+          </div>
+        )}
 
         {subtasks.length === 0 && !showForm && (
           <EmptyState
+            icon="📭"
             title="¿Aún no hay gestiones logísticas?"
-            description="Divide el evento en tareas pequeñas, asigna horas y define una fecha límite para cada gestión."
-            actionLabel="Añadir gestión"
+            actionLabel="+ Añadir gestión"
             onAction={() => setShowForm(true)}
           />
         )}
@@ -892,8 +916,9 @@ export function EventDetailView() {
                 aria-describedby={
                   errors.title ? 'subtask-title-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.title ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  errors.title ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Ej: Reservar salón de eventos"
                 required
               />
@@ -930,8 +955,9 @@ export function EventDetailView() {
                   aria-describedby={
                     errors.hours ? 'subtask-hours-error' : undefined
                   }
-                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.hours ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                    errors.hours ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Ej: 4"
                   required
                 />
@@ -965,8 +991,9 @@ export function EventDetailView() {
                   aria-describedby={
                     errors.date ? 'subtask-date-error' : undefined
                   }
-                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.date ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                    errors.date ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 />
                 {errors.date && (
@@ -1050,8 +1077,9 @@ export function EventDetailView() {
                 aria-describedby={
                   editingErrors.title ? 'edit-subtask-title-error' : undefined
                 }
-                className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${editingErrors.title ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  editingErrors.title ? 'border-red-500' : 'border-gray-300'
+                }`}
                 required
               />
               {editingErrors.title && (
@@ -1087,8 +1115,9 @@ export function EventDetailView() {
                   aria-describedby={
                     editingErrors.hours ? 'edit-subtask-hours-error' : undefined
                   }
-                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${editingErrors.hours ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                    editingErrors.hours ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 />
                 {editingErrors.hours && (
@@ -1121,8 +1150,9 @@ export function EventDetailView() {
                   aria-describedby={
                     editingErrors.date ? 'edit-subtask-date-error' : undefined
                   }
-                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${editingErrors.date ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                    editingErrors.date ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 />
                 {editingErrors.date && (
@@ -1153,86 +1183,92 @@ export function EventDetailView() {
         {subtasks.length > 0 && (
           <ul className="space-y-2" aria-live="polite">
             {subtasks.map((subtask) => (
-              <li
+              <Card
+                as="li"
                 key={subtask.id}
-                className="flex flex-col gap-3 rounded-md border bg-gray-50 p-3 text-sm transition-colors hover:bg-gray-100 sm:flex-row sm:items-center sm:justify-between"
+                className="p-4 transition-shadow hover:shadow-md"
               >
-                <div className="min-w-0">
-                  <p
-                    className={`font-medium ${subtask.state === 'ejecutada'
-                      ? 'text-gray-500 line-through'
-                      : 'text-gray-800'
+                <div className="flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p
+                      className={`font-medium ${
+                        subtask.state === 'ejecutada'
+                          ? 'text-gray-500 line-through'
+                          : 'text-gray-800'
                       }`}
-                  >
-                    {subtask.title}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Fecha límite: {formatDate(subtask.date)}
-                  </p>
-                </div>
+                    >
+                      {subtask.title}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Fecha límite: {formatDate(subtask.date)}
+                    </p>
+                  </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-700">
-                    {subtask.hours} hrs
-                  </span>
-                  <span className="rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
-                    {getStateLabel(subtask.state)}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="neutral"
-                    className="px-2 py-1 text-xs"
-                    onClick={() => startEditingSubtask(subtask)}
-                    disabled={
-                      updatingSubtaskId === subtask.id ||
-                      isSavingSubtaskEdit ||
-                      editingSubtaskId === subtask.id
-                    }
-                    aria-label={`Editar ${subtask.title}`}
-                  >
-                    Editar
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="neutral"
-                    className="px-2 py-1 text-xs"
-                    onClick={() => void handleToggleSubtask(subtask)}
-                    disabled={
-                      updatingSubtaskId === subtask.id ||
-                      isSavingSubtaskEdit ||
-                      editingSubtaskId === subtask.id
-                    }
-                    aria-label={
-                      subtask.state === 'ejecutada'
-                        ? `Marcar ${subtask.title} como pendiente`
-                        : `Marcar ${subtask.title} como completada`
-                    }
-                  >
-                    {subtask.state === 'ejecutada' ? 'Reabrir' : 'Completar'}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="danger"
-                    className="px-2 py-1 text-xs"
-                    onClick={() => {
-                      setDeleteError('');
-                      setDeleteTarget(subtask);
-                    }}
-                    disabled={
-                      updatingSubtaskId === subtask.id ||
-                      isSavingSubtaskEdit ||
-                      editingSubtaskId === subtask.id
-                    }
-                    aria-label={`Eliminar ${subtask.title}`}
-                  >
-                    Eliminar
-                  </Button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="neutral">{subtask.hours} hrs</Badge>
+                    <Badge
+                      variant={
+                        subtask.state === 'ejecutada' ? 'success' : 'pending'
+                      }
+                    >
+                      {getStateLabel(subtask.state)}
+                    </Badge>
+                    <Button
+                      type="button"
+                      variant="neutral"
+                      className="px-2 py-1 text-xs"
+                      onClick={() => startEditingSubtask(subtask)}
+                      disabled={
+                        updatingSubtaskId === subtask.id ||
+                        isSavingSubtaskEdit ||
+                        editingSubtaskId === subtask.id
+                      }
+                      aria-label={`Editar ${subtask.title}`}
+                    >
+                      Editar
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="neutral"
+                      className="px-2 py-1 text-xs"
+                      onClick={() => void handleToggleSubtask(subtask)}
+                      disabled={
+                        updatingSubtaskId === subtask.id ||
+                        isSavingSubtaskEdit ||
+                        editingSubtaskId === subtask.id
+                      }
+                      aria-label={
+                        subtask.state === 'ejecutada'
+                          ? `Marcar ${subtask.title} como pendiente`
+                          : `Marcar ${subtask.title} como completada`
+                      }
+                    >
+                      {subtask.state === 'ejecutada' ? 'Reabrir' : 'Completar'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      className="px-2 py-1 text-xs"
+                      onClick={() => {
+                        setDeleteError('');
+                        setDeleteTarget(subtask);
+                      }}
+                      disabled={
+                        updatingSubtaskId === subtask.id ||
+                        isSavingSubtaskEdit ||
+                        editingSubtaskId === subtask.id
+                      }
+                      aria-label={`Eliminar ${subtask.title}`}
+                    >
+                      Eliminar
+                    </Button>
+                  </div>
                 </div>
-              </li>
+              </Card>
             ))}
           </ul>
         )}
-      </section>
+      </Card>
 
       <ConfirmModal
         open={Boolean(deleteTarget)}

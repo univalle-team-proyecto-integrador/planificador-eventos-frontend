@@ -178,7 +178,7 @@ Qué ocurrió + cómo corregirlo.
 | Componente        | Contrato                                            |
 | ----------------- | --------------------------------------------------- |
 | `SimulatedLoader` | `role="status"`, `aria-live="polite"` y `aria-busy` |
-| `EmptyState`      | Explica qué falta y ofrece una acción               |
+| `EmptyState`      | Explica qué falta y ofrece una acción; admite un icono decorativo opcional |
 | `ErrorState`      | `role="alert"`, explica el error y ofrece reintento |
 | `ProgressBar`     | `role="progressbar"` con valores 0–100              |
 
