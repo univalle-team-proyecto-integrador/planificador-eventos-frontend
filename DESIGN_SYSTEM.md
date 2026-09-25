@@ -129,10 +129,12 @@ Variantes:
 
 | Variante  | Uso                                    | Comportamiento                    |
 | --------- | -------------------------------------- | --------------------------------- |
-| `primary` | Guardar, crear, editar                 | Fondo azul, texto blanco          |
-| `success` | Completar una gestión                   | Fondo verde, texto blanco          |
-| `neutral` | Cancelar, volver, acciones secundarias | Fondo blanco, borde gris          |
-| `danger`  | Eliminar                               | Fondo rojo, solo con confirmación |
+| `primary` | Guardar, crear, editar                 | Fondo azul 700, texto blanco      |
+| `success` | Completar una gestión                   | Fondo verde 700, texto blanco     |
+| `neutral` | Cancelar, volver, acciones secundarias | Fondo blanco, borde gris, texto gris 800 |
+| `danger`  | Eliminar                               | Fondo rojo 700, solo con confirmación |
+
+Tamaños: los botones de acción usan `px-3.5 py-1.5` y `text-sm`; los controles de navegación y el CTA del layout conservan sus tamaños propios (`px-5 py-3 rounded-full`).
 
 Propiedades obligatorias:
 

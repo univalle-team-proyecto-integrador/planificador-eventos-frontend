@@ -64,7 +64,7 @@ export function EventCard({ event }) {
           variant="neutral"
           aria-label={`Ver evento ${name}`}
         >
-          <ArrowUpRight aria-hidden="true" className="mr-1 inline size-4" />
+          <ArrowUpRight aria-hidden="true" className="mr-1 inline size-3.5" />
           Ver evento
         </Button>
       </div>
