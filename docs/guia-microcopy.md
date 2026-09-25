@@ -53,6 +53,7 @@ Ejemplo: “¿Aún no hay gestiones logísticas? Divide el evento en tareas pequ
 | --------------------- | ------------------------------------------------------------------------------ |
 | Crear evento          | “Crear nuevo evento”                                                           |
 | Volver desde detalle  | “Volver a eventos”                                                            |
+| Abrir evento         | “Ver evento”                                                                   |
 | Guardar formulario    | “Guardar evento”                                                               |
 | Crear primera gestión | “Añadir gestión”                                                               |
 | Tareas atrasadas      | “Vencida hace 2 días”                                                         |

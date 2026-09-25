@@ -45,9 +45,14 @@ export function EventCard({ event }) {
           </p>
           <p className="mt-1 text-xs text-gray-500">{location}</p>
         </div>
-        <Button as={Link} to={`/evento/${id}`} variant="neutral">
+        <Button
+          as={Link}
+          to={`/evento/${id}`}
+          variant="neutral"
+          aria-label={`Ver evento ${name}`}
+        >
           <ArrowUpRight aria-hidden="true" className="mr-1 inline size-4" />
-          Ver plan
+          Ver evento
         </Button>
       </div>
       <div className="mt-5">

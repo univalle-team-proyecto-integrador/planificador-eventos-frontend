@@ -16,3 +16,4 @@
 | 2026-09-25 | 013 | Sistema de iconos Lucide                  | [2026-09-25-013-sistema-de-iconos-lucide](2026-09-25-013-sistema-de-iconos-lucide.md) |
 | 2026-09-25 | 014 | Validación de fechas y botones semánticos | [2026-09-25-014-validacion-y-botones-semanticos](2026-09-25-014-validacion-y-botones-semanticos.md) |
 | 2026-09-25 | 015 | Paneles de Hoy y Progreso                 | [2026-09-25-015-paneles-hoy-y-progreso](2026-09-25-015-paneles-hoy-y-progreso.md) |
+| 2026-09-25 | 016 | Microcopy de acceso al evento               | [2026-09-25-016-microcopy-ver-evento](2026-09-25-016-microcopy-ver-evento.md) |
