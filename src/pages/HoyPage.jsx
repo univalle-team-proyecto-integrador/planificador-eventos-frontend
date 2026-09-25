@@ -33,6 +33,11 @@ const formatDate = (value) => {
   });
 };
 
+const formatTodayLabel = (value) => {
+  const formattedDate = formatDate(value);
+  return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+};
+
 const normalizeTask = (payload) => ({
   id: payload?.id ?? payload?.idSubtarea,
   eventId: payload?.idEvento,
@@ -132,21 +137,54 @@ export const HoyPage = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
-          Panel del día
-        </p>
-        <h2 id="today-title" className="text-3xl font-bold text-gray-900">
-          Gestiones de hoy
-        </h2>
-        <p className="mt-2 max-w-2xl text-gray-600">
-          <time dateTime={today}>{formatDate(today)}</time>
-        </p>
-        <p className="mt-1 max-w-2xl text-sm text-gray-600">
-          Revisa las tareas pendientes y pospuestas que tienen como fecha
-          objetivo hoy.
-        </p>
-      </div>
+      <section
+        aria-labelledby="today-title"
+        className="overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 via-white to-white p-5 shadow-sm sm:p-6"
+      >
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
+              Panel del día
+            </p>
+            <h2 id="today-title" className="text-3xl font-bold text-gray-900">
+              Gestiones de hoy
+            </h2>
+          </div>
+
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+            <svg
+              className="size-6"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.8"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M7 3v3m10-3v3M4 9h16" />
+              <rect x="4" y="5" width="16" height="16" rx="2" />
+              <path d="M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01" />
+            </svg>
+          </div>
+        </div>
+
+        <div className="mt-5 border-t border-blue-100 pt-5">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
+            Fecha de hoy
+          </p>
+          <time
+            dateTime={today}
+            className="mt-1 block text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl"
+          >
+            {formatTodayLabel(today)}
+          </time>
+          <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-gray-700 sm:text-base">
+            Revisa las tareas pendientes y pospuestas que tienen como fecha
+            objetivo hoy.
+          </p>
+        </div>
+      </section>
 
       {tasks.length === 0 ? (
         <EmptyState
