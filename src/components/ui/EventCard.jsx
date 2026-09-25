@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from './Button';
+import { Card } from './Card';
 import { ProgressBar } from './ProgressBar';
 
 const formatDate = (value) => {
@@ -27,7 +28,7 @@ export function EventCard({ event }) {
   const total = event.total ?? 0;
 
   return (
-    <article className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+    <Card as="article" className="p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <span className="text-xs font-semibold uppercase text-blue-600">
@@ -51,6 +52,6 @@ export function EventCard({ event }) {
             : `${completed} de ${total} gestiones completadas.`}
         </p>
       </div>
-    </article>
+    </Card>
   );
 }

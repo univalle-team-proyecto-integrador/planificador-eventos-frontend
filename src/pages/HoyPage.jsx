@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
+import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 import { api, getDefaultUserId, unwrapData } from '../services/api';
 
 const getToday = () => {
@@ -51,6 +53,9 @@ const getStateLabel = (state) => {
 
   return labels[state] || 'Pendiente';
 };
+
+const getStateVariant = (state) =>
+  state === 'ejecutada' ? 'success' : 'pending';
 
 const getErrorMessage = (error) =>
   error?.message ||
@@ -132,21 +137,35 @@ export const HoyPage = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
-          Panel del día
-        </p>
-        <h2 id="today-title" className="text-3xl font-bold text-gray-900">
-          Gestiones de hoy
-        </h2>
-        <p className="mt-2 max-w-2xl text-gray-600">
-          <time dateTime={today}>{formatDate(today)}</time>
-        </p>
-        <p className="mt-1 max-w-2xl text-sm text-gray-600">
-          Revisa las tareas pendientes y pospuestas que tienen como fecha
-          objetivo hoy.
-        </p>
-      </div>
+      <Card aria-labelledby="today-title" className="p-6">
+        <div className="border-b border-gray-200 pb-5">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
+            Panel del día
+          </p>
+          <h2
+            id="today-title"
+            className="mt-2 text-2xl font-semibold text-gray-900"
+          >
+            Gestiones de hoy
+          </h2>
+        </div>
+
+        <div className="pt-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            La fecha
+          </p>
+          <time
+            dateTime={today}
+            className="mt-1 block text-3xl font-bold tracking-tight text-gray-900"
+          >
+            {formatDate(today)}
+          </time>
+          <p className="mt-2 max-w-2xl text-sm text-gray-500">
+            Revisa las tareas pendientes y pospuestas que tienen como fecha
+            objetivo hoy.
+          </p>
+        </div>
+      </Card>
 
       {tasks.length === 0 ? (
         <EmptyState
@@ -162,40 +181,41 @@ export const HoyPage = () => {
           aria-label="Gestiones de hoy"
         >
           {tasks.map((task) => (
-            <li
+            <Card
+              as="li"
               key={task.id}
-              className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+              className="p-5 transition-shadow hover:shadow-md"
             >
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-                  {task.eventName}
-                </p>
-                <h3 className="mt-1 text-lg font-semibold text-gray-900">
-                  {task.title}
-                </h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  Fecha objetivo:{' '}
-                  <time dateTime={task.date}>{formatDate(task.date)}</time>
-                </p>
-              </div>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-600">
+                    {task.eventName}
+                  </p>
+                  <h3 className="mt-1 text-lg font-semibold text-gray-900">
+                    {task.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Fecha objetivo:{' '}
+                    <time dateTime={task.date}>{formatDate(task.date)}</time>
+                  </p>
+                </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-700">
-                  {task.hours ?? '—'} hrs
-                </span>
-                <span className="rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
-                  {getStateLabel(task.state)}
-                </span>
-                <Button
-                  as={Link}
-                  to={`/evento/${task.eventId}`}
-                  variant="neutral"
-                  aria-label={`Ver evento ${task.eventName}`}
-                >
-                  Ver evento
-                </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Badge variant="neutral">{task.hours ?? '—'} hrs</Badge>
+                  <Badge variant={getStateVariant(task.state)}>
+                    {getStateLabel(task.state)}
+                  </Badge>
+                  <Button
+                    as={Link}
+                    to={`/evento/${task.eventId}`}
+                    variant="neutral"
+                    aria-label={`Ver evento ${task.eventName}`}
+                  >
+                    Ver evento
+                  </Button>
+                </div>
               </div>
-            </li>
+            </Card>
           ))}
         </ul>
       )}

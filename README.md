@@ -44,7 +44,7 @@ src/
 │   └── EventDetailView.jsx     # Detalle, subtareas y progreso US-02/US-03
 ├── components/
 │   ├── states/                 # Empty, Error y Loading
-│   └── ui/                     # Button, Layout, Modal, ProgressBar y EventCard
+│   └── ui/                     # Layout, Card, Badge, Button, Modal y componentes compartidos
 ├── services/
 │   └── api.js                  # Cliente HTTP y contrato de API
 └── index.css                   # Tailwind y estilos globales
@@ -97,6 +97,7 @@ El frontend espera el contrato de eventos, tipos y subtareas definido por el bac
 ## Estado actual
 
 - La interfaz de creación, detalle, panel de hoy, estados visuales, validaciones y eliminación segura está implementada.
+- El layout usa una barra lateral de 250 px en escritorio y los componentes `Card` y `Badge` para mantener consistencia visual en las tarjetas.
 - La eliminación de eventos usa `DELETE /api/eventos/{id}` y redirige al listado de progreso.
 - La capa de API está conectada mediante `src/services/api.js`.
 - La persistencia real depende de que el backend exponga los endpoints de eventos y subtareas con el contrato documentado.

@@ -30,7 +30,7 @@ Los nombres corresponden a las clases Tailwind actualmente utilizadas.
 
 | Token         | HEX       | Uso                                     |
 | ------------- | --------- | --------------------------------------- |
-| `white`       | `#FFFFFF` | Tarjetas, header y superficies elevadas |
+| `white`       | `#FFFFFF` | Tarjetas, superficies elevadas y contenido |
 | `neutral-50`  | `#F9FAFB` | Fondo general de la aplicación          |
 | `neutral-100` | `#F3F4F6` | Fondos de formularios y estados vacíos  |
 | `neutral-200` | `#E5E7EB` | Bordes y separadores                    |
@@ -110,11 +110,11 @@ Se utiliza la escala estándar de Tailwind:
 
 Reglas de composición:
 
-- Contenedor principal: `max-w-5xl`, centrado y con `p-6`.
+- Contenedor principal: `max-w-7xl`, centrado y con `p-6` a `p-10` según el viewport.
 - Formulario principal: `max-w-3xl`.
 - Detalle de evento: `max-w-5xl`.
-- Tarjetas: fondo blanco, borde `border-gray-200`, esquinas `rounded-lg` y sombra ligera.
-- Layout de escritorio: header horizontal; en viewport estrecho pasa a vertical flexible.
+- Tarjetas: usar `Card` con fondo blanco, borde `border-gray-200`, esquinas `rounded-xl` y sombra suave.
+- Layout de escritorio: barra lateral de `250px` y área principal flexible; en viewport estrecho la navegación pasa a una fila superior.
 - No usar espaciado menor que `gap-2` entre acciones principales.
 
 ## 5. Componentes
@@ -139,7 +139,24 @@ Propiedades obligatorias:
 - Soporte de `aria-busy`, `aria-label` y demás atributos.
 - Para navegación usar `Button as={Link}`; nunca anidar un botón dentro de un enlace.
 
-### 5.2 Campo de texto y select
+### 5.2 Tarjeta
+
+Archivo: `src/components/ui/Card.jsx`
+
+- Fondo blanco, borde `border-gray-200`, `rounded-xl` y sombra `0 4px 6px rgba(0,0,0,0.05)`.
+- Usar `Card` para eventos, tareas, paneles y futuras superficies repetibles.
+- Puede renderizar otro elemento mediante `as`, por ejemplo `Card as="article"` o `Card as="li"`.
+- El padding y la estructura interna corresponden a la pantalla; la superficie visual no se duplica en cada vista.
+
+### 5.3 Badge
+
+Archivo: `src/components/ui/Badge.jsx`
+
+- Forma de píldora con `rounded-full`, texto de 12 px y padding horizontal breve.
+- Variantes: `neutral`, `info`, `pending` y `success`.
+- El estado siempre incluye texto visible; el color solo refuerza la semántica.
+
+### 5.4 Campo de texto y select
 
 - Label visible y asociado con `htmlFor`/`id`.
 - `name` coherente con el DTO cuando aplique.
@@ -156,7 +173,7 @@ Mensajes de validación:
 Qué ocurrió + cómo corregirlo.
 ```
 
-### 5.3 Estados
+### 5.5 Estados
 
 | Componente        | Contrato                                            |
 | ----------------- | --------------------------------------------------- |
@@ -165,7 +182,7 @@ Qué ocurrió + cómo corregirlo.
 | `ErrorState`      | `role="alert"`, explica el error y ofrece reintento |
 | `ProgressBar`     | `role="progressbar"` con valores 0–100              |
 
-### 5.4 Modal de confirmación
+### 5.6 Modal de confirmación
 
 Archivo: `src/components/ui/ConfirmModal.jsx`
 
@@ -178,17 +195,18 @@ Archivo: `src/components/ui/ConfirmModal.jsx`
 - El foco vuelve al elemento que abrió el modal.
 - No se permite cerrar accidentalmente durante una eliminación.
 
-### 5.5 Layout y navegación
+### 5.7 Layout y navegación
 
 Archivo: `src/components/ui/Layout.jsx`
 
-- Header persistente.
-- `nav` con etiqueta accesible.
-- Enlaces a Hoy, Progreso y Crear Evento.
+- Barra lateral persistente de `250px` en escritorio y navegación superior en móvil.
+- `nav` con etiqueta accesible y enlaces a Hoy, Progreso y Crear Evento.
+- El CTA de creación se separa visualmente de los enlaces de navegación.
+- `main` usa `flex: 1` y padding de hasta `40px` (`p-10`) en pantallas amplias.
 - Enlace `Saltar al contenido`.
 - `Outlet` para renderizar la pantalla activa.
 
-### 5.6 Notificación de éxito (toast)
+### 5.8 Notificación de éxito (toast)
 
 Archivos: `src/components/ui/Toast.jsx`, `src/components/ui/ToastContainer.jsx`.
 
@@ -200,7 +218,7 @@ Archivos: `src/components/ui/Toast.jsx`, `src/components/ui/ToastContainer.jsx`.
 - Soporta `prefers-reduced-motion` (intercambia el deslizamiento por un fade breve).
 - La API se expone a las vistas mediante `useNotifications().notifySuccess({ icon, message })` del `NotificationsProvider`.
 
-### 5.7 Modal de error cognitivo
+### 5.9 Modal de error cognitivo
 
 Archivo: `src/components/ui/ErrorModal.jsx`
 
@@ -230,6 +248,12 @@ Archivo: `src/components/ui/ErrorModal.jsx`
 <Button type="submit" variant="primary" disabled={isSubmitting}>
   {isSubmitting ? 'Guardando...' : 'Guardar evento'}
 </Button>
+```
+
+```jsx
+<Card className="p-5">
+  <Badge variant="pending">Pendiente</Badge>
+</Card>
 ```
 
 ```jsx

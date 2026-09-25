@@ -11,3 +11,4 @@
 | 2026-09-25 | 007 | Eliminación de eventos y panel Hoy         | [2026-09-25-007-eliminacion-eventos-y-panel-hoy](2026-09-25-007-eliminacion-eventos-y-panel-hoy.md) |
 | 2026-09-25 | 008 | Cierre del modal de eliminación de eventos | [2026-09-25-008-cierre-modal-eliminacion-evento](2026-09-25-008-cierre-modal-eliminacion-evento.md) |
 | 2026-09-25 | 010 | Navegación desde el detalle de eventos    | [2026-09-25-010-navegacion-detalle-evento](2026-09-25-010-navegacion-detalle-evento.md) |
+| 2026-09-25 | 011 | Layout lateral y tarjetas reutilizables     | [2026-09-25-011-layout-lateral-y-tarjetas-reutilizables](2026-09-25-011-layout-lateral-y-tarjetas-reutilizables.md) |

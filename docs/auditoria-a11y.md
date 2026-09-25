@@ -8,7 +8,7 @@ tipo: auditoria-a11y
 
 - El documento declara `lang="es"`.
 - Existe un enlace de salto al contenido principal.
-- El Header utiliza navegación semántica y los enlaces no contienen botones anidados.
+- La barra lateral utiliza navegación semántica y los enlaces no contienen botones anidados.
 - Los botones tienen foco visible, estado `disabled` y variantes con intención visual.
 - Los campos tienen `label`, `id`, `aria-invalid` y `aria-describedby` cuando existe error.
 - Los estados de carga, vacío y error usan `role="status"` o `role="alert"` y mensajes en español.
@@ -27,4 +27,4 @@ tipo: auditoria-a11y
 
 ## Alcance
 
-Esta auditoría cubre el frontend actual. La automatización depende del entorno de despliegue y no forma parte de los scripts del proyecto, que no incluyen un framework de tests.
+Esta auditoría cubre el frontend actual. Las pruebas automatizadas del cliente cubren el cliente API con Vitest; la validación end-to-end y las auditorías visuales dependen del entorno de despliegue.

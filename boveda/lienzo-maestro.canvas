@@ -20,7 +20,9 @@
 		{"id":"m008","type":"file","file":"mejoras/2026-09-25-008-cierre-modal-eliminacion-evento.md","x":200,"y":1580,"width":300,"height":140},
 		{"id":"p008","type":"text","text":"Mejora 008\nCierre del modal\n2026-09-25","x":-240,"y":1580,"width":260,"height":120,"color":"1"},
 		{"id":"m010","type":"file","file":"mejoras/2026-09-25-010-navegacion-detalle-evento.md","x":200,"y":1980,"width":300,"height":140},
-		{"id":"p010","type":"text","text":"Mejora 010\nNavegación del detalle\n2026-09-25","x":-240,"y":1980,"width":260,"height":120,"color":"1"}
+		{"id":"p010","type":"text","text":"Mejora 010\nNavegación del detalle\n2026-09-25","x":-240,"y":1980,"width":260,"height":120,"color":"1"},
+		{"id":"m011","type":"file","file":"mejoras/2026-09-25-011-layout-lateral-y-tarjetas-reutilizables.md","x":200,"y":2180,"width":300,"height":140},
+		{"id":"p011","type":"text","text":"Mejora 011\nLayout lateral y tarjetas\n2026-09-25","x":-240,"y":2180,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -42,6 +44,8 @@
 		{"id":"e17","fromNode":"indice","fromSide":"bottom","toNode":"m008","toSide":"top"},
 		{"id":"e18","fromNode":"p008","fromSide":"right","toNode":"m008","toSide":"left"},
 		{"id":"e21","fromNode":"indice","fromSide":"bottom","toNode":"m010","toSide":"top"},
-		{"id":"e22","fromNode":"p010","fromSide":"right","toNode":"m010","toSide":"left"}
+		{"id":"e22","fromNode":"p010","fromSide":"right","toNode":"m010","toSide":"left"},
+		{"id":"e23","fromNode":"indice","fromSide":"bottom","toNode":"m011","toSide":"top"},
+		{"id":"e24","fromNode":"p011","fromSide":"right","toNode":"m011","toSide":"left"}
 	]
 }

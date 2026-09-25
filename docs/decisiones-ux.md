@@ -12,7 +12,7 @@ Estas decisiones registran los criterios visuales y de interacción utilizados e
 
 ### D-001 — Layout persistente
 
-El encabezado y la navegación permanecen visibles mientras cambia el contenido de la aplicación. Las rutas se organizan bajo un `Layout` con `Outlet` para evitar duplicar la estructura general.
+La barra lateral y la navegación permanecen visibles mientras cambia el contenido de la aplicación. Las rutas se organizan bajo un `Layout` con `Outlet` para evitar duplicar la estructura general.
 
 **Consecuencia:** cada pantalla solo debe encargarse de su contenido principal.
 
@@ -64,7 +64,7 @@ Las decisiones anteriores se justifican bajo las 10 heurísticas de usabilidad d
 | D-004 — Feedback de formularios | 9. Ayuda a reconocer, diagnosticar y recuperarse de los errores |
 | D-001 — Layout persistente | 6. Reconocimiento antes que recuerdo |
 | D-006 / D-007 — Contrato API y actualizaciones confirmadas | 4. Consistencia y estándares; 10. Ayuda y documentación |
-| Toasts y `ErrorModal` (DESIGN_SYSTEM §5.6 y §5.7) | 1. Visibilidad del estado del sistema; 9. Reconocer y recuperarse de errores |
+| Toasts y `ErrorModal` (DESIGN_SYSTEM §5.8 y §5.9) | 1. Visibilidad del estado del sistema; 9. Reconocer y recuperarse de errores |
 
 Detalle por heurística:
 
@@ -73,7 +73,7 @@ Detalle por heurística:
 3. **Control y libertad del usuario:** marcar/desmarcar una subtarea es reversible y las acciones destructivas exigen confirmación explícita.
 4. **Consistencia y estándares:** `Button` con variantes fijas (`primary`, `neutral`, `danger`) y patrones repetibles en todos los formularios.
 5. **Prevención de errores:** validación en vivo de horas y fechas, y `ConfirmModal` antes de acciones destructivas.
-6. **Reconocimiento antes que recuerdo:** el encabezado persistente mantiene el contexto en cada pantalla.
+6. **Reconocimiento antes que recuerdo:** la barra lateral persistente mantiene el contexto en cada pantalla.
 7. **Flexibilidad y eficiencia de uso:** edición en línea de subtareas sin pasos intermedios.
 8. **Estética y diseño minimalista:** el contenido relevante domina cada pantalla sobre el adorno.
 9. **Ayudar a reconocer, diagnosticar y recuperarse de los errores:** mensajes de validación con causa y corrección, asociados con `aria-invalid` y `aria-describedby`.

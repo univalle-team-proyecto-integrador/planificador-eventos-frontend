@@ -37,7 +37,7 @@ Ofrecer una SPA de escritorio, clara y accesible, para crear eventos, organizar 
 
 - Sistema de diseño con Tailwind CSS 4.
 - Botón multivariante: `primary`, `neutral` y `danger`.
-- Layout persistente con Header, navegación y `Outlet`.
+- Layout persistente con barra lateral, navegación y `Outlet`.
 - Rutas `/hoy`, `/crear`, `/evento/:id`, `/progreso` y `/login`.
 - Estados de carga, vacío y error.
 - Formulario de creación y edición de evento.
