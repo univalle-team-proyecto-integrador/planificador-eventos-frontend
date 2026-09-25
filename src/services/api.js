@@ -26,6 +26,8 @@ const getServerMessage = (payload, fallback) => {
   return fallback;
 };
 
+const REQUEST_TIMEOUT_MS = 15000;
+
 const request = async (path, options = {}) => {
   const headers = new Headers(options.headers);
 
@@ -33,17 +35,47 @@ const request = async (path, options = {}) => {
     headers.set('Content-Type', 'application/json');
   }
 
+  const method = (options.method || 'GET').toUpperCase();
+
+  const fetchOnce = async () => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      return await fetch(buildUrl(path), {
+        ...options,
+        headers,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  const connectError = (timedOut) =>
+    new ApiError(
+      timedOut
+        ? 'El servidor tardó demasiado en responder. Inténtalo de nuevo.'
+        : 'No pudimos conectar con el servidor. Revisa tu red e inténtalo de nuevo.'
+    );
+
   let response;
 
   try {
-    response = await fetch(buildUrl(path), {
-      ...options,
-      headers,
-    });
-  } catch {
-    throw new ApiError(
-      'No pudimos conectar con el servidor. Revisa tu red e inténtalo de nuevo.'
-    );
+    response = await fetchOnce();
+  } catch (error) {
+    const wasTimeout = error?.name === 'AbortError';
+
+    if (!wasTimeout && method === 'GET') {
+      // Cold start de Render free: reintentar una vez antes de avisar.
+      try {
+        response = await fetchOnce();
+      } catch (retryError) {
+        throw connectError(retryError?.name === 'AbortError');
+      }
+    } else {
+      throw connectError(wasTimeout);
+    }
   }
 
   const rawBody = await response.text();

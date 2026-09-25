@@ -16,7 +16,7 @@ Frontend del Planificador de Eventos. React 19 + Vite 8 + React Router 7, JS/JSX
 - Las rutas viven en `src/routes/AppRoutes.jsx` y `src/App.jsx` solo monta el enrutador.
 - Las pantallas tienen una entrada en `src/pages/` y la lógica de las vistas nuevas en `src/views/`.
 - Las rutas se registran bajo `Layout`, que usa `Outlet` y el Header global.
-- Cada ruta se envuelve con `SimulatedLoader`; las vistas manejan sus estados de red reales con `ErrorState` y mensajes `aria-live`.
+- Cada ruta se carga con `React.lazy` + `Suspense` (`fallback: <RouteLoader />` en `AppRoutes.jsx`); las páginas de `src/pages/` además del export nombrado deben tener un `export default` para que resuelva el `lazy`. Las vistas manejan sus estados de red reales con `ErrorState` y mensajes `aria-live`.
 - La ruta de detalle es `/evento/:id`; no usar `/actividad`.
 - Los componentes compartidos de interfaz viven en `src/components/ui/` y los estados visuales en `src/components/states/`.
 - No anidar un `button` dentro de un `Link`; usar `Button as={Link}`.
@@ -48,4 +48,6 @@ Antes de cambiar textos o interacciones, revisar también `docs/decisiones-ux.md
 
 ## Bóveda del proyecto
 
-La bóveda del backend se mantiene en `planificador-eventos-backend/boveda/` para registrar únicamente mejoras del backend e integración. La documentación funcional del frontend vive en este repositorio mediante `PRD.md`, `DESIGN_SYSTEM.md` y `ARCHITECTURE.md`.
+La bóveda del frontend se mantiene en `boveda/` y registra mejoras de interfaz, UX, accesibilidad e integración desde el punto de vista del cliente. La documentación funcional canónica continúa en la raíz mediante `PRD.md`, `DESIGN_SYSTEM.md` y `ARCHITECTURE.md`.
+
+La bóveda del backend se mantiene en `planificador-eventos-backend/boveda/` para registrar mejoras de backend, persistencia e integración.

@@ -337,4 +337,5 @@ La prueba de API usa MockMvc y H2 con perfil `test`. La validación end-to-end c
 - Decisiones UX: `docs/decisiones-ux.md`.
 - Microcopy: `docs/guia-microcopy.md`.
 - Accesibilidad: `docs/auditoria-a11y.md`.
-- Bóveda compartida de backend: `planificador-eventos-backend/boveda/`.
+- Bóveda del frontend: `boveda/`.
+- Bóveda del backend: `planificador-eventos-backend/boveda/`.

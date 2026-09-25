@@ -1,43 +1,43 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from '../components/ui/Layout';
-import { SimulatedLoader } from '../components/states/SimulatedLoader';
-import { HoyPage } from '../pages/HoyPage';
-import { CrearPage } from '../pages/CrearPage';
-import { DetallePage } from '../pages/DetallePage';
-import { ProgresoPage } from '../pages/ProgresoPage';
-import { LoginPage } from '../pages/LoginPage';
 
-const withLoader = (element, label) => (
-  <SimulatedLoader label={label}>{element}</SimulatedLoader>
+const HoyPage = lazy(() => import('../pages/HoyPage'));
+const CrearPage = lazy(() => import('../pages/CrearPage'));
+const DetallePage = lazy(() => import('../pages/DetallePage'));
+const ProgresoPage = lazy(() => import('../pages/ProgresoPage'));
+const LoginPage = lazy(() => import('../pages/LoginPage'));
+
+const RouteLoader = () => (
+  <div
+    className="flex min-h-[50vh] flex-col items-center justify-center"
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
+  >
+    <span
+      className="w-9 h-9 animate-spin rounded-full border-4 border-[#e5e4e7]"
+      style={{ borderTopColor: '#2563eb' }}
+      aria-hidden="true"
+    />
+    <span className="sr-only">Cargando contenido</span>
+  </div>
 );
 
 export const AppRoutes = () => (
   <BrowserRouter>
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Navigate to="/hoy" replace />} />
-        <Route
-          path="/hoy"
-          element={withLoader(<HoyPage />, 'Cargando el panel de hoy')}
-        />
-        <Route
-          path="/crear"
-          element={withLoader(<CrearPage />, 'Cargando el formulario')}
-        />
-        <Route
-          path="/evento/:id"
-          element={withLoader(<DetallePage />, 'Cargando el evento')}
-        />
-        <Route
-          path="/progreso"
-          element={withLoader(<ProgresoPage />, 'Cargando el progreso')}
-        />
-        <Route
-          path="/login"
-          element={withLoader(<LoginPage />, 'Cargando el acceso')}
-        />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Route>
-    </Routes>
+    <Suspense fallback={<RouteLoader />}>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Navigate to="/hoy" replace />} />
+          <Route path="/hoy" element={<HoyPage />} />
+          <Route path="/crear" element={<CrearPage />} />
+          <Route path="/evento/:id" element={<DetallePage />} />
+          <Route path="/progreso" element={<ProgresoPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Route>
+      </Routes>
+    </Suspense>
   </BrowserRouter>
 );
