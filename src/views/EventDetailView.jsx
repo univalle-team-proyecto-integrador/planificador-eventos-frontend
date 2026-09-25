@@ -548,6 +548,18 @@ export function EventDetailView() {
               >
                 Editar evento
               </Button>
+
+            )}
+            {!isEditingEvent && (
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => navigate('/progreso')}
+                disabled={isSavingEvent}
+              >
+                Retroceder
+              </Button>
+
             )}
 
           </div>
@@ -559,6 +571,7 @@ export function EventDetailView() {
             className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2"
             noValidate
             aria-busy={isSavingEvent}
+
           >
             <div>
               <label
