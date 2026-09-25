@@ -1,3 +1,4 @@
+import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from './Button';
 import { Card } from './Card';
@@ -41,6 +42,7 @@ export function EventCard({ event }) {
           <p className="mt-1 text-xs text-gray-500">{location}</p>
         </div>
         <Button as={Link} to={`/evento/${id}`} variant="neutral">
+          <ArrowUpRight aria-hidden="true" className="mr-1 inline size-4" />
           Ver plan
         </Button>
       </div>

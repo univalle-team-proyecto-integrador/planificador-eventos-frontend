@@ -1,4 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ArrowLeft,
+  CalendarDays,
+  Check,
+  MapPin,
+  Pencil,
+  Plus,
+  Trash2,
+  Undo2,
+  UserRound,
+} from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { EmptyState } from '../components/states/EmptyState';
@@ -594,7 +605,8 @@ export function EventDetailView() {
             onClick={goToToday}
             disabled={isSavingEvent || isDeletingEvent}
           >
-            ← Volver a hoy
+            <ArrowLeft aria-hidden="true" className="mr-1 inline size-4" />
+            Volver a hoy
           </Button>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -617,7 +629,8 @@ export function EventDetailView() {
                   onClick={() => setIsEditingEvent(true)}
                   disabled={isSavingEvent || isDeletingEvent}
                 >
-                  <span aria-hidden="true">✏️</span> Editar evento
+                  <Pencil aria-hidden="true" className="mr-1 inline size-4" />
+                  Editar evento
                 </Button>
               )}
               {!isEditingEvent && (
@@ -630,6 +643,7 @@ export function EventDetailView() {
                   }}
                   disabled={isSavingEvent || isDeletingEvent}
                 >
+                  <Trash2 aria-hidden="true" className="mr-1 inline size-4" />
                   Eliminar evento
                 </Button>
               )}
@@ -808,18 +822,19 @@ export function EventDetailView() {
           <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                <span aria-hidden="true" className="mr-1">
-                  {getEventTypeIcon(event.tipo)}
-                </span>
+                {getEventTypeIcon(event.tipo, {
+                  className: 'mr-1 inline size-4 align-text-bottom',
+                })}
                 Tipo
               </dt>
               <dd className="mt-1 text-sm text-gray-900">{event.tipo}</dd>
             </div>
             <div>
               <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                <span aria-hidden="true" className="mr-1">
-                  📅
-                </span>
+                <CalendarDays
+                  aria-hidden="true"
+                  className="mr-1 inline size-4 align-text-bottom"
+                />
                 Fecha
               </dt>
               <dd className="mt-1 text-sm text-gray-900">
@@ -828,18 +843,20 @@ export function EventDetailView() {
             </div>
             <div>
               <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                <span aria-hidden="true" className="mr-1">
-                  👤
-                </span>
+                <UserRound
+                  aria-hidden="true"
+                  className="mr-1 inline size-4 align-text-bottom"
+                />
                 Cliente / contacto
               </dt>
               <dd className="mt-1 text-sm text-gray-900">{event.cliente}</dd>
             </div>
             <div>
               <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                <span aria-hidden="true" className="mr-1">
-                  📍
-                </span>
+                <MapPin
+                  aria-hidden="true"
+                  className="mr-1 inline size-4 align-text-bottom"
+                />
                 Lugar
               </dt>
               <dd className="mt-1 text-sm text-gray-900">{event.lugar}</dd>
@@ -866,7 +883,8 @@ export function EventDetailView() {
               variant="primary"
               onClick={() => setShowForm(true)}
             >
-              + Añadir gestión
+              <Plus aria-hidden="true" className="mr-1 inline size-4" />
+              Añadir gestión
             </Button>
           )}
         </div>
@@ -879,9 +897,9 @@ export function EventDetailView() {
 
         {subtasks.length === 0 && !showForm && (
           <EmptyState
-            icon="📭"
             title="¿Aún no hay gestiones logísticas?"
-            actionLabel="+ Añadir gestión"
+            actionIcon={Plus}
+            actionLabel="Añadir gestión"
             onAction={() => setShowForm(true)}
           />
         )}
@@ -1225,6 +1243,10 @@ export function EventDetailView() {
                       }
                       aria-label={`Editar ${subtask.title}`}
                     >
+                      <Pencil
+                        aria-hidden="true"
+                        className="mr-1 inline size-3.5"
+                      />
                       Editar
                     </Button>
                     <Button
@@ -1243,7 +1265,23 @@ export function EventDetailView() {
                           : `Marcar ${subtask.title} como completada`
                       }
                     >
-                      {subtask.state === 'ejecutada' ? 'Reabrir' : 'Completar'}
+                      {subtask.state === 'ejecutada' ? (
+                        <>
+                          <Undo2
+                            aria-hidden="true"
+                            className="mr-1 inline size-3.5"
+                          />
+                          Reabrir
+                        </>
+                      ) : (
+                        <>
+                          <Check
+                            aria-hidden="true"
+                            className="mr-1 inline size-3.5"
+                          />
+                          Completar
+                        </>
+                      )}
                     </Button>
                     <Button
                       type="button"
@@ -1260,6 +1298,10 @@ export function EventDetailView() {
                       }
                       aria-label={`Eliminar ${subtask.title}`}
                     >
+                      <Trash2
+                        aria-hidden="true"
+                        className="mr-1 inline size-3.5"
+                      />
                       Eliminar
                     </Button>
                   </div>

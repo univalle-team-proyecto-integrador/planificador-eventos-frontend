@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ArrowUpRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
@@ -211,6 +212,10 @@ export const HoyPage = () => {
                     variant="neutral"
                     aria-label={`Ver evento ${task.eventName}`}
                   >
+                    <ArrowUpRight
+                      aria-hidden="true"
+                      className="mr-1 inline size-4"
+                    />
                     Ver evento
                   </Button>
                 </div>

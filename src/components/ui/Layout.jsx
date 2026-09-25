@@ -1,3 +1,4 @@
+import { ChartNoAxesColumnIncreasing, House, Plus } from 'lucide-react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import logoUrl from '../../img/Logo_h1.png';
 import { Button } from './Button';
@@ -49,6 +50,7 @@ export const Layout = () => {
                 isCurrentPath(location.pathname, '/hoy') ? 'page' : undefined
               }
             >
+              <House aria-hidden="true" className="mr-2 inline size-4" />
               Hoy
             </Button>
             <Button
@@ -62,6 +64,10 @@ export const Layout = () => {
                   : undefined
               }
             >
+              <ChartNoAxesColumnIncreasing
+                aria-hidden="true"
+                className="mr-2 inline size-4"
+              />
               Progreso
             </Button>
 
@@ -72,6 +78,7 @@ export const Layout = () => {
                 variant="primary"
                 className="w-full rounded-full px-5 py-3 text-center"
               >
+                <Plus aria-hidden="true" className="mr-2 inline size-4" />
                 Crear Evento
               </Button>
             </div>
@@ -81,6 +88,7 @@ export const Layout = () => {
               variant="primary"
               className="flex-1 rounded-full px-4 py-3 text-center md:hidden"
             >
+              <Plus aria-hidden="true" className="mr-2 inline size-4" />
               Crear Evento
             </Button>
           </nav>

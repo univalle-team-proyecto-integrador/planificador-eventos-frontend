@@ -15,7 +15,7 @@ Se reforzó el modo lectura de `/evento/:id`: la información consolidada usa un
 ## Cambios
 
 - `src/views/EventDetailView.jsx` — botón superior de retorno, grid estático, mapa de iconos por tipo, iconos de fecha/cliente/lugar y badges de subtareas.
-- `src/components/states/EmptyState.jsx` — soporte opcional de un emoji visual accesible.
+- `src/components/states/EmptyState.jsx` — soporte opcional de un icono Lucide decorativo.
 - `src/utils/eventTypeIcons.js` — diccionario reutilizable de tipos de evento.
 - La barra `ProgressBar` solo se renderiza cuando existen subtareas.
 
