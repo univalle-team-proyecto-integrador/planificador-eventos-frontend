@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
+import { Card } from '../components/ui/Card';
 import { EventCard } from '../components/ui/EventCard';
+import { WorkloadSummary } from '../components/ui/WorkloadSummary';
 import { api, getDefaultUserId, unwrapData } from '../services/api';
+import { getTaskMetrics, normalizeSubtask } from '../utils/taskMetrics';
 
 const getErrorMessage = (error) =>
   error?.message || 'No pudimos consultar el progreso de los eventos.';
@@ -20,26 +23,25 @@ export const ProgresoPage = () => {
 
     try {
       const response = unwrapData(await api.listEvents(getDefaultUserId()));
-      const rawEvents = Array.isArray(response) ? response : [];
+      const rawEvents = (Array.isArray(response) ? response : []).filter(
+        (event) => event?.id ?? event?.idEvento
+      );
       const eventsWithProgress = await Promise.all(
         rawEvents.map(async (rawEvent) => {
           const eventId = rawEvent.id ?? rawEvent.idEvento;
           const subtasksResponse = unwrapData(await api.getSubtasks(eventId));
-          const subtasks = Array.isArray(subtasksResponse)
-            ? subtasksResponse
-            : [];
-          const completed = subtasks.filter(
-            (subtask) => (subtask.estado ?? subtask.state) === 'ejecutada'
-          ).length;
+          const subtasks = (
+            Array.isArray(subtasksResponse) ? subtasksResponse : []
+          )
+            .map(normalizeSubtask)
+            .filter((subtask) => subtask.id);
+          const metrics = getTaskMetrics(subtasks);
 
           return {
             ...rawEvent,
             id: eventId,
-            total: subtasks.length,
-            completed,
-            progress: subtasks.length
-              ? Math.round((completed / subtasks.length) * 100)
-              : 0,
+            ...metrics,
+            progress: metrics.progressHours,
           };
         })
       );
@@ -57,6 +59,39 @@ export const ProgresoPage = () => {
     // oxlint-disable-next-line react/set-state-in-effect
     void loadEvents();
   }, [loadEvents]);
+
+  const globalMetrics = useMemo(
+    () =>
+      events.reduce(
+        (metrics, event) => ({
+          total: metrics.total + (event.total || 0),
+          completed: metrics.completed + (event.completed || 0),
+          remaining: metrics.remaining + (event.remaining || 0),
+          hoursTotal: metrics.hoursTotal + (event.hoursTotal || 0),
+          hoursCompleted: metrics.hoursCompleted + (event.hoursCompleted || 0),
+          hoursRemaining: metrics.hoursRemaining + (event.hoursRemaining || 0),
+        }),
+        {
+          total: 0,
+          completed: 0,
+          remaining: 0,
+          hoursTotal: 0,
+          hoursCompleted: 0,
+          hoursRemaining: 0,
+        }
+      ),
+    [events]
+  );
+
+  const globalProgress = useMemo(() => {
+    if (globalMetrics.hoursTotal === 0) {
+      return 0;
+    }
+
+    return Math.round(
+      (globalMetrics.hoursCompleted / globalMetrics.hoursTotal) * 100
+    );
+  }, [globalMetrics]);
 
   if (isLoading) {
     return (
@@ -105,11 +140,32 @@ export const ProgresoPage = () => {
           onAction={() => navigate('/crear')}
         />
       ) : (
-        <div className="grid gap-4">
-          {events.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
-        </div>
+        <>
+          <Card aria-labelledby="global-summary-title" className="p-6">
+            <div className="mb-5">
+              <h3
+                id="global-summary-title"
+                className="text-lg font-semibold text-gray-900"
+              >
+                Resumen global
+              </h3>
+              <p className="mt-1 text-sm text-gray-600">
+                El avance se calcula principalmente con las horas estimadas.
+              </p>
+            </div>
+            <WorkloadSummary
+              eventCount={events.length}
+              progressLabel="Carga total"
+              metrics={{ ...globalMetrics, progressHours: globalProgress }}
+            />
+          </Card>
+
+          <div className="grid gap-4">
+            {events.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

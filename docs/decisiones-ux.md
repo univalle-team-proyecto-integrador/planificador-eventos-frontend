@@ -48,6 +48,12 @@ Las mutaciones (crear, editar, eliminar, cambiar estado) no se aplican de forma 
 
 **Justificación:** el backend valida campos y estados de forma estricta (horas > 0, estados permitidos, límite diario), por lo que un cambio optimista exigiría replicar esa validación en el cliente y revertir ante un rechazo. La edición en línea ya da intervención directa, y los toasts y el modal de error aportan el feedback inmediato. Esto evita estados locales inconsistentes con la fuente de datos.
 
+### D-008 — Paneles de acción y seguimiento
+
+`Hoy` responde qué tareas deben atenderse hoy y qué viene en los próximos siete días. `Progreso` responde cómo va el trabajo global y delega el detalle individual al evento. Las métricas de horas son la fuente principal de progreso; el conteo de tareas acompaña como contexto.
+
+**Regla:** no mostrar una sección de tareas atrasadas cuando el total sea cero y mantener compactas las listas próximas y atrasadas con un máximo de cinco elementos visibles.
+
 ## Revisión
 
 Este documento debe actualizarse cuando cambien las rutas, los estados globales o el contrato de la API.
@@ -64,6 +70,7 @@ Las decisiones anteriores se justifican bajo las 10 heurísticas de usabilidad d
 | D-004 — Feedback de formularios | 9. Ayuda a reconocer, diagnosticar y recuperarse de los errores |
 | D-001 — Layout persistente | 6. Reconocimiento antes que recuerdo |
 | D-006 / D-007 — Contrato API y actualizaciones confirmadas | 4. Consistencia y estándares; 10. Ayuda y documentación |
+| D-008 — Paneles de acción y seguimiento | 1. Visibilidad del estado; 6. Reconocimiento antes que recuerdo |
 | Toasts y `ErrorModal` (DESIGN_SYSTEM §5.8 y §5.9) | 1. Visibilidad del estado del sistema; 9. Reconocer y recuperarse de errores |
 
 Detalle por heurística:

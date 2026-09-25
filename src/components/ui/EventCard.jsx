@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { formatHours } from '../../utils/taskMetrics';
 import { Button } from './Button';
 import { Card } from './Card';
 import { ProgressBar } from './ProgressBar';
@@ -24,9 +25,12 @@ export function EventCard({ event }) {
   const name = event.nombre ?? event.name ?? 'Evento sin nombre';
   const client = event.cliente ?? event.client ?? 'Sin cliente';
   const location = event.lugar ?? event.location ?? 'Sin lugar';
-  const progress = event.progress ?? 0;
+  const progress = event.progress ?? event.progressHours ?? 0;
   const completed = event.completed ?? 0;
   const total = event.total ?? 0;
+  const hoursTotal = event.hoursTotal ?? 0;
+  const hoursCompleted = event.hoursCompleted ?? 0;
+  const hoursRemaining = event.hoursRemaining ?? 0;
 
   return (
     <Card as="article" className="p-5">
@@ -47,12 +51,17 @@ export function EventCard({ event }) {
         </Button>
       </div>
       <div className="mt-5">
-        <ProgressBar value={progress} label="Progreso logístico" />
+        <ProgressBar value={progress} label="Progreso por horas" />
         <p className="mt-2 text-xs text-gray-500">
           {total === 0
             ? 'Aún no hay subtareas registradas.'
-            : `${completed} de ${total} gestiones completadas.`}
+            : `${completed} de ${total} tareas · ${formatHours(hoursCompleted)} completadas · ${formatHours(hoursRemaining)} restantes`}
         </p>
+        {total > 0 && (
+          <p className="mt-1 text-xs text-gray-400">
+            {formatHours(hoursTotal)} estimadas en total
+          </p>
+        )}
       </div>
     </Card>
   );

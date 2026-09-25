@@ -16,6 +16,8 @@ tipo: auditoria-a11y
 - Los estados de carga, vacío y error usan `role="status"` o `role="alert"` y mensajes en español.
 - El modal de eliminación usa `role="dialog"`, `aria-modal`, foco inicial, cierre con `Escape` y focus trap.
 - Las barras de progreso exponen `aria-valuemin`, `aria-valuemax` y `aria-valuenow`.
+- Los resúmenes de Hoy y Progreso usan etiquetas visibles para cada métrica y no comunican valores solo mediante color.
+- Las listas de tareas usan `aria-labelledby`, enlaces accesibles al evento y badges de estado.
 - Los iconos decorativos están ocultos con `aria-hidden`.
 - Los mensajes de red no se comunican solo mediante color.
 

@@ -17,8 +17,9 @@ import { ErrorState } from '../components/states/ErrorState';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { ProgressBar } from '../components/ui/ProgressBar';
+import { WorkloadSummary } from '../components/ui/WorkloadSummary';
 import { getEventTypeIcon } from '../utils/eventTypeIcons';
+import { getTaskMetrics } from '../utils/taskMetrics';
 import {
   getPastDateMessage,
   getToday,
@@ -323,13 +324,7 @@ export function EventDetailView() {
     void loadData();
   }, [loadData]);
 
-  const completedCount = useMemo(
-    () => subtasks.filter((subtask) => subtask.state === 'ejecutada').length,
-    [subtasks]
-  );
-  const progress = subtasks.length
-    ? Math.round((completedCount / subtasks.length) * 100)
-    : 0;
+  const workload = useMemo(() => getTaskMetrics(subtasks), [subtasks]);
 
   const updateSubtaskField = (field, value) => {
     setFormData((current) => ({ ...current, [field]: value }));
@@ -979,7 +974,7 @@ export function EventDetailView() {
             <p className="mt-1 text-sm text-gray-600">
               {subtasks.length === 0
                 ? 'Añade la primera gestión para comenzar.'
-                : `${completedCount} de ${subtasks.length} gestos completadas.`}
+                : `${workload.completed} de ${subtasks.length} tareas completadas.`}
             </p>
           </div>
           {!showForm && subtasks.length > 0 && (
@@ -995,9 +990,11 @@ export function EventDetailView() {
         </div>
 
         {subtasks.length > 0 && (
-          <div className="py-5">
-            <ProgressBar value={progress} label="Progreso logístico" />
-          </div>
+          <WorkloadSummary
+            metrics={workload}
+            progressLabel="Progreso por horas"
+            className="py-5"
+          />
         )}
 
         {subtasks.length === 0 && !showForm && (

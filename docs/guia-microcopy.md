@@ -55,8 +55,10 @@ Ejemplo: “¿Aún no hay gestiones logísticas? Divide el evento en tareas pequ
 | Volver desde detalle  | “Volver a eventos”                                                            |
 | Guardar formulario    | “Guardar evento”                                                               |
 | Crear primera gestión | “Añadir gestión”                                                               |
+| Tareas atrasadas      | “Vencida hace 2 días”                                                         |
+| Tarea próxima         | “Mañana”                                                                      |
 | Cargar                | “Cargando información...”                                                     |
-| Cargar panel de hoy   | “Cargando gestiones de hoy...”                                                |
+| Cargar panel de hoy   | “Cargando el panel de hoy...”                                                |
 | Error de red          | “No pudimos conectar con el servidor. Revisa tu red e inténtalo de nuevo.”     |
 | Eliminar gestión      | “¿Seguro que quieres eliminar esta gestión? Esta acción no se puede deshacer.” |
 | Eliminar evento       | “Esta acción borrará el evento y su logística asociada. No se puede deshacer.” |

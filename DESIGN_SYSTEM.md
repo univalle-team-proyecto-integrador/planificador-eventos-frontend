@@ -235,6 +235,17 @@ Archivo: `src/components/ui/ErrorModal.jsx`
 - Se abre mediante `useNotifications().notifyError({ title, message })`.
 - Los errores de carga inicial de una pantalla siguen usando `ErrorState` con reintento; solo los errores de acciones usan el modal.
 
+### 5.10 Resúmenes y tarjetas operativas
+
+Archivos: `src/components/ui/MetricCard.jsx`, `src/components/ui/WorkloadSummary.jsx`, `src/components/ui/TaskCard.jsx`.
+
+- `MetricCard` muestra una métrica con etiqueta visible, valor numérico y un icono decorativo opcional.
+- `WorkloadSummary` prioriza horas estimadas, completadas y restantes; la cantidad de tareas es secundaria.
+- `TaskCard` muestra nombre, evento, fecha, horas, estado y acceso al evento mediante `Button as={Link}`.
+- Las tareas atrasadas usan advertencia visual, badge `Atrasada` y etiqueta relativa de vencimiento.
+- Las listas de Hoy muestran como máximo 5 tareas por sección y comunican el total cuando hay elementos ocultos.
+- `ProgressBar` representa el porcentaje de horas completadas, no solo el porcentaje de tareas.
+
 ## 6. Reglas de accesibilidad
 
 - Mantener contraste mínimo AA en texto normal.
