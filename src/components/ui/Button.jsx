@@ -6,6 +6,8 @@ const variants = {
     'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500 border border-transparent',
   danger:
     'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 border border-transparent',
+  success:
+    'bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:ring-emerald-500 border border-transparent',
   neutral:
     'bg-white text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-400 border border-gray-300 shadow-sm',
 };

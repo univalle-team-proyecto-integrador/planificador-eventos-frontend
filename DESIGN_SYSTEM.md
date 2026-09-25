@@ -50,14 +50,15 @@ Los nombres corresponden a las clases Tailwind actualmente utilizadas.
 | `danger-600` | `#DC2626` | Botón destructivo y texto de error        |
 | `danger-700` | `#B91C1C` | Hover destructivo                         |
 
-### Éxito y advertencia reservados
+### Éxito y advertencia
 
-Para estados futuros se reservan estas familias; no deben reemplazar la semántica de los estados actuales.
+Estas familias comunican avance y advertencias sin reemplazar la semántica de los estados.
 
 | Token         | HEX       | Uso                                |
 | ------------- | --------- | ---------------------------------- |
 | `success-50`  | `#ECFDF5` | Fondo de éxito                     |
-| `success-600` | `#059669` | Confirmación y tarea completada    |
+| `success-600` | `#059669` | Botón Completar y tarea completada |
+| `success-700` | `#047857` | Hover de acciones de éxito         |
 | `warning-50`  | `#FFFBEB` | Fondo de advertencia               |
 | `warning-600` | `#D97706` | Advertencias de conflicto o tiempo |
 
@@ -127,7 +128,8 @@ Variantes:
 
 | Variante  | Uso                                    | Comportamiento                    |
 | --------- | -------------------------------------- | --------------------------------- |
-| `primary` | Guardar, crear, confirmar              | Fondo azul, texto blanco          |
+| `primary` | Guardar, crear, editar                 | Fondo azul, texto blanco          |
+| `success` | Completar una gestión                   | Fondo verde, texto blanco          |
 | `neutral` | Cancelar, volver, acciones secundarias | Fondo blanco, borde gris          |
 | `danger`  | Eliminar                               | Fondo rojo, solo con confirmación |
 
@@ -164,7 +166,9 @@ Archivo: `src/components/ui/Badge.jsx`
 - `aria-invalid="true"` cuando existe error.
 - `aria-describedby` apunta al mensaje inline.
 - Placeholder como ejemplo, nunca como sustituto del label.
-- Fecha de evento: `<input type="date">`; el cliente la convierte a `LocalDateTime`.
+- Los formularios se agrupan con `fieldset` y `legend` según la intención del usuario.
+- Fechas de evento y objetivo: `<input type="date" min={getToday()}>`; el calendario y la validación de envío rechazan fechas pasadas.
+- La fecha del evento se convierte a `LocalDateTime`; la fecha objetivo se envía como `LocalDate`.
 - Horas: `<input type="number" min="1" step="1">`.
 
 Mensajes de validación:
@@ -179,7 +183,7 @@ Qué ocurrió + cómo corregirlo.
 | ----------------- | --------------------------------------------------- |
 | `SimulatedLoader` | `role="status"`, `aria-live="polite"` y `aria-busy` |
 | `EmptyState`      | Explica qué falta y ofrece una acción; admite un icono decorativo opcional de Lucide |
-| `ErrorState`      | `role="alert"`, explica el error y ofrece reintento |
+| `ErrorState`      | `role="alert"`, explica el error y ofrece reintento; los fallos del catálogo de tipos interrumpen la creación |
 | `ProgressBar`     | `role="progressbar"` con valores 0–100              |
 
 ### 5.6 Modal de confirmación
@@ -201,6 +205,7 @@ Archivo: `src/components/ui/Layout.jsx`
 
 - Barra lateral persistente de `250px` en escritorio y navegación superior en móvil.
 - `nav` con etiqueta accesible y enlaces a Hoy, Progreso y Crear Evento.
+- El detalle del evento incluye un botón neutral `Volver a eventos` que navega a `/progreso`.
 - El CTA de creación se separa visualmente de los enlaces de navegación.
 - `main` usa `flex: 1` y padding de hasta `40px` (`p-10`) en pantallas amplias.
 - Enlace `Saltar al contenido`.
@@ -238,6 +243,7 @@ Archivo: `src/components/ui/ErrorModal.jsx`
 - Mantener foco visible en todos los controles.
 - Respetar el orden natural de tabulación.
 - No eliminar el foco sin reemplazarlo por un elemento equivalente.
+- Cuando un envío falle por validación, enfocar el primer campo inválido.
 - Usar `aria-hidden="true"` en iconos decorativos.
 - Usar `role="status"` para progreso y `role="alert"` para errores.
 - Evitar animaciones que bloqueen la interacción.

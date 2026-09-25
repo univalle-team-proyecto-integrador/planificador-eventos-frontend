@@ -23,8 +23,11 @@ Qué ocurrió + cómo corregirlo.
 ### Ejemplos aprobados
 
 - “Dejaste el nombre vacío. Ingresa un título para identificar el evento.”
+- “Faltan las horas estimadas. Ingresa un valor mayor a 0.”
 - “Ingresaste 0 o menos. Asigna al menos 1 hora de esfuerzo.”
-- “La fecha ya pasó. Selecciona hoy o una fecha futura para el evento.”
+- “Ingresaste una fracción de hora. Ingresa un número entero de horas.”
+- “La fecha del evento ya pasó. Selecciona hoy o una fecha futura.”
+- “La fecha objetivo ya pasó. Selecciona hoy o una fecha futura.”
 - “No pudimos conectar con el servidor. Revisa tu red e inténtalo de nuevo.”
 
 ## Estados vacíos
@@ -49,9 +52,10 @@ Ejemplo: “¿Aún no hay gestiones logísticas? Divide el evento en tareas pequ
 | Contexto              | Texto                                                                          |
 | --------------------- | ------------------------------------------------------------------------------ |
 | Crear evento          | “Crear nuevo evento”                                                           |
+| Volver desde detalle  | “Volver a eventos”                                                            |
 | Guardar formulario    | “Guardar evento”                                                               |
 | Crear primera gestión | “Añadir gestión”                                                               |
-| Cargar                | “Cargando evento...”                                                           |
+| Cargar                | “Cargando información...”                                                     |
 | Cargar panel de hoy   | “Cargando gestiones de hoy...”                                                |
 | Error de red          | “No pudimos conectar con el servidor. Revisa tu red e inténtalo de nuevo.”     |
 | Eliminar gestión      | “¿Seguro que quieres eliminar esta gestión? Esta acción no se puede deshacer.” |

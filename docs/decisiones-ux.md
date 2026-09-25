@@ -18,7 +18,7 @@ La barra lateral y la navegación permanecen visibles mientras cambia el conteni
 
 ### D-002 — Botón multivariante
 
-Las acciones usan `Button` con variantes `primary`, `neutral` y `danger`. Las variantes expresan intención: acción principal, acción secundaria y acción destructiva.
+Las acciones usan `Button` con variantes `primary`, `success`, `neutral` y `danger`. Las variantes expresan intención: acción principal, avance completada, acción secundaria y acción destructiva.
 
 **Regla:** no usar botones destructivos sin confirmación y sin una consecuencia visible para la persona usuaria.
 
@@ -32,7 +32,7 @@ Cada flujo que puede iniciar, fallar o no tener datos debe comunicar su estado:
 
 ### D-004 — Feedback de formularios
 
-Los mensajes de validación deben responder dos preguntas: **qué pasó** y **cómo corregirlo**. Los campos se asocian mediante `label`, `id`, `aria-invalid` y `aria-describedby`.
+Los mensajes de validación deben responder dos preguntas: **qué pasó** y **cómo corregirlo**. Los campos se asocian mediante `label`, `id`, `aria-invalid` y `aria-describedby`; al bloquear un envío, el foco se dirige al primer campo inválido. Las fechas de evento y objetivo usan la fecha local actual como límite mínimo.
 
 ### D-005 — Acciones reversibles y destructivas
 
@@ -71,7 +71,7 @@ Detalle por heurística:
 1. **Visibilidad del estado del sistema:** `SimulatedLoader`, `EmptyState`, `ErrorState` y los toasts comunican en todo momento en qué punto está cada flujo.
 2. **Correspondencia con el mundo real:** la terminología de los mensajes ("qué pasó + cómo corregirlo") usa frases cotidianas, no técnicas.
 3. **Control y libertad del usuario:** marcar/desmarcar una subtarea es reversible y las acciones destructivas exigen confirmación explícita.
-4. **Consistencia y estándares:** `Button` con variantes fijas (`primary`, `neutral`, `danger`) y patrones repetibles en todos los formularios.
+4. **Consistencia y estándares:** `Button` con variantes fijas (`primary`, `success`, `neutral`, `danger`) y patrones repetibles en todos los formularios.
 5. **Prevención de errores:** validación en vivo de horas y fechas, y `ConfirmModal` antes de acciones destructivas.
 6. **Reconocimiento antes que recuerdo:** la barra lateral persistente mantiene el contexto en cada pantalla.
 7. **Flexibilidad y eficiencia de uso:** edición en línea de subtareas sin pasos intermedios.

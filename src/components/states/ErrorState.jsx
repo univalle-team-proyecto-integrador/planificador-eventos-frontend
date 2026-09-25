@@ -3,6 +3,7 @@ import { useId } from 'react';
 import { Button } from '../ui/Button';
 
 export const ErrorState = ({
+  id,
   title = 'No pudimos completar la operación',
   message = 'Revisa tu conexión e inténtalo de nuevo.',
   onRetry,
@@ -13,6 +14,7 @@ export const ErrorState = ({
 
   return (
     <section
+      id={id}
       role="alert"
       aria-live="assertive"
       aria-labelledby={titleId}

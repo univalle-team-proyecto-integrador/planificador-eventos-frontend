@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
   CalendarDays,
@@ -19,6 +19,12 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { getEventTypeIcon } from '../utils/eventTypeIcons';
+import {
+  getPastDateMessage,
+  getToday,
+  isDateInPast,
+} from '../utils/dateValidation';
+import { focusFirstInvalidField } from '../utils/formFocus';
 import { useNotifications } from '../providers/notifications-context';
 import {
   api,
@@ -31,12 +37,6 @@ const initialSubtaskData = {
   title: '',
   hours: '',
   date: '',
-};
-
-const getToday = () => {
-  const now = new Date();
-  const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-  return localDate.toISOString().slice(0, 10);
 };
 
 const getErrorMessage = (error) =>
@@ -160,14 +160,26 @@ const validateSubtask = (formData) => {
       'Dejaste el nombre vacío. Ingresa qué gestión necesitas realizar.';
   }
 
-  if (!formData.hours || Number(formData.hours) <= 0) {
+  const hours = Number(formData.hours);
+
+  if (!formData.hours) {
+    newErrors.hours = 'Faltan las horas estimadas. Ingresa un valor mayor a 0.';
+  } else if (!Number.isFinite(hours)) {
+    newErrors.hours =
+      'Ingresaste un valor no válido. Asigna al menos 1 hora de esfuerzo.';
+  } else if (hours <= 0) {
     newErrors.hours =
       'Ingresaste 0 o menos. Asigna al menos 1 hora de esfuerzo.';
+  } else if (!Number.isInteger(hours)) {
+    newErrors.hours =
+      'Ingresaste una fracción de hora. Ingresa un número entero de horas.';
   }
 
   if (!formData.date) {
     newErrors.date =
       'Falta la fecha límite. Selecciona cuándo debe estar lista.';
+  } else if (isDateInPast(formData.date)) {
+    newErrors.date = getPastDateMessage('La fecha objetivo');
   }
 
   return newErrors;
@@ -187,9 +199,8 @@ const validateEventForm = (formData) => {
   if (!formData.fecha) {
     newErrors.fecha =
       'La fecha está vacía. Selecciona el día en que se realizará el evento.';
-  } else if (formData.fecha < getToday()) {
-    newErrors.fecha =
-      'La fecha ya pasó. Selecciona hoy o una fecha futura para el evento.';
+  } else if (isDateInPast(formData.fecha)) {
+    newErrors.fecha = getPastDateMessage('La fecha del evento');
   }
   if (!formData.lugar.trim()) {
     newErrors.lugar =
@@ -213,7 +224,6 @@ export function EventDetailView() {
   const { id } = useParams();
   const { notifySuccess, notifyError } = useNotifications();
   const navigate = useNavigate();
-  const goToToday = () => navigate('/hoy', { replace: true });
   const goToProgress = () => navigate('/progreso', { replace: true });
   const [event, setEvent] = useState(null);
   const [subtasks, setSubtasks] = useState([]);
@@ -252,6 +262,15 @@ export function EventDetailView() {
   });
   const [editingErrors, setEditingErrors] = useState({});
   const [isSavingSubtaskEdit, setIsSavingSubtaskEdit] = useState(false);
+  const eventFormRef = useRef(null);
+  const subtaskFormRef = useRef(null);
+  const editingSubtaskFormRef = useRef(null);
+
+  const getSubtaskDateError = (value) =>
+    isDateInPast(value) ? getPastDateMessage('La fecha objetivo') : '';
+
+  const getEventDateError = (value) =>
+    isDateInPast(value) ? getPastDateMessage('La fecha del evento') : '';
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -314,7 +333,18 @@ export function EventDetailView() {
 
   const updateSubtaskField = (field, value) => {
     setFormData((current) => ({ ...current, [field]: value }));
-    setErrors((current) => ({ ...current, [field]: '' }));
+    setErrors((current) => ({
+      ...current,
+      [field]: field === 'date' ? getSubtaskDateError(value) : '',
+    }));
+  };
+
+  const validateSubtaskDateOnBlur = () => {
+    const dateError = getSubtaskDateError(formData.date);
+
+    if (dateError) {
+      setErrors((current) => ({ ...current, date: dateError }));
+    }
   };
 
   const startEditingSubtask = (subtask) => {
@@ -335,20 +365,48 @@ export function EventDetailView() {
 
   const updateEditingSubtaskField = (field, value) => {
     setEditingSubtaskData((current) => ({ ...current, [field]: value }));
-    setEditingErrors((current) => ({ ...current, [field]: '' }));
+    setEditingErrors((current) => ({
+      ...current,
+      [field]: field === 'date' ? getSubtaskDateError(value) : '',
+    }));
+  };
+
+  const validateEditingSubtaskDateOnBlur = () => {
+    const dateError = getSubtaskDateError(editingSubtaskData.date);
+
+    if (dateError) {
+      setEditingErrors((current) => ({ ...current, date: dateError }));
+    }
   };
 
   const updateEventField = (field, value) => {
     setEventForm((current) => ({ ...current, [field]: value }));
-    setEventErrors((current) => ({ ...current, [field]: '' }));
+    setEventErrors((current) => ({
+      ...current,
+      [field]: field === 'fecha' ? getEventDateError(value) : '',
+    }));
+  };
+
+  const validateEventDateOnBlur = () => {
+    const dateError = getEventDateError(eventForm.fecha);
+
+    if (dateError) {
+      setEventErrors((current) => ({ ...current, fecha: dateError }));
+    }
   };
 
   const handleAddSubtask = async (event) => {
     event.preventDefault();
+
+    if (isSavingSubtask) {
+      return;
+    }
+
     const validationErrors = validateSubtask(formData);
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      focusFirstInvalidField(subtaskFormRef, validationErrors);
       return;
     }
 
@@ -384,6 +442,10 @@ export function EventDetailView() {
   };
 
   const handleToggleSubtask = async (subtask) => {
+    if (updatingSubtaskId === subtask.id) {
+      return;
+    }
+
     const nextState = subtask.state === 'ejecutada' ? 'pendiente' : 'ejecutada';
 
     setUpdatingSubtaskId(subtask.id);
@@ -423,6 +485,10 @@ export function EventDetailView() {
   const handleSaveSubtask = async (event) => {
     event.preventDefault();
 
+    if (isSavingSubtaskEdit) {
+      return;
+    }
+
     if (!editingSubtaskId) {
       return;
     }
@@ -430,6 +496,7 @@ export function EventDetailView() {
     const validationErrors = validateSubtask(editingSubtaskData);
     if (Object.keys(validationErrors).length > 0) {
       setEditingErrors(validationErrors);
+      focusFirstInvalidField(editingSubtaskFormRef, validationErrors);
       return;
     }
 
@@ -470,7 +537,7 @@ export function EventDetailView() {
   };
 
   const handleDeleteSubtask = async () => {
-    if (!deleteTarget) {
+    if (!deleteTarget || isDeleting) {
       return;
     }
 
@@ -521,10 +588,16 @@ export function EventDetailView() {
 
   const handleSaveEvent = async (submitEvent) => {
     submitEvent.preventDefault();
+
+    if (isSavingEvent) {
+      return;
+    }
+
     const validationErrors = validateEventForm(eventForm);
 
     if (Object.keys(validationErrors).length > 0) {
       setEventErrors(validationErrors);
+      focusFirstInvalidField(eventFormRef, validationErrors);
       return;
     }
 
@@ -602,11 +675,11 @@ export function EventDetailView() {
           <Button
             type="button"
             variant="neutral"
-            onClick={goToToday}
+            onClick={goToProgress}
             disabled={isSavingEvent || isDeletingEvent}
           >
             <ArrowLeft aria-hidden="true" className="mr-1 inline size-4" />
-            Volver a hoy
+            Volver a eventos
           </Button>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -625,7 +698,7 @@ export function EventDetailView() {
               {!isEditingEvent && (
                 <Button
                   type="button"
-                  variant="neutral"
+                  variant="primary"
                   onClick={() => setIsEditingEvent(true)}
                   disabled={isSavingEvent || isDeletingEvent}
                 >
@@ -653,157 +726,189 @@ export function EventDetailView() {
 
         {isEditingEvent ? (
           <form
+            ref={eventFormRef}
             onSubmit={handleSaveEvent}
-            className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2"
+            className="mt-6 space-y-6"
             noValidate
             aria-busy={isSavingEvent}
           >
-            <div>
-              <label
-                htmlFor="edit-event-name"
-                className="mb-1 block text-sm font-medium text-gray-700"
-              >
-                Nombre del evento *
-              </label>
-              <input
-                id="edit-event-name"
-                name="nombre"
-                type="text"
-                value={eventForm.nombre}
-                onChange={(event) =>
-                  updateEventField('nombre', event.target.value)
-                }
-                aria-invalid={Boolean(eventErrors.nombre)}
-                aria-describedby={
-                  eventErrors.nombre ? 'edit-event-name-error' : undefined
-                }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  eventErrors.nombre ? 'border-red-500' : 'border-gray-300'
-                }`}
-                required
-              />
-              {eventErrors.nombre && (
-                <p
-                  id="edit-event-name-error"
-                  role="alert"
-                  className="mt-1 text-xs text-red-600"
-                >
-                  {eventErrors.nombre}
-                </p>
-              )}
-            </div>
+            <fieldset className="space-y-4 border-0 p-0">
+              <legend className="mb-3 text-sm font-semibold text-gray-800">
+                ¿Qué evento es?
+              </legend>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="edit-event-name"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Nombre del evento *
+                  </label>
+                  <input
+                    id="edit-event-name"
+                    name="nombre"
+                    type="text"
+                    value={eventForm.nombre}
+                    onChange={(event) =>
+                      updateEventField('nombre', event.target.value)
+                    }
+                    aria-invalid={Boolean(eventErrors.nombre)}
+                    aria-describedby={
+                      eventErrors.nombre ? 'edit-event-name-error' : undefined
+                    }
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                      eventErrors.nombre ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Ej: Boda de Carlos y Laura"
+                    required
+                  />
+                  {eventErrors.nombre && (
+                    <p
+                      id="edit-event-name-error"
+                      role="alert"
+                      className="mt-1 text-xs text-red-600"
+                    >
+                      {eventErrors.nombre}
+                    </p>
+                  )}
+                </div>
 
-            <div>
-              <label
-                htmlFor="edit-event-client"
-                className="mb-1 block text-sm font-medium text-gray-700"
-              >
-                Cliente / contacto *
-              </label>
-              <input
-                id="edit-event-client"
-                name="cliente"
-                type="text"
-                value={eventForm.cliente}
-                onChange={(event) =>
-                  updateEventField('cliente', event.target.value)
-                }
-                aria-invalid={Boolean(eventErrors.cliente)}
-                aria-describedby={
-                  eventErrors.cliente ? 'edit-event-client-error' : undefined
-                }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  eventErrors.cliente ? 'border-red-500' : 'border-gray-300'
-                }`}
-                required
-              />
-              {eventErrors.cliente && (
-                <p
-                  id="edit-event-client-error"
-                  role="alert"
-                  className="mt-1 text-xs text-red-600"
-                >
-                  {eventErrors.cliente}
-                </p>
-              )}
-            </div>
+                <div>
+                  <label
+                    htmlFor="edit-event-client"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Cliente / contacto *
+                  </label>
+                  <input
+                    id="edit-event-client"
+                    name="cliente"
+                    type="text"
+                    value={eventForm.cliente}
+                    onChange={(event) =>
+                      updateEventField('cliente', event.target.value)
+                    }
+                    aria-invalid={Boolean(eventErrors.cliente)}
+                    aria-describedby={
+                      eventErrors.cliente
+                        ? 'edit-event-client-error'
+                        : undefined
+                    }
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                      eventErrors.cliente ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Ej: María Pérez"
+                    required
+                  />
+                  {eventErrors.cliente && (
+                    <p
+                      id="edit-event-client-error"
+                      role="alert"
+                      className="mt-1 text-xs text-red-600"
+                    >
+                      {eventErrors.cliente}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </fieldset>
 
-            <div>
-              <label
-                htmlFor="edit-event-date"
-                className="mb-1 block text-sm font-medium text-gray-700"
-              >
-                Fecha del evento *
-              </label>
-              <input
-                id="edit-event-date"
-                name="fecha"
-                type="date"
-                min={getToday()}
-                value={eventForm.fecha}
-                onChange={(event) =>
-                  updateEventField('fecha', event.target.value)
-                }
-                aria-invalid={Boolean(eventErrors.fecha)}
-                aria-describedby={
-                  eventErrors.fecha ? 'edit-event-date-error' : undefined
-                }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  eventErrors.fecha ? 'border-red-500' : 'border-gray-300'
-                }`}
-                required
-              />
-              {eventErrors.fecha && (
-                <p
-                  id="edit-event-date-error"
-                  role="alert"
-                  className="mt-1 text-xs text-red-600"
-                >
-                  {eventErrors.fecha}
-                </p>
-              )}
-            </div>
+            <fieldset className="space-y-4 border-0 p-0">
+              <legend className="mb-3 text-sm font-semibold text-gray-800">
+                ¿Cuándo y dónde?
+              </legend>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="edit-event-date"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Fecha del evento *
+                  </label>
+                  <input
+                    id="edit-event-date"
+                    name="fecha"
+                    type="date"
+                    min={getToday()}
+                    value={eventForm.fecha}
+                    onChange={(event) =>
+                      updateEventField('fecha', event.target.value)
+                    }
+                    onBlur={validateEventDateOnBlur}
+                    aria-invalid={Boolean(eventErrors.fecha)}
+                    aria-describedby={`edit-event-date-help${
+                      eventErrors.fecha ? ' edit-event-date-error' : ''
+                    }`}
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                      eventErrors.fecha ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    required
+                  />
+                  <p
+                    id="edit-event-date-help"
+                    className="mt-1 text-xs text-gray-500"
+                  >
+                    Selecciona hoy o una fecha futura.
+                  </p>
+                  {eventErrors.fecha && (
+                    <p
+                      id="edit-event-date-error"
+                      role="alert"
+                      className="mt-1 text-xs text-red-600"
+                    >
+                      {eventErrors.fecha}
+                    </p>
+                  )}
+                </div>
 
-            <div>
-              <label
-                htmlFor="edit-event-location"
-                className="mb-1 block text-sm font-medium text-gray-700"
-              >
-                Lugar del evento *
-              </label>
-              <input
-                id="edit-event-location"
-                name="lugar"
-                type="text"
-                value={eventForm.lugar}
-                onChange={(event) =>
-                  updateEventField('lugar', event.target.value)
-                }
-                aria-invalid={Boolean(eventErrors.lugar)}
-                aria-describedby={
-                  eventErrors.lugar ? 'edit-event-location-error' : undefined
-                }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  eventErrors.lugar ? 'border-red-500' : 'border-gray-300'
-                }`}
-                required
-              />
-              {eventErrors.lugar && (
-                <p
-                  id="edit-event-location-error"
-                  role="alert"
-                  className="mt-1 text-xs text-red-600"
-                >
-                  {eventErrors.lugar}
-                </p>
-              )}
-            </div>
+                <div>
+                  <label
+                    htmlFor="edit-event-location"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Lugar del evento *
+                  </label>
+                  <input
+                    id="edit-event-location"
+                    name="lugar"
+                    type="text"
+                    value={eventForm.lugar}
+                    onChange={(event) =>
+                      updateEventField('lugar', event.target.value)
+                    }
+                    aria-invalid={Boolean(eventErrors.lugar)}
+                    aria-describedby={
+                      eventErrors.lugar
+                        ? 'edit-event-location-error'
+                        : undefined
+                    }
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                      eventErrors.lugar ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Ej: Salón Campestre, Yumbo"
+                    required
+                  />
+                  {eventErrors.lugar && (
+                    <p
+                      id="edit-event-location-error"
+                      role="alert"
+                      className="mt-1 text-xs text-red-600"
+                    >
+                      {eventErrors.lugar}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </fieldset>
 
-            <div className="flex justify-end gap-2 border-t pt-4 sm:col-span-2">
+            <div className="flex justify-end gap-2 border-t pt-4">
               <Button
                 type="button"
                 variant="neutral"
-                onClick={() => setIsEditingEvent(false)}
+                onClick={() => {
+                  setIsEditingEvent(false);
+                  setEventErrors({});
+                }}
                 disabled={isSavingEvent}
               >
                 Cancelar
@@ -906,6 +1011,7 @@ export function EventDetailView() {
 
         {showForm && (
           <form
+            ref={subtaskFormRef}
             onSubmit={handleAddSubtask}
             className="space-y-4 rounded-md border bg-gray-50 p-4"
             noValidate
@@ -915,116 +1021,134 @@ export function EventDetailView() {
               Nueva gestión logística
             </h4>
 
-            <div>
-              <label
-                htmlFor="subtask-title"
-                className="mb-1 block text-sm font-medium text-gray-700"
-              >
-                Nombre de la gestión *
-              </label>
-              <input
-                id="subtask-title"
-                name="title"
-                type="text"
-                value={formData.title}
-                onChange={(event) =>
-                  updateSubtaskField('title', event.target.value)
-                }
-                aria-invalid={Boolean(errors.title)}
-                aria-describedby={
-                  errors.title ? 'subtask-title-error' : undefined
-                }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  errors.title ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Ej: Reservar salón de eventos"
-                required
-              />
-              {errors.title && (
-                <p
-                  id="subtask-title-error"
-                  role="alert"
-                  className="mt-1 text-xs text-red-600"
-                >
-                  {errors.title}
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <fieldset className="space-y-4 border-0 p-0">
+              <legend className="text-sm font-semibold text-gray-700">
+                ¿Qué gestión necesitas?
+              </legend>
               <div>
                 <label
-                  htmlFor="subtask-hours"
+                  htmlFor="subtask-title"
                   className="mb-1 block text-sm font-medium text-gray-700"
                 >
-                  Horas estimadas *
+                  Nombre de la gestión *
                 </label>
                 <input
-                  id="subtask-hours"
-                  name="hours"
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={formData.hours}
+                  id="subtask-title"
+                  name="title"
+                  type="text"
+                  value={formData.title}
                   onChange={(event) =>
-                    updateSubtaskField('hours', event.target.value)
+                    updateSubtaskField('title', event.target.value)
                   }
-                  aria-invalid={Boolean(errors.hours)}
+                  aria-invalid={Boolean(errors.title)}
                   aria-describedby={
-                    errors.hours ? 'subtask-hours-error' : undefined
+                    errors.title ? 'subtask-title-error' : undefined
                   }
                   className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.hours ? 'border-red-500' : 'border-gray-300'
+                    errors.title ? 'border-red-500' : 'border-gray-300'
                   }`}
-                  placeholder="Ej: 4"
+                  placeholder="Ej: Reservar salón de eventos"
                   required
                 />
-                {errors.hours && (
+                {errors.title && (
                   <p
-                    id="subtask-hours-error"
+                    id="subtask-title-error"
                     role="alert"
                     className="mt-1 text-xs text-red-600"
                   >
-                    {errors.hours}
+                    {errors.title}
                   </p>
                 )}
               </div>
+            </fieldset>
 
-              <div>
-                <label
-                  htmlFor="subtask-date"
-                  className="mb-1 block text-sm font-medium text-gray-700"
-                >
-                  Fecha límite *
-                </label>
-                <input
-                  id="subtask-date"
-                  name="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(event) =>
-                    updateSubtaskField('date', event.target.value)
-                  }
-                  aria-invalid={Boolean(errors.date)}
-                  aria-describedby={
-                    errors.date ? 'subtask-date-error' : undefined
-                  }
-                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.date ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  required
-                />
-                {errors.date && (
-                  <p
-                    id="subtask-date-error"
-                    role="alert"
-                    className="mt-1 text-xs text-red-600"
+            <fieldset className="space-y-4 border-0 p-0">
+              <legend className="text-sm font-semibold text-gray-700">
+                ¿Cuánto esfuerzo requiere y cuándo debe estar lista?
+              </legend>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="subtask-hours"
+                    className="mb-1 block text-sm font-medium text-gray-700"
                   >
-                    {errors.date}
+                    Horas estimadas *
+                  </label>
+                  <input
+                    id="subtask-hours"
+                    name="hours"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={formData.hours}
+                    onChange={(event) =>
+                      updateSubtaskField('hours', event.target.value)
+                    }
+                    aria-invalid={Boolean(errors.hours)}
+                    aria-describedby={
+                      errors.hours ? 'subtask-hours-error' : undefined
+                    }
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                      errors.hours ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Ej: 4"
+                    required
+                  />
+                  {errors.hours && (
+                    <p
+                      id="subtask-hours-error"
+                      role="alert"
+                      className="mt-1 text-xs text-red-600"
+                    >
+                      {errors.hours}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="subtask-date"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Fecha límite *
+                  </label>
+                  <input
+                    id="subtask-date"
+                    name="date"
+                    type="date"
+                    min={getToday()}
+                    value={formData.date}
+                    onChange={(event) =>
+                      updateSubtaskField('date', event.target.value)
+                    }
+                    onBlur={validateSubtaskDateOnBlur}
+                    aria-invalid={Boolean(errors.date)}
+                    aria-describedby={`subtask-date-help${
+                      errors.date ? ' subtask-date-error' : ''
+                    }`}
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                      errors.date ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    required
+                  />
+                  <p
+                    id="subtask-date-help"
+                    className="mt-1 text-xs text-gray-500"
+                  >
+                    Selecciona hoy o una fecha futura.
                   </p>
-                )}
+                  {errors.date && (
+                    <p
+                      id="subtask-date-error"
+                      role="alert"
+                      className="mt-1 text-xs text-red-600"
+                    >
+                      {errors.date}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
+            </fieldset>
 
             <div className="flex justify-end gap-2 pt-2">
               <Button
@@ -1052,6 +1176,7 @@ export function EventDetailView() {
 
         {editingSubtaskId !== null && (
           <form
+            ref={editingSubtaskFormRef}
             onSubmit={handleSaveSubtask}
             className="mb-5 space-y-4 rounded-md border border-blue-200 bg-blue-50/40 p-4"
             noValidate
@@ -1076,114 +1201,136 @@ export function EventDetailView() {
               </Button>
             </div>
 
-            <div>
-              <label
-                htmlFor="edit-subtask-title"
-                className="mb-1 block text-sm font-medium text-gray-700"
-              >
-                Nombre de la gestión *
-              </label>
-              <input
-                id="edit-subtask-title"
-                name="title"
-                type="text"
-                value={editingSubtaskData.title}
-                onChange={(event) =>
-                  updateEditingSubtaskField('title', event.target.value)
-                }
-                aria-invalid={Boolean(editingErrors.title)}
-                aria-describedby={
-                  editingErrors.title ? 'edit-subtask-title-error' : undefined
-                }
-                className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  editingErrors.title ? 'border-red-500' : 'border-gray-300'
-                }`}
-                required
-              />
-              {editingErrors.title && (
-                <p
-                  id="edit-subtask-title-error"
-                  role="alert"
-                  className="mt-1 text-xs text-red-600"
-                >
-                  {editingErrors.title}
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <fieldset className="space-y-4 border-0 p-0">
+              <legend className="text-sm font-semibold text-gray-700">
+                ¿Qué gestión necesitas?
+              </legend>
               <div>
                 <label
-                  htmlFor="edit-subtask-hours"
+                  htmlFor="edit-subtask-title"
                   className="mb-1 block text-sm font-medium text-gray-700"
                 >
-                  Horas estimadas *
+                  Nombre de la gestión *
                 </label>
                 <input
-                  id="edit-subtask-hours"
-                  name="hours"
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={editingSubtaskData.hours}
+                  id="edit-subtask-title"
+                  name="title"
+                  type="text"
+                  value={editingSubtaskData.title}
                   onChange={(event) =>
-                    updateEditingSubtaskField('hours', event.target.value)
+                    updateEditingSubtaskField('title', event.target.value)
                   }
-                  aria-invalid={Boolean(editingErrors.hours)}
+                  aria-invalid={Boolean(editingErrors.title)}
                   aria-describedby={
-                    editingErrors.hours ? 'edit-subtask-hours-error' : undefined
+                    editingErrors.title ? 'edit-subtask-title-error' : undefined
                   }
                   className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    editingErrors.hours ? 'border-red-500' : 'border-gray-300'
+                    editingErrors.title ? 'border-red-500' : 'border-gray-300'
                   }`}
+                  placeholder="Ej: Reservar salón de eventos"
                   required
                 />
-                {editingErrors.hours && (
+                {editingErrors.title && (
                   <p
-                    id="edit-subtask-hours-error"
+                    id="edit-subtask-title-error"
                     role="alert"
                     className="mt-1 text-xs text-red-600"
                   >
-                    {editingErrors.hours}
+                    {editingErrors.title}
                   </p>
                 )}
               </div>
+            </fieldset>
 
-              <div>
-                <label
-                  htmlFor="edit-subtask-date"
-                  className="mb-1 block text-sm font-medium text-gray-700"
-                >
-                  Fecha límite *
-                </label>
-                <input
-                  id="edit-subtask-date"
-                  name="date"
-                  type="date"
-                  value={editingSubtaskData.date}
-                  onChange={(event) =>
-                    updateEditingSubtaskField('date', event.target.value)
-                  }
-                  aria-invalid={Boolean(editingErrors.date)}
-                  aria-describedby={
-                    editingErrors.date ? 'edit-subtask-date-error' : undefined
-                  }
-                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    editingErrors.date ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  required
-                />
-                {editingErrors.date && (
-                  <p
-                    id="edit-subtask-date-error"
-                    role="alert"
-                    className="mt-1 text-xs text-red-600"
+            <fieldset className="space-y-4 border-0 p-0">
+              <legend className="text-sm font-semibold text-gray-700">
+                ¿Cuánto esfuerzo requiere y cuándo debe estar lista?
+              </legend>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="edit-subtask-hours"
+                    className="mb-1 block text-sm font-medium text-gray-700"
                   >
-                    {editingErrors.date}
+                    Horas estimadas *
+                  </label>
+                  <input
+                    id="edit-subtask-hours"
+                    name="hours"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={editingSubtaskData.hours}
+                    onChange={(event) =>
+                      updateEditingSubtaskField('hours', event.target.value)
+                    }
+                    aria-invalid={Boolean(editingErrors.hours)}
+                    aria-describedby={
+                      editingErrors.hours
+                        ? 'edit-subtask-hours-error'
+                        : undefined
+                    }
+                    className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                      editingErrors.hours ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Ej: 4"
+                    required
+                  />
+                  {editingErrors.hours && (
+                    <p
+                      id="edit-subtask-hours-error"
+                      role="alert"
+                      className="mt-1 text-xs text-red-600"
+                    >
+                      {editingErrors.hours}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="edit-subtask-date"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Fecha límite *
+                  </label>
+                  <input
+                    id="edit-subtask-date"
+                    name="date"
+                    type="date"
+                    min={getToday()}
+                    value={editingSubtaskData.date}
+                    onChange={(event) =>
+                      updateEditingSubtaskField('date', event.target.value)
+                    }
+                    onBlur={validateEditingSubtaskDateOnBlur}
+                    aria-invalid={Boolean(editingErrors.date)}
+                    aria-describedby={`edit-subtask-date-help${
+                      editingErrors.date ? ' edit-subtask-date-error' : ''
+                    }`}
+                    className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                      editingErrors.date ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    required
+                  />
+                  <p
+                    id="edit-subtask-date-help"
+                    className="mt-1 text-xs text-gray-500"
+                  >
+                    Selecciona hoy o una fecha futura.
                   </p>
-                )}
+                  {editingErrors.date && (
+                    <p
+                      id="edit-subtask-date-error"
+                      role="alert"
+                      className="mt-1 text-xs text-red-600"
+                    >
+                      {editingErrors.date}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
+            </fieldset>
 
             <div className="flex justify-end">
               <Button
@@ -1233,7 +1380,7 @@ export function EventDetailView() {
                     </Badge>
                     <Button
                       type="button"
-                      variant="neutral"
+                      variant="primary"
                       className="px-2 py-1 text-xs"
                       onClick={() => startEditingSubtask(subtask)}
                       disabled={
@@ -1251,7 +1398,9 @@ export function EventDetailView() {
                     </Button>
                     <Button
                       type="button"
-                      variant="neutral"
+                      variant={
+                        subtask.state === 'ejecutada' ? 'neutral' : 'success'
+                      }
                       className="px-2 py-1 text-xs"
                       onClick={() => void handleToggleSubtask(subtask)}
                       disabled={

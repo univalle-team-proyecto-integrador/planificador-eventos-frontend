@@ -11,6 +11,8 @@ tipo: auditoria-a11y
 - La barra lateral utiliza navegación semántica y los enlaces no contienen botones anidados.
 - Los botones tienen foco visible, estado `disabled` y variantes con intención visual.
 - Los campos tienen `label`, `id`, `aria-invalid` y `aria-describedby` cuando existe error.
+- Los formularios agrupan campos con `fieldset`/`legend` y enfocan el primer inválido al bloquear un envío.
+- Las fechas de evento y objetivo tienen límite local `min` y validación contextual contra fechas pasadas.
 - Los estados de carga, vacío y error usan `role="status"` o `role="alert"` y mensajes en español.
 - El modal de eliminación usa `role="dialog"`, `aria-modal`, foco inicial, cierre con `Escape` y focus trap.
 - Las barras de progreso exponen `aria-valuemin`, `aria-valuemax` y `aria-valuenow`.
