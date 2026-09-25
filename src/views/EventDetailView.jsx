@@ -222,6 +222,10 @@ export function EventDetailView() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
 
+  const [isEventDeleteOpen, setIsEventDeleteOpen] = useState(false);
+  const [isDeletingEvent, setIsDeletingEvent] = useState(false);
+  const [eventDeleteError, setEventDeleteError] = useState('');
+
   const [updatingSubtaskId, setUpdatingSubtaskId] = useState(null);
   const [editingSubtaskId, setEditingSubtaskId] = useState(null);
   const [editingSubtaskData, setEditingSubtaskData] = useState({
@@ -474,6 +478,28 @@ export function EventDetailView() {
     }
   };
 
+  const handleDeleteEvent = async () => {
+    if (!event || isDeletingEvent) {
+      return;
+    }
+
+    setIsDeletingEvent(true);
+    setEventDeleteError('');
+
+    try {
+      await api.deleteEvent(event.id);
+      notifySuccess({
+        icon: 'trash',
+        message: `El evento “${event.nombre}” se eliminó correctamente.`,
+      });
+      navigate('/progreso');
+    } catch (error) {
+      setEventDeleteError(getErrorMessage(error));
+    } finally {
+      setIsDeletingEvent(false);
+    }
+  };
+
   const handleSaveEvent = async (submitEvent) => {
     submitEvent.preventDefault();
     const validationErrors = validateEventForm(eventForm);
@@ -566,25 +592,35 @@ export function EventDetailView() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="neutral"
+              onClick={() => navigate('/progreso')}
+              disabled={isSavingEvent || isDeletingEvent}
+            >
+              Volver a eventos
+            </Button>
             {!isEditingEvent && (
               <Button
                 type="button"
                 variant="primary"
-                onClick={() => setIsEditingEvent((current) => !current)}
-                disabled={isSavingEvent}
+                onClick={() => setIsEditingEvent(true)}
+                disabled={isSavingEvent || isDeletingEvent}
               >
                 Editar evento
               </Button>
-
             )}
             {!isEditingEvent && (
               <Button
                 type="button"
-                variant="primary"
-                onClick={() => window.location.href = "/progreso"}
-                disabled={isSavingEvent}
+                variant="danger"
+                onClick={() => {
+                  setEventDeleteError('');
+                  setIsEventDeleteOpen(true);
+                }}
+                disabled={isSavingEvent || isDeletingEvent}
               >
-                Retroceder
+                Eliminar evento
               </Button>
             )}
           </div>
@@ -1212,6 +1248,22 @@ export function EventDetailView() {
         onConfirm={() => void handleDeleteSubtask()}
         isConfirming={isDeleting}
         error={deleteError}
+      />
+
+      <ConfirmModal
+        open={isEventDeleteOpen}
+        title="¿Eliminar evento?"
+        message="Esta acción borrará el evento y su logística asociada. No se puede deshacer."
+        confirmLabel="Eliminar"
+        onCancel={() => {
+          if (!isDeletingEvent) {
+            setIsEventDeleteOpen(false);
+            setEventDeleteError('');
+          }
+        }}
+        onConfirm={() => void handleDeleteEvent()}
+        isConfirming={isDeletingEvent}
+        error={eventDeleteError}
       />
     </div>
   );

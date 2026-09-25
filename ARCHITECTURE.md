@@ -125,6 +125,7 @@ src/main/java/uv/isj/planificadoreventosbackend/
 | `GET`    | `/api/eventos?usuarioId={id}`     | Lista eventos del organizador        |
 | `GET`    | `/api/eventos/{id}`               | Obtiene un evento                    |
 | `GET`    | `/api/eventos/{id}/subtareas`     | Lista subtareas de un evento         |
+| `GET`    | `/api/subtareas/hoy?usuarioId={id}&fecha={yyyy-MM-dd}` | Lista gestiones no ejecutadas para hoy |
 | `POST`   | `/api/eventos`                    | Crea un evento                       |
 | `PUT`    | `/api/eventos/{id}`               | Actualiza un evento                  |
 | `DELETE` | `/api/eventos/{id}`               | Elimina un evento                    |
@@ -204,6 +205,14 @@ horasEstimadas (mínimo 1)
 4. La vista normaliza los nombres de la respuesta para soportar el contrato español.
 5. Se muestra loading, error con reintento o contenido.
 
+### Consultar la vista Hoy
+
+1. `HoyPage` obtiene la fecha local del organizador.
+2. El frontend consulta `GET /api/subtareas/hoy` con `usuarioId` y `fecha`.
+3. El backend filtra por fecha objetivo y excluye las gestiones ejecutadas.
+4. La vista cruza los `idEvento` con la lista de eventos para mostrar el nombre y permite abrir el detalle.
+5. Se muestran estados de carga, error con reintento y vacío con una acción para crear un evento.
+
 ### Actualizar/eliminar subtarea
 
 1. La persona edita los campos de una subtarea, la completa/reabre o solicita eliminarla.
@@ -211,6 +220,13 @@ horasEstimadas (mínimo 1)
 3. El controller busca el recurso y mapea el DTO.
 4. El service aplica la transacción.
 5. La vista solo actualiza el estado local después de recibir un DTO persistido del servidor.
+
+### Eliminar un evento
+
+1. La persona abre el modal de confirmación desde el detalle del evento.
+2. El frontend envía `DELETE /api/eventos/{id}`.
+3. El backend elimina el evento y sus subtareas mediante la relación JPA con cascada y la restricción `ON DELETE CASCADE` de PostgreSQL.
+4. Tras recibir `204`, la vista vuelve al listado de progreso y la tarjeta eliminada deja de aparecer.
 
 ## 8. Modelo de entidades
 
@@ -327,8 +343,7 @@ La prueba de API usa MockMvc y H2 con perfil `test`. La validación end-to-end c
 3. Configurar `VITE_API_URL` en Vercel.
 4. Ejecutar una prueba end-to-end con datos reales.
 5. Implementar autenticación y reemplazar `VITE_USER_ID`.
-6. Exponer la consulta de la vista «Hoy» cuando se implemente su flujo de UI.
-7. Ejecutar Lighthouse/axe y pruebas con lector de pantalla sobre el despliegue.
+6. Ejecutar Lighthouse/axe y pruebas con lector de pantalla sobre el despliegue.
 
 ## 13. Referencias
 
