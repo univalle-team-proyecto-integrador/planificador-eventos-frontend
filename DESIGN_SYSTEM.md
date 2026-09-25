@@ -52,15 +52,16 @@ Los nombres corresponden a las clases Tailwind actualmente utilizadas.
 
 ### Éxito y advertencia
 
-Estas familias comunican avance y advertencias sin reemplazar la semántica de los estados.
+Estas familias comunican avance, aciertos y advertencias sin reemplazar la semántica de los estados.
 
-| Token         | HEX       | Uso                                |
-| ------------- | --------- | ---------------------------------- |
-| `success-50`  | `#ECFDF5` | Fondo de éxito                     |
-| `success-600` | `#059669` | Botón Completar y tarea completada |
-| `success-700` | `#047857` | Hover de acciones de éxito         |
-| `warning-50`  | `#FFFBEB` | Fondo de advertencia               |
-| `warning-600` | `#D97706` | Advertencias de conflicto o tiempo |
+| Token         | HEX       | Uso                                       |
+| ------------- | --------- | ----------------------------------------- |
+| `success-50`  | `#ECFDF5` | Fondo de éxito y badges de tarea completada |
+| `success-500` | `#10B981` | Borde de campo con valor válido           |
+| `success-600` | `#059669` | Botón Completar, tarea completada y texto de acierto |
+| `success-700` | `#047857` | Hover de acciones de éxito                |
+| `warning-50`  | `#FFFBEB`  | Fondo de advertencia                      |
+| `warning-600` | `#D97706`  | Advertencias de conflicto o tiempo        |
 
 ## 3. Tipografía
 
@@ -177,6 +178,13 @@ Mensajes de validación:
 Qué ocurrió + cómo corregirlo.
 ```
 
+Estado de campo válido:
+
+- Después de que la persona toca el campo (blur), un valor válido resalta el borde en `success-500`, muestra un check decorativo y un mensaje breve de acierto (`FieldSuccess`).
+- El acierto ocupa el lugar del error; nunca coexisten en el mismo campo.
+- Usar `role="status"` para la felicitación y `role="alert"` para el error; el color por sí solo nunca comunica el estado.
+- Cambiar de `aria-describedby` entre error y felicitación según el estado del campo.
+
 ### 5.5 Estados
 
 | Componente        | Contrato                                            |
@@ -246,6 +254,24 @@ Archivos: `src/components/ui/MetricCard.jsx`, `src/components/ui/WorkloadSummary
 - Las listas de Hoy muestran como máximo 5 tareas por sección y comunican el total cuando hay elementos ocultos.
 - `ProgressBar` representa el porcentaje de horas completadas, no solo el porcentaje de tareas.
 
+### 5.11 Campo válido (FieldSuccess)
+
+Archivo: `src/components/ui/FieldSuccess.jsx`
+
+- Aviso breve de acierto con icono `Check` de Lucide (`aria-hidden="true"`) y texto en `success-600`.
+- Se renderiza como `<p role="status">` con `id` para `aria-describedby`.
+- Debe existir un mensaje de éxito por campo (ver `docs/guia-microcopy.md`).
+
+### 5.12 Tarjeta de evento y acento por evento
+
+Archivo: `src/components/ui/EventCard.jsx` · Util: `src/utils/eventAccent.js`
+
+- Cada evento recibe un acento único de la paleta mediante `getEventAccent(id)`. El color es determinístico: se repite entre el panel de progreso y la vista de detalle para mantener la identidad del evento.
+- Paleta de acentos (hex / fondo suave / glow): indigo `#4F46E5`/`#EEF2FF`, teal `#0D9488`/`#F0FDFA`, ámbar `#D97706`/`#FFFBEB`, rosa `#DB2777`/`#FDF2F8`, violeta `#7C3AED`/`#F5F3FF` y cian `#0891B2`/`#ECFEFF`.
+- La tarjeta incluye el acento en el badge, la barra de progreso (`accentColor`) y las variables CSS `--accent`, `--accent-soft` y `--accent-glow`.
+- Interacción: al pasar el cursor (o enfocar con teclado, `:focus-within`) la tarjeta crece un 3 % (`scale(1.03)`) y proyecta la sombra de color `--accent-glow`; con `prefers-reduced-motion` se omiten el escalado y las transiciones largas.
+- El acento es decorativo: no sustituye a ningún indicador textual o semántico.
+
 ## 6. Reglas de accesibilidad
 
 - Mantener contraste mínimo AA en texto normal.
@@ -256,8 +282,9 @@ Archivos: `src/components/ui/MetricCard.jsx`, `src/components/ui/WorkloadSummary
 - No eliminar el foco sin reemplazarlo por un elemento equivalente.
 - Cuando un envío falle por validación, enfocar el primer campo inválido.
 - Usar `aria-hidden="true"` en iconos decorativos.
-- Usar `role="status"` para progreso y `role="alert"` para errores.
+- Usar `role="status"` para progreso y avisos de acierto; `role="alert"` para errores.
 - Evitar animaciones que bloqueen la interacción.
+- Las animaciones de transformación deben respetar `prefers-reduced-motion`.
 
 ## 7. Ejemplos de uso
 
@@ -290,6 +317,26 @@ Archivos: `src/components/ui/MetricCard.jsx`, `src/components/ui/WorkloadSummary
   onConfirm={deleteSubtask}
   confirmLabel="Eliminar"
 />
+```
+
+```jsx
+<Card className="event-card p-5">
+  <FieldSuccess id="event-name-success">¡Listo! Nombre válido.</FieldSuccess>
+</Card>
+```
+
+```jsx
+<Card
+  as="article"
+  className="event-card p-5"
+  style={{
+    '--accent': accent.hex,
+    '--accent-soft': accent.soft,
+    '--accent-glow': accent.glow,
+  }}
+>
+  <ProgressBar value={progress} accentColor={accent.hex} label="Progreso por horas" />
+</Card>
 ```
 
 ## 8. Mantenimiento

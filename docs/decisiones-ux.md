@@ -54,6 +54,18 @@ Las mutaciones (crear, editar, eliminar, cambiar estado) no se aplican de forma 
 
 **Regla:** no mostrar una sección de tareas atrasadas cuando el total sea cero y mantener compactas las listas próximas y atrasadas con un máximo de cinco elementos visibles.
 
+### D-009 — Felicitaciones por campo válido
+
+Además del error rojo (qué pasó + cómo corregirlo), cada campo muestra un **estado de éxito verde** cuando ya es válido: bordes esmeralda, un check decorativo y un mensaje breve (`FieldSuccess`). El acierto solo aparece después de que la persona toca el campo (blur) y se actualiza en vivo mientras corrige.
+
+**Reglas:** nunca felicitar campos vacíos sin tocar; el mensaje usa `role="status"` (aviso cortés) y el error sigue usando `role="alert"`; el feedback nunca depende solo del color (check + texto).
+
+### D-010 — Identidad de color por evento
+
+Cada evento recibe un acento de la paleta (`getEventAccent`) que se repite en la tarjeta del panel de progreso (badge, barra de progreso y glow al pasar el cursor) y en la cabecera del detalle (badge y barra). Así la pantalla de detalle conserva la identidad del evento y no luce apagada frente al panel.
+
+**Regla:** el acento es decorativo; el texto sigue cumpliendo el contraste AA y nunca es el único indicador de estado.
+
 ## Revisión
 
 Este documento debe actualizarse cuando cambien las rutas, los estados globales o el contrato de la API.
@@ -71,6 +83,8 @@ Las decisiones anteriores se justifican bajo las 10 heurísticas de usabilidad d
 | D-001 — Layout persistente | 6. Reconocimiento antes que recuerdo |
 | D-006 / D-007 — Contrato API y actualizaciones confirmadas | 4. Consistencia y estándares; 10. Ayuda y documentación |
 | D-008 — Paneles de acción y seguimiento | 1. Visibilidad del estado; 6. Reconocimiento antes que recuerdo |
+| D-009 — Felicitaciones por campo válido | 9. Ayuda a reconocer, diagnosticar y recuperarse de los errores |
+| D-010 — Identidad de color por evento | 6. Reconocimiento antes que recuerdo; 8. Estética y diseño minimalista |
 | Toasts y `ErrorModal` (DESIGN_SYSTEM §5.8 y §5.9) | 1. Visibilidad del estado del sistema; 9. Reconocer y recuperarse de errores |
 
 Detalle por heurística:
@@ -80,8 +94,8 @@ Detalle por heurística:
 3. **Control y libertad del usuario:** marcar/desmarcar una subtarea es reversible y las acciones destructivas exigen confirmación explícita.
 4. **Consistencia y estándares:** `Button` con variantes fijas (`primary`, `success`, `neutral`, `danger`) y patrones repetibles en todos los formularios.
 5. **Prevención de errores:** validación en vivo de horas y fechas, y `ConfirmModal` antes de acciones destructivas.
-6. **Reconocimiento antes que recuerdo:** la barra lateral persistente mantiene el contexto en cada pantalla.
+6. **Reconocimiento antes que recuerdo:** la barra lateral persistente mantiene el contexto en cada pantalla, y el color de cada evento permite reconocerlo entre el panel de progreso y su detalle.
 7. **Flexibilidad y eficiencia de uso:** edición en línea de subtareas sin pasos intermedios.
-8. **Estética y diseño minimalista:** el contenido relevante domina cada pantalla sobre el adorno.
-9. **Ayudar a reconocer, diagnosticar y recuperarse de los errores:** mensajes de validación con causa y corrección, asociados con `aria-invalid` y `aria-describedby`.
+8. **Estética y diseño minimalista:** el contenido relevante domina cada pantalla sobre el adorno; los acentos por evento aportan claridad sin recargar.
+9. **Ayudar a reconocer, diagnosticar y recuperarse de los errores:** mensajes de validación con causa y corrección, asociados con `aria-invalid` y `aria-describedby`, y retroalimentación positiva (`role="status"`) al conseguirlo.
 10. **Ayuda y documentación:** la guía de microcopy y este anexo sirven de referencia para nuevos flujos.

@@ -7,6 +7,7 @@ export function WorkloadSummary({
   eventCount,
   progressLabel = 'Carga por horas',
   className = '',
+  accentColor,
 }) {
   const {
     total = 0,
@@ -44,7 +45,11 @@ export function WorkloadSummary({
           helper="completadas"
         />
       </div>
-      <ProgressBar value={progressHours} label={progressLabel} />
+      <ProgressBar
+        value={progressHours}
+        label={progressLabel}
+        accentColor={accentColor}
+      />
       <p className="text-xs text-gray-500">
         {formatHours(hoursCompleted)} completadas ·{' '}
         {formatHours(hoursRemaining)} restantes · {formatHours(hoursTotal)}{' '}

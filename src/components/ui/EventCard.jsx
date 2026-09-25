@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getEventAccent } from '../../utils/eventAccent';
 import { formatHours } from '../../utils/taskMetrics';
 import { Button } from './Button';
 import { Card } from './Card';
@@ -31,12 +32,24 @@ export function EventCard({ event }) {
   const hoursTotal = event.hoursTotal ?? 0;
   const hoursCompleted = event.hoursCompleted ?? 0;
   const hoursRemaining = event.hoursRemaining ?? 0;
+  const accent = getEventAccent(id);
 
   return (
-    <Card as="article" className="p-5">
+    <Card
+      as="article"
+      className="event-card p-5"
+      style={{
+        '--accent': accent.hex,
+        '--accent-soft': accent.soft,
+        '--accent-glow': accent.glow,
+      }}
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <span className="text-xs font-semibold uppercase text-blue-600">
+          <span
+            className="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold uppercase"
+            style={{ backgroundColor: accent.soft, color: accent.hex }}
+          >
             Evento #{id}
           </span>
           <h3 className="mt-1 text-lg font-semibold text-gray-900">{name}</h3>
@@ -56,7 +69,11 @@ export function EventCard({ event }) {
         </Button>
       </div>
       <div className="mt-5">
-        <ProgressBar value={progress} label="Progreso por horas" />
+        <ProgressBar
+          value={progress}
+          label="Progreso por horas"
+          accentColor={accent.hex}
+        />
         <p className="mt-2 text-xs text-gray-500">
           {total === 0
             ? 'Aún no hay subtareas registradas.'

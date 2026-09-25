@@ -17,7 +17,9 @@ import { ErrorState } from '../components/states/ErrorState';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { FieldSuccess } from '../components/ui/FieldSuccess';
 import { WorkloadSummary } from '../components/ui/WorkloadSummary';
+import { getEventAccent } from '../utils/eventAccent';
 import { getEventTypeIcon } from '../utils/eventTypeIcons';
 import { getTaskMetrics } from '../utils/taskMetrics';
 import {
@@ -38,6 +40,19 @@ const initialSubtaskData = {
   title: '',
   hours: '',
   date: '',
+};
+
+const EVENT_SUCCESS_MESSAGES = {
+  nombre: '¡Listo! Nombre válido.',
+  cliente: '¡Listo! Cliente registrado.',
+  fecha: 'Bien, fecha válida.',
+  lugar: '¡Listo! Lugar correcto.',
+};
+
+const SUBTASK_SUCCESS_MESSAGES = {
+  title: '¡Listo! Nombre de la gestión válido.',
+  hours: 'Bien, horas válidas.',
+  date: '¡Listo! Fecha límite válida.',
 };
 
 const getErrorMessage = (error) =>
@@ -211,6 +226,67 @@ const validateEventForm = (formData) => {
   return newErrors;
 };
 
+const getEventFieldError = (field, data) => {
+  switch (field) {
+    case 'nombre':
+      return data.nombre.trim()
+        ? ''
+        : 'Dejaste el nombre vacío. Ingresa un título para identificar el evento.';
+    case 'cliente':
+      return data.cliente.trim()
+        ? ''
+        : 'Falta el contacto. Escribe el nombre del cliente o responsable.';
+    case 'fecha':
+      if (!data.fecha) {
+        return 'La fecha está vacía. Selecciona el día en que se realizará el evento.';
+      }
+      return isDateInPast(data.fecha)
+        ? getPastDateMessage('La fecha del evento')
+        : '';
+    case 'lugar':
+      return data.lugar.trim()
+        ? ''
+        : 'El lugar está vacío. Indica la ubicación donde se llevará a cabo.';
+    default:
+      return '';
+  }
+};
+
+const getSubtaskFieldError = (field, data) => {
+  switch (field) {
+    case 'title':
+      return data.title.trim()
+        ? ''
+        : 'Dejaste el nombre vacío. Ingresa qué gestión necesitas realizar.';
+    case 'hours': {
+      const hours = Number(data.hours);
+
+      if (!data.hours) {
+        return 'Faltan las horas estimadas. Ingresa un valor mayor a 0.';
+      }
+      if (!Number.isFinite(hours)) {
+        return 'Ingresaste un valor no válido. Asigna al menos 1 hora de esfuerzo.';
+      }
+      if (hours <= 0) {
+        return 'Ingresaste 0 o menos. Asigna al menos 1 hora de esfuerzo.';
+      }
+      if (!Number.isInteger(hours)) {
+        return 'Ingresaste una fracción de hora. Ingresa un número entero de horas.';
+      }
+      return '';
+    }
+    case 'date':
+      if (!data.date) {
+        return 'Falta la fecha límite. Selecciona cuándo debe estar lista.';
+      }
+      return isDateInPast(data.date)
+        ? getPastDateMessage('La fecha objetivo')
+        : '';
+    default:
+      return '';
+  }
+};
+
 const getStateLabel = (state) => {
   const labels = {
     pendiente: 'Pendiente',
@@ -234,6 +310,7 @@ export function EventDetailView() {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState(initialSubtaskData);
   const [errors, setErrors] = useState({});
+  const [subtaskTouched, setSubtaskTouched] = useState({});
   const [isSavingSubtask, setIsSavingSubtask] = useState(false);
 
   const [isEditingEvent, setIsEditingEvent] = useState(false);
@@ -244,6 +321,7 @@ export function EventDetailView() {
     lugar: '',
   });
   const [eventErrors, setEventErrors] = useState({});
+  const [eventTouched, setEventTouched] = useState({});
   const [isSavingEvent, setIsSavingEvent] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -262,16 +340,11 @@ export function EventDetailView() {
     date: '',
   });
   const [editingErrors, setEditingErrors] = useState({});
+  const [editingTouched, setEditingTouched] = useState({});
   const [isSavingSubtaskEdit, setIsSavingSubtaskEdit] = useState(false);
   const eventFormRef = useRef(null);
   const subtaskFormRef = useRef(null);
   const editingSubtaskFormRef = useRef(null);
-
-  const getSubtaskDateError = (value) =>
-    isDateInPast(value) ? getPastDateMessage('La fecha objetivo') : '';
-
-  const getEventDateError = (value) =>
-    isDateInPast(value) ? getPastDateMessage('La fecha del evento') : '';
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -327,19 +400,23 @@ export function EventDetailView() {
   const workload = useMemo(() => getTaskMetrics(subtasks), [subtasks]);
 
   const updateSubtaskField = (field, value) => {
-    setFormData((current) => ({ ...current, [field]: value }));
-    setErrors((current) => ({
-      ...current,
-      [field]: field === 'date' ? getSubtaskDateError(value) : '',
-    }));
+    const next = { ...formData, [field]: value };
+    setFormData(next);
+
+    if (subtaskTouched[field]) {
+      setErrors((current) => ({
+        ...current,
+        [field]: getSubtaskFieldError(field, next),
+      }));
+    }
   };
 
-  const validateSubtaskDateOnBlur = () => {
-    const dateError = getSubtaskDateError(formData.date);
-
-    if (dateError) {
-      setErrors((current) => ({ ...current, date: dateError }));
-    }
+  const markSubtaskTouched = (field) => {
+    setSubtaskTouched((current) => ({ ...current, [field]: true }));
+    setErrors((current) => ({
+      ...current,
+      [field]: getSubtaskFieldError(field, formData),
+    }));
   };
 
   const startEditingSubtask = (subtask) => {
@@ -350,45 +427,77 @@ export function EventDetailView() {
       date: toDateInputValue(subtask.date),
     });
     setEditingErrors({});
+    setEditingTouched({});
   };
 
   const cancelEditingSubtask = () => {
     setEditingSubtaskId(null);
     setEditingSubtaskData({ title: '', hours: '', date: '' });
     setEditingErrors({});
+    setEditingTouched({});
   };
 
   const updateEditingSubtaskField = (field, value) => {
-    setEditingSubtaskData((current) => ({ ...current, [field]: value }));
-    setEditingErrors((current) => ({
-      ...current,
-      [field]: field === 'date' ? getSubtaskDateError(value) : '',
-    }));
+    const next = { ...editingSubtaskData, [field]: value };
+    setEditingSubtaskData(next);
+
+    if (editingTouched[field]) {
+      setEditingErrors((current) => ({
+        ...current,
+        [field]: getSubtaskFieldError(field, next),
+      }));
+    }
   };
 
-  const validateEditingSubtaskDateOnBlur = () => {
-    const dateError = getSubtaskDateError(editingSubtaskData.date);
-
-    if (dateError) {
-      setEditingErrors((current) => ({ ...current, date: dateError }));
-    }
+  const markEditingSubtaskTouched = (field) => {
+    setEditingTouched((current) => ({ ...current, [field]: true }));
+    setEditingErrors((current) => ({
+      ...current,
+      [field]: getSubtaskFieldError(field, editingSubtaskData),
+    }));
   };
 
   const updateEventField = (field, value) => {
-    setEventForm((current) => ({ ...current, [field]: value }));
+    const next = { ...eventForm, [field]: value };
+    setEventForm(next);
+
+    if (eventTouched[field]) {
+      setEventErrors((current) => ({
+        ...current,
+        [field]: getEventFieldError(field, next),
+      }));
+    }
+  };
+
+  const markEventTouched = (field) => {
+    setEventTouched((current) => ({ ...current, [field]: true }));
     setEventErrors((current) => ({
       ...current,
-      [field]: field === 'fecha' ? getEventDateError(value) : '',
+      [field]: getEventFieldError(field, eventForm),
     }));
   };
 
-  const validateEventDateOnBlur = () => {
-    const dateError = getEventDateError(eventForm.fecha);
+  const isSubtaskFieldSuccess = (field) =>
+    Boolean(subtaskTouched[field]) &&
+    !errors[field] &&
+    Boolean(String(formData[field] ?? '').trim());
 
-    if (dateError) {
-      setEventErrors((current) => ({ ...current, fecha: dateError }));
-    }
-  };
+  const isEditingSubtaskFieldSuccess = (field) =>
+    Boolean(editingTouched[field]) &&
+    !editingErrors[field] &&
+    Boolean(String(editingSubtaskData[field] ?? '').trim());
+
+  const isEventFieldSuccess = (field) =>
+    Boolean(eventTouched[field]) &&
+    !eventErrors[field] &&
+    Boolean(String(eventForm[field] ?? '').trim());
+
+  const inputBorderClass = (isError, isSuccess) =>
+    isError
+      ? 'border-red-500'
+      : isSuccess
+        ? 'border-emerald-500'
+        : 'border-gray-300';
 
   const handleAddSubtask = async (event) => {
     event.preventDefault();
@@ -421,6 +530,7 @@ export function EventDetailView() {
 
       setSubtasks((current) => [...current, newSubtask]);
       setFormData(initialSubtaskData);
+      setSubtaskTouched({});
       setShowForm(false);
       notifySuccess({
         icon: 'check',
@@ -623,6 +733,7 @@ export function EventDetailView() {
 
       setEvent(updatedEvent);
       setEventForm(eventToForm(updatedEvent));
+      setEventTouched({});
       setIsEditingEvent(false);
       notifySuccess({
         icon: 'edit',
@@ -663,6 +774,8 @@ export function EventDetailView() {
     );
   }
 
+  const accent = getEventAccent(event.id);
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <Card className="p-6">
@@ -679,13 +792,16 @@ export function EventDetailView() {
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase text-blue-600">
+              <span
+                className="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold uppercase"
+                style={{ backgroundColor: accent.soft, color: accent.hex }}
+              >
                 Evento #{event.id}
               </span>
               <h2 className="mt-2 text-2xl font-bold text-gray-900">
                 {event.nombre}
               </h2>
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="mt-1 text-sm text-gray-500">
                 Plan logístico del evento
               </p>
             </div>
@@ -747,17 +863,23 @@ export function EventDetailView() {
                     onChange={(event) =>
                       updateEventField('nombre', event.target.value)
                     }
+                    onBlur={() => markEventTouched('nombre')}
                     aria-invalid={Boolean(eventErrors.nombre)}
                     aria-describedby={
-                      eventErrors.nombre ? 'edit-event-name-error' : undefined
+                      eventErrors.nombre
+                        ? 'edit-event-name-error'
+                        : isEventFieldSuccess('nombre')
+                          ? 'edit-event-name-success'
+                          : undefined
                     }
-                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                      eventErrors.nombre ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                      Boolean(eventErrors.nombre),
+                      isEventFieldSuccess('nombre')
+                    )}`}
                     placeholder="Ej: Boda de Carlos y Laura"
                     required
                   />
-                  {eventErrors.nombre && (
+                  {eventErrors.nombre ? (
                     <p
                       id="edit-event-name-error"
                       role="alert"
@@ -765,7 +887,11 @@ export function EventDetailView() {
                     >
                       {eventErrors.nombre}
                     </p>
-                  )}
+                  ) : isEventFieldSuccess('nombre') ? (
+                    <FieldSuccess id="edit-event-name-success">
+                      {EVENT_SUCCESS_MESSAGES.nombre}
+                    </FieldSuccess>
+                  ) : null}
                 </div>
 
                 <div>
@@ -783,19 +909,23 @@ export function EventDetailView() {
                     onChange={(event) =>
                       updateEventField('cliente', event.target.value)
                     }
+                    onBlur={() => markEventTouched('cliente')}
                     aria-invalid={Boolean(eventErrors.cliente)}
                     aria-describedby={
                       eventErrors.cliente
                         ? 'edit-event-client-error'
-                        : undefined
+                        : isEventFieldSuccess('cliente')
+                          ? 'edit-event-client-success'
+                          : undefined
                     }
-                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                      eventErrors.cliente ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                      Boolean(eventErrors.cliente),
+                      isEventFieldSuccess('cliente')
+                    )}`}
                     placeholder="Ej: María Pérez"
                     required
                   />
-                  {eventErrors.cliente && (
+                  {eventErrors.cliente ? (
                     <p
                       id="edit-event-client-error"
                       role="alert"
@@ -803,7 +933,11 @@ export function EventDetailView() {
                     >
                       {eventErrors.cliente}
                     </p>
-                  )}
+                  ) : isEventFieldSuccess('cliente') ? (
+                    <FieldSuccess id="edit-event-client-success">
+                      {EVENT_SUCCESS_MESSAGES.cliente}
+                    </FieldSuccess>
+                  ) : null}
                 </div>
               </div>
             </fieldset>
@@ -829,29 +963,39 @@ export function EventDetailView() {
                     onChange={(event) =>
                       updateEventField('fecha', event.target.value)
                     }
-                    onBlur={validateEventDateOnBlur}
+                    onBlur={() => markEventTouched('fecha')}
                     aria-invalid={Boolean(eventErrors.fecha)}
                     aria-describedby={`edit-event-date-help${
-                      eventErrors.fecha ? ' edit-event-date-error' : ''
+                      eventErrors.fecha
+                        ? ' edit-event-date-error'
+                        : isEventFieldSuccess('fecha')
+                          ? ' edit-event-date-success'
+                          : ''
                     }`}
-                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                      eventErrors.fecha ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                      Boolean(eventErrors.fecha),
+                      isEventFieldSuccess('fecha')
+                    )}`}
                     required
                   />
-                  <p
-                    id="edit-event-date-help"
-                    className="mt-1 text-xs text-gray-500"
-                  >
-                    Selecciona hoy o una fecha futura.
-                  </p>
-                  {eventErrors.fecha && (
+                  {eventErrors.fecha ? (
                     <p
                       id="edit-event-date-error"
                       role="alert"
                       className="mt-1 text-xs text-red-600"
                     >
                       {eventErrors.fecha}
+                    </p>
+                  ) : isEventFieldSuccess('fecha') ? (
+                    <FieldSuccess id="edit-event-date-success">
+                      {EVENT_SUCCESS_MESSAGES.fecha}
+                    </FieldSuccess>
+                  ) : (
+                    <p
+                      id="edit-event-date-help"
+                      className="mt-1 text-xs text-gray-500"
+                    >
+                      Selecciona hoy o una fecha futura.
                     </p>
                   )}
                 </div>
@@ -871,19 +1015,23 @@ export function EventDetailView() {
                     onChange={(event) =>
                       updateEventField('lugar', event.target.value)
                     }
+                    onBlur={() => markEventTouched('lugar')}
                     aria-invalid={Boolean(eventErrors.lugar)}
                     aria-describedby={
                       eventErrors.lugar
                         ? 'edit-event-location-error'
-                        : undefined
+                        : isEventFieldSuccess('lugar')
+                          ? 'edit-event-location-success'
+                          : undefined
                     }
-                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                      eventErrors.lugar ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                      Boolean(eventErrors.lugar),
+                      isEventFieldSuccess('lugar')
+                    )}`}
                     placeholder="Ej: Salón Campestre, Yumbo"
                     required
                   />
-                  {eventErrors.lugar && (
+                  {eventErrors.lugar ? (
                     <p
                       id="edit-event-location-error"
                       role="alert"
@@ -891,7 +1039,11 @@ export function EventDetailView() {
                     >
                       {eventErrors.lugar}
                     </p>
-                  )}
+                  ) : isEventFieldSuccess('lugar') ? (
+                    <FieldSuccess id="edit-event-location-success">
+                      {EVENT_SUCCESS_MESSAGES.lugar}
+                    </FieldSuccess>
+                  ) : null}
                 </div>
               </div>
             </fieldset>
@@ -903,6 +1055,7 @@ export function EventDetailView() {
                 onClick={() => {
                   setIsEditingEvent(false);
                   setEventErrors({});
+                  setEventTouched({});
                 }}
                 disabled={isSavingEvent}
               >
@@ -971,7 +1124,7 @@ export function EventDetailView() {
             <h3 className="text-lg font-semibold text-gray-900">
               Plan inicial de subtareas
             </h3>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="mt-1 text-sm text-gray-500">
               {subtasks.length === 0
                 ? 'Añade la primera gestión para comenzar.'
                 : `${workload.completed} de ${subtasks.length} tareas completadas.`}
@@ -993,6 +1146,7 @@ export function EventDetailView() {
           <WorkloadSummary
             metrics={workload}
             progressLabel="Progreso por horas"
+            accentColor={accent.hex}
             className="py-5"
           />
         )}
@@ -1037,17 +1191,23 @@ export function EventDetailView() {
                   onChange={(event) =>
                     updateSubtaskField('title', event.target.value)
                   }
+                  onBlur={() => markSubtaskTouched('title')}
                   aria-invalid={Boolean(errors.title)}
                   aria-describedby={
-                    errors.title ? 'subtask-title-error' : undefined
+                    errors.title
+                      ? 'subtask-title-error'
+                      : isSubtaskFieldSuccess('title')
+                        ? 'subtask-title-success'
+                        : undefined
                   }
-                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.title ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                    Boolean(errors.title),
+                    isSubtaskFieldSuccess('title')
+                  )}`}
                   placeholder="Ej: Reservar salón de eventos"
                   required
                 />
-                {errors.title && (
+                {errors.title ? (
                   <p
                     id="subtask-title-error"
                     role="alert"
@@ -1055,7 +1215,11 @@ export function EventDetailView() {
                   >
                     {errors.title}
                   </p>
-                )}
+                ) : isSubtaskFieldSuccess('title') ? (
+                  <FieldSuccess id="subtask-title-success">
+                    {SUBTASK_SUCCESS_MESSAGES.title}
+                  </FieldSuccess>
+                ) : null}
               </div>
             </fieldset>
 
@@ -1081,17 +1245,23 @@ export function EventDetailView() {
                     onChange={(event) =>
                       updateSubtaskField('hours', event.target.value)
                     }
+                    onBlur={() => markSubtaskTouched('hours')}
                     aria-invalid={Boolean(errors.hours)}
                     aria-describedby={
-                      errors.hours ? 'subtask-hours-error' : undefined
+                      errors.hours
+                        ? 'subtask-hours-error'
+                        : isSubtaskFieldSuccess('hours')
+                          ? 'subtask-hours-success'
+                          : undefined
                     }
-                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                      errors.hours ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                      Boolean(errors.hours),
+                      isSubtaskFieldSuccess('hours')
+                    )}`}
                     placeholder="Ej: 4"
                     required
                   />
-                  {errors.hours && (
+                  {errors.hours ? (
                     <p
                       id="subtask-hours-error"
                       role="alert"
@@ -1099,7 +1269,11 @@ export function EventDetailView() {
                     >
                       {errors.hours}
                     </p>
-                  )}
+                  ) : isSubtaskFieldSuccess('hours') ? (
+                    <FieldSuccess id="subtask-hours-success">
+                      {SUBTASK_SUCCESS_MESSAGES.hours}
+                    </FieldSuccess>
+                  ) : null}
                 </div>
 
                 <div>
@@ -1118,29 +1292,39 @@ export function EventDetailView() {
                     onChange={(event) =>
                       updateSubtaskField('date', event.target.value)
                     }
-                    onBlur={validateSubtaskDateOnBlur}
+                    onBlur={() => markSubtaskTouched('date')}
                     aria-invalid={Boolean(errors.date)}
                     aria-describedby={`subtask-date-help${
-                      errors.date ? ' subtask-date-error' : ''
+                      errors.date
+                        ? ' subtask-date-error'
+                        : isSubtaskFieldSuccess('date')
+                          ? ' subtask-date-success'
+                          : ''
                     }`}
-                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                      errors.date ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                      Boolean(errors.date),
+                      isSubtaskFieldSuccess('date')
+                    )}`}
                     required
                   />
-                  <p
-                    id="subtask-date-help"
-                    className="mt-1 text-xs text-gray-500"
-                  >
-                    Selecciona hoy o una fecha futura.
-                  </p>
-                  {errors.date && (
+                  {errors.date ? (
                     <p
                       id="subtask-date-error"
                       role="alert"
                       className="mt-1 text-xs text-red-600"
                     >
                       {errors.date}
+                    </p>
+                  ) : isSubtaskFieldSuccess('date') ? (
+                    <FieldSuccess id="subtask-date-success">
+                      {SUBTASK_SUCCESS_MESSAGES.date}
+                    </FieldSuccess>
+                  ) : (
+                    <p
+                      id="subtask-date-help"
+                      className="mt-1 text-xs text-gray-500"
+                    >
+                      Selecciona hoy o una fecha futura.
                     </p>
                   )}
                 </div>
@@ -1154,6 +1338,7 @@ export function EventDetailView() {
                 onClick={() => {
                   setShowForm(false);
                   setErrors({});
+                  setSubtaskTouched({});
                 }}
                 disabled={isSavingSubtask}
               >
@@ -1217,17 +1402,23 @@ export function EventDetailView() {
                   onChange={(event) =>
                     updateEditingSubtaskField('title', event.target.value)
                   }
+                  onBlur={() => markEditingSubtaskTouched('title')}
                   aria-invalid={Boolean(editingErrors.title)}
                   aria-describedby={
-                    editingErrors.title ? 'edit-subtask-title-error' : undefined
+                    editingErrors.title
+                      ? 'edit-subtask-title-error'
+                      : isEditingSubtaskFieldSuccess('title')
+                        ? 'edit-subtask-title-success'
+                        : undefined
                   }
-                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    editingErrors.title ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                    Boolean(editingErrors.title),
+                    isEditingSubtaskFieldSuccess('title')
+                  )}`}
                   placeholder="Ej: Reservar salón de eventos"
                   required
                 />
-                {editingErrors.title && (
+                {editingErrors.title ? (
                   <p
                     id="edit-subtask-title-error"
                     role="alert"
@@ -1235,7 +1426,11 @@ export function EventDetailView() {
                   >
                     {editingErrors.title}
                   </p>
-                )}
+                ) : isEditingSubtaskFieldSuccess('title') ? (
+                  <FieldSuccess id="edit-subtask-title-success">
+                    {SUBTASK_SUCCESS_MESSAGES.title}
+                  </FieldSuccess>
+                ) : null}
               </div>
             </fieldset>
 
@@ -1261,19 +1456,23 @@ export function EventDetailView() {
                     onChange={(event) =>
                       updateEditingSubtaskField('hours', event.target.value)
                     }
+                    onBlur={() => markEditingSubtaskTouched('hours')}
                     aria-invalid={Boolean(editingErrors.hours)}
                     aria-describedby={
                       editingErrors.hours
                         ? 'edit-subtask-hours-error'
-                        : undefined
+                        : isEditingSubtaskFieldSuccess('hours')
+                          ? 'edit-subtask-hours-success'
+                          : undefined
                     }
-                    className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                      editingErrors.hours ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                      Boolean(editingErrors.hours),
+                      isEditingSubtaskFieldSuccess('hours')
+                    )}`}
                     placeholder="Ej: 4"
                     required
                   />
-                  {editingErrors.hours && (
+                  {editingErrors.hours ? (
                     <p
                       id="edit-subtask-hours-error"
                       role="alert"
@@ -1281,7 +1480,11 @@ export function EventDetailView() {
                     >
                       {editingErrors.hours}
                     </p>
-                  )}
+                  ) : isEditingSubtaskFieldSuccess('hours') ? (
+                    <FieldSuccess id="edit-subtask-hours-success">
+                      {SUBTASK_SUCCESS_MESSAGES.hours}
+                    </FieldSuccess>
+                  ) : null}
                 </div>
 
                 <div>
@@ -1300,29 +1503,39 @@ export function EventDetailView() {
                     onChange={(event) =>
                       updateEditingSubtaskField('date', event.target.value)
                     }
-                    onBlur={validateEditingSubtaskDateOnBlur}
+                    onBlur={() => markEditingSubtaskTouched('date')}
                     aria-invalid={Boolean(editingErrors.date)}
                     aria-describedby={`edit-subtask-date-help${
-                      editingErrors.date ? ' edit-subtask-date-error' : ''
+                      editingErrors.date
+                        ? ' edit-subtask-date-error'
+                        : isEditingSubtaskFieldSuccess('date')
+                          ? ' edit-subtask-date-success'
+                          : ''
                     }`}
-                    className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                      editingErrors.date ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                      Boolean(editingErrors.date),
+                      isEditingSubtaskFieldSuccess('date')
+                    )}`}
                     required
                   />
-                  <p
-                    id="edit-subtask-date-help"
-                    className="mt-1 text-xs text-gray-500"
-                  >
-                    Selecciona hoy o una fecha futura.
-                  </p>
-                  {editingErrors.date && (
+                  {editingErrors.date ? (
                     <p
                       id="edit-subtask-date-error"
                       role="alert"
                       className="mt-1 text-xs text-red-600"
                     >
                       {editingErrors.date}
+                    </p>
+                  ) : isEditingSubtaskFieldSuccess('date') ? (
+                    <FieldSuccess id="edit-subtask-date-success">
+                      {SUBTASK_SUCCESS_MESSAGES.date}
+                    </FieldSuccess>
+                  ) : (
+                    <p
+                      id="edit-subtask-date-help"
+                      className="mt-1 text-xs text-gray-500"
+                    >
+                      Selecciona hoy o una fecha futura.
                     </p>
                   )}
                 </div>

@@ -30,6 +30,23 @@ Qué ocurrió + cómo corregirlo.
 - “La fecha objetivo ya pasó. Selecciona hoy o una fecha futura.”
 - “No pudimos conectar con el servidor. Revisa tu red e inténtalo de nuevo.”
 
+## Felicitaciones por campo válido
+
+Cuando un campo ya es válido (tras tocarlo y sin errores) se muestra un mensaje breve de éxito, antecedido por un check. La felicitación es corta y confirma en qué campo se logró el acierto; el error nunca convive con la felicitación del mismo campo.
+
+### Mensajes de éxito por campo
+
+| Campo                  | Mensaje                            |
+| ---------------------- | ---------------------------------- |
+| Nombre del evento      | “¡Listo! Nombre válido.”           |
+| Tipo de evento         | “Bien, tipo seleccionado.”         |
+| Cliente                | “¡Listo! Cliente registrado.”      |
+| Fecha del evento       | “Bien, fecha válida.”              |
+| Lugar                  | “¡Listo! Lugar correcto.”          |
+| Gestión                | “¡Listo! Nombre de la gestión válido.” |
+| Horas estimadas        | “Bien, horas válidas.”             |
+| Fecha objetivo         | “¡Listo! Fecha límite válida.”     |
+
 ## Estados vacíos
 
 El estado vacío debe responder tres preguntas:

@@ -1,4 +1,4 @@
-export function ProgressBar({ value = 0, label = 'Progreso' }) {
+export function ProgressBar({ value = 0, label = 'Progreso', accentColor }) {
   const safeValue = Math.min(100, Math.max(0, value));
 
   return (
@@ -17,7 +17,10 @@ export function ProgressBar({ value = 0, label = 'Progreso' }) {
       >
         <div
           className="h-full rounded-full bg-blue-600 transition-all"
-          style={{ width: `${safeValue}%` }}
+          style={{
+            width: `${safeValue}%`,
+            ...(accentColor ? { backgroundColor: accentColor } : {}),
+          }}
         />
       </div>
     </div>

@@ -103,6 +103,20 @@ textarea {
   animation: modal-in 180ms ease-out both;
 }
 
+.event-card {
+  transition:
+    transform 240ms ease,
+    box-shadow 240ms ease;
+}
+
+.event-card:hover,
+.event-card:focus-within {
+  transform: scale(1.03);
+  box-shadow:
+    0 18px 40px -12px var(--accent-glow, rgba(37, 99, 235, 0.4)),
+    0 2px 8px rgba(17, 24, 39, 0.08);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .toast-enter {
     animation: fade-in 150ms ease-out both;
@@ -114,5 +128,14 @@ textarea {
 
   .modal-in {
     animation: fade-in 120ms ease-out both;
+  }
+
+  .event-card {
+    transition: box-shadow 120ms ease;
+  }
+
+  .event-card:hover,
+  .event-card:focus-within {
+    transform: none;
   }
 }
