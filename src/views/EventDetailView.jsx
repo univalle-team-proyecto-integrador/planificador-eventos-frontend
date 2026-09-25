@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { Button } from '../components/ui/Button';
 import { ProgressBar } from '../components/ui/ProgressBar';
+import { useNotifications } from '../providers/notifications-context';
 import {
   api,
   getDefaultUserId,
@@ -196,7 +197,7 @@ const getStateLabel = (state) => {
 
 export function EventDetailView() {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const { notifySuccess, notifyError } = useNotifications();
   const [event, setEvent] = useState(null);
   const [subtasks, setSubtasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -206,7 +207,6 @@ export function EventDetailView() {
   const [formData, setFormData] = useState(initialSubtaskData);
   const [errors, setErrors] = useState({});
   const [isSavingSubtask, setIsSavingSubtask] = useState(false);
-  const [actionError, setActionError] = useState('');
 
   const [isEditingEvent, setIsEditingEvent] = useState(false);
   const [eventForm, setEventForm] = useState({
@@ -294,7 +294,6 @@ export function EventDetailView() {
   const updateSubtaskField = (field, value) => {
     setFormData((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: '' }));
-    setActionError('');
   };
 
   const startEditingSubtask = (subtask) => {
@@ -305,7 +304,6 @@ export function EventDetailView() {
       date: toDateInputValue(subtask.date),
     });
     setEditingErrors({});
-    setActionError('');
   };
 
   const cancelEditingSubtask = () => {
@@ -317,13 +315,11 @@ export function EventDetailView() {
   const updateEditingSubtaskField = (field, value) => {
     setEditingSubtaskData((current) => ({ ...current, [field]: value }));
     setEditingErrors((current) => ({ ...current, [field]: '' }));
-    setActionError('');
   };
 
   const updateEventField = (field, value) => {
     setEventForm((current) => ({ ...current, [field]: value }));
     setEventErrors((current) => ({ ...current, [field]: '' }));
-    setActionError('');
   };
 
   const handleAddSubtask = async (event) => {
@@ -336,7 +332,6 @@ export function EventDetailView() {
     }
 
     setErrors({});
-    setActionError('');
     setIsSavingSubtask(true);
 
     try {
@@ -353,8 +348,15 @@ export function EventDetailView() {
       setSubtasks((current) => [...current, newSubtask]);
       setFormData(initialSubtaskData);
       setShowForm(false);
+      notifySuccess({
+        icon: 'check',
+        message: 'Gestión añadida correctamente.',
+      });
     } catch (error) {
-      setActionError(getErrorMessage(error));
+      notifyError({
+        title: 'No pudimos añadir la gestión',
+        message: getErrorMessage(error),
+      });
     } finally {
       setIsSavingSubtask(false);
     }
@@ -364,7 +366,6 @@ export function EventDetailView() {
     const nextState = subtask.state === 'ejecutada' ? 'pendiente' : 'ejecutada';
 
     setUpdatingSubtaskId(subtask.id);
-    setActionError('');
 
     try {
       const response = unwrapData(
@@ -381,8 +382,18 @@ export function EventDetailView() {
       setSubtasks((current) =>
         current.map((item) => (item.id === subtask.id ? updatedSubtask : item))
       );
+      notifySuccess({
+        icon: nextState === 'ejecutada' ? 'check' : 'undo',
+        message:
+          nextState === 'ejecutada'
+            ? 'Gestión marcada como completada.'
+            : 'Gestión reabierta.',
+      });
     } catch (error) {
-      setActionError(getErrorMessage(error));
+      notifyError({
+        title: 'No pudimos actualizar el estado',
+        message: getErrorMessage(error),
+      });
     } finally {
       setUpdatingSubtaskId(null);
     }
@@ -402,7 +413,6 @@ export function EventDetailView() {
     }
 
     setEditingErrors({});
-    setActionError('');
     setIsSavingSubtaskEdit(true);
 
     try {
@@ -424,8 +434,15 @@ export function EventDetailView() {
         )
       );
       cancelEditingSubtask();
+      notifySuccess({
+        icon: 'edit',
+        message: 'Gestión actualizada correctamente.',
+      });
     } catch (error) {
-      setActionError(getErrorMessage(error));
+      notifyError({
+        title: 'No pudimos guardar los cambios',
+        message: getErrorMessage(error),
+      });
     } finally {
       setIsSavingSubtaskEdit(false);
     }
@@ -441,10 +458,15 @@ export function EventDetailView() {
 
     try {
       await api.deleteSubtask(deleteTarget.id);
+      const deletedTitle = deleteTarget.title;
       setSubtasks((current) =>
         current.filter((subtask) => subtask.id !== deleteTarget.id)
       );
       setDeleteTarget(null);
+      notifySuccess({
+        icon: 'trash',
+        message: `La gestión “${deletedTitle}” se eliminó correctamente.`,
+      });
     } catch (error) {
       setDeleteError(getErrorMessage(error));
     } finally {
@@ -462,7 +484,6 @@ export function EventDetailView() {
     }
 
     setEventErrors({});
-    setActionError('');
     setIsSavingEvent(true);
 
     try {
@@ -490,8 +511,15 @@ export function EventDetailView() {
       setEvent(updatedEvent);
       setEventForm(eventToForm(updatedEvent));
       setIsEditingEvent(false);
+      notifySuccess({
+        icon: 'edit',
+        message: 'Evento actualizado correctamente.',
+      });
     } catch (error) {
-      setActionError(getErrorMessage(error));
+      notifyError({
+        title: 'No pudimos guardar el evento',
+        message: getErrorMessage(error),
+      });
     } finally {
       setIsSavingEvent(false);
     }
@@ -538,7 +566,6 @@ export function EventDetailView() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-
             {!isEditingEvent && (
               <Button
                 type="button"
@@ -549,7 +576,6 @@ export function EventDetailView() {
                 Editar evento
               </Button>
             )}
-
           </div>
         </div>
 
@@ -579,8 +605,9 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.nombre ? 'edit-event-name-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${eventErrors.nombre ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  eventErrors.nombre ? 'border-red-500' : 'border-gray-300'
+                }`}
                 required
               />
               {eventErrors.nombre && (
@@ -613,8 +640,9 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.cliente ? 'edit-event-client-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${eventErrors.cliente ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  eventErrors.cliente ? 'border-red-500' : 'border-gray-300'
+                }`}
                 required
               />
               {eventErrors.cliente && (
@@ -648,8 +676,9 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.fecha ? 'edit-event-date-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${eventErrors.fecha ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  eventErrors.fecha ? 'border-red-500' : 'border-gray-300'
+                }`}
                 required
               />
               {eventErrors.fecha && (
@@ -682,8 +711,9 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.lugar ? 'edit-event-location-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${eventErrors.lugar ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  eventErrors.lugar ? 'border-red-500' : 'border-gray-300'
+                }`}
                 required
               />
               {eventErrors.lugar && (
@@ -775,15 +805,6 @@ export function EventDetailView() {
           <ProgressBar value={progress} label="Progreso logístico" />
         </div>
 
-        {actionError && (
-          <p
-            role="alert"
-            className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700"
-          >
-            {actionError}
-          </p>
-        )}
-
         {subtasks.length === 0 && !showForm && (
           <EmptyState
             title="¿Aún no hay gestiones logísticas?"
@@ -823,8 +844,9 @@ export function EventDetailView() {
                 aria-describedby={
                   errors.title ? 'subtask-title-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.title ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  errors.title ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Ej: Reservar salón de eventos"
                 required
               />
@@ -861,8 +883,9 @@ export function EventDetailView() {
                   aria-describedby={
                     errors.hours ? 'subtask-hours-error' : undefined
                   }
-                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.hours ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                    errors.hours ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Ej: 4"
                   required
                 />
@@ -896,8 +919,9 @@ export function EventDetailView() {
                   aria-describedby={
                     errors.date ? 'subtask-date-error' : undefined
                   }
-                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.date ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                    errors.date ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 />
                 {errors.date && (
@@ -981,8 +1005,9 @@ export function EventDetailView() {
                 aria-describedby={
                   editingErrors.title ? 'edit-subtask-title-error' : undefined
                 }
-                className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${editingErrors.title ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  editingErrors.title ? 'border-red-500' : 'border-gray-300'
+                }`}
                 required
               />
               {editingErrors.title && (
@@ -1018,8 +1043,9 @@ export function EventDetailView() {
                   aria-describedby={
                     editingErrors.hours ? 'edit-subtask-hours-error' : undefined
                   }
-                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${editingErrors.hours ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                    editingErrors.hours ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 />
                 {editingErrors.hours && (
@@ -1052,8 +1078,9 @@ export function EventDetailView() {
                   aria-describedby={
                     editingErrors.date ? 'edit-subtask-date-error' : undefined
                   }
-                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${editingErrors.date ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                    editingErrors.date ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 />
                 {editingErrors.date && (
@@ -1090,10 +1117,11 @@ export function EventDetailView() {
               >
                 <div className="min-w-0">
                   <p
-                    className={`font-medium ${subtask.state === 'ejecutada'
-                      ? 'text-gray-500 line-through'
-                      : 'text-gray-800'
-                      }`}
+                    className={`font-medium ${
+                      subtask.state === 'ejecutada'
+                        ? 'text-gray-500 line-through'
+                        : 'text-gray-800'
+                    }`}
                   >
                     {subtask.title}
                   </p>

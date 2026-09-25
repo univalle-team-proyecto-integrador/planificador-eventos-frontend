@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ErrorState } from '../components/states/ErrorState';
 import { Button } from '../components/ui/Button';
+import { useNotifications } from '../providers/notifications-context';
 import {
   api,
   getDefaultUserId,
@@ -37,6 +37,7 @@ const normalizeEventType = (payload) => ({
 
 export function CreateEventView() {
   const navigate = useNavigate();
+  const { notifySuccess, notifyError } = useNotifications();
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -157,9 +158,16 @@ export function CreateEventView() {
         );
       }
 
+      notifySuccess({
+        icon: 'check',
+        message: 'Evento creado correctamente.',
+      });
       navigate(`/evento/${eventId}`);
     } catch (error) {
-      setSubmitError(getErrorMessage(error));
+      notifyError({
+        title: 'No pudimos guardar el evento',
+        message: getErrorMessage(error),
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -190,14 +198,12 @@ export function CreateEventView() {
       </div>
 
       {submitError && (
-        <div className="mb-6">
-          <ErrorState
-            title="No pudimos guardar el evento"
-            message={submitError}
-            onRetry={() => void submitEvent()}
-            isRetrying={isSubmitting}
-          />
-        </div>
+        <p
+          role="alert"
+          className="mb-5 rounded-md bg-amber-50 p-3 text-sm text-amber-700"
+        >
+          {submitError}
+        </p>
       )}
 
       <form

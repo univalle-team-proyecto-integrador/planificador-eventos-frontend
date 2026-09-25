@@ -188,6 +188,30 @@ Archivo: `src/components/ui/Layout.jsx`
 - Enlace `Saltar al contenido`.
 - `Outlet` para renderizar la pantalla activa.
 
+### 5.6 Notificación de éxito (toast)
+
+Archivos: `src/components/ui/Toast.jsx`, `src/components/ui/ToastContainer.jsx`.
+
+- Aparece en la esquina superior derecha deslizándose desde la derecha (`toast-in`).
+- Se retira solo después de 3.5 s deslizándose de vuelta a la derecha (`toast-out`); también puede cerrarse con el botón `×`.
+- El ícono varía según la acción: `check` (guardar/añadir/completar), `edit` (actualizar), `trash` (eliminar), `undo` (reabrir).
+- Iconos SVG inline con `aria-hidden="true"` y badge de color suave por tipo.
+- Cada toast usa `role="status"`; la información nunca se comunica solo mediante el ícono, siempre lleva texto.
+- Soporta `prefers-reduced-motion` (intercambia el deslizamiento por un fade breve).
+- La API se expone a las vistas mediante `useNotifications().notifySuccess({ icon, message })` del `NotificationsProvider`.
+
+### 5.7 Modal de error cognitivo
+
+Archivo: `src/components/ui/ErrorModal.jsx`
+
+- Reemplaza los avisos de error de acciones (guardar, editar, eliminar, alternar estado).
+- Paleta suave: badge `amber-50`/`amber-600`, sin rojos intensos.
+- Iconografía simple (alerta con círculo), título claro y no alarmante, un solo botón `Entendido`.
+- `role="alertdialog"`, `aria-modal="true"`, `aria-labelledby` y `aria-describedby`.
+- El foco entra al diálogo, `Escape` lo cierra y el foco vuelve al elemento que lo abrió.
+- Se abre mediante `useNotifications().notifyError({ title, message })`.
+- Los errores de carga inicial de una pantalla siguen usando `ErrorState` con reintento; solo los errores de acciones usan el modal.
+
 ## 6. Reglas de accesibilidad
 
 - Mantener contraste mínimo AA en texto normal.
