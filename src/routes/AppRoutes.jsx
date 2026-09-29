@@ -28,13 +28,13 @@ export const AppRoutes = () => (
   <BrowserRouter>
     <Suspense fallback={<RouteLoader />}>
       <Routes>
+        <Route path="/login" element={<LoginPage />} />
         <Route element={<Layout />}>
           <Route path="/" element={<Navigate to="/hoy" replace />} />
           <Route path="/hoy" element={<HoyPage />} />
           <Route path="/crear" element={<CrearPage />} />
           <Route path="/evento/:id" element={<DetallePage />} />
           <Route path="/progreso" element={<ProgresoPage />} />
-          <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Route>
       </Routes>

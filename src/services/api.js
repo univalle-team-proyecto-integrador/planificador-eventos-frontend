@@ -1,5 +1,6 @@
-const API_BASE_URL = (
-  import.meta.env.VITE_API_URL || 'https://planificador-eventos-backend-1.onrender.com'
+export const API_BASE_URL = (
+  import.meta.env.VITE_API_URL ||
+  'https://planificador-eventos-backend-1.onrender.com'
 ).replace(/\/$/, '');
 
 export class ApiError extends Error {
@@ -28,11 +29,22 @@ const getServerMessage = (payload, fallback) => {
 
 const REQUEST_TIMEOUT_MS = 15000;
 
-const request = async (path, options = {}) => {
+// Punto único de autenticación: hoy devuelve null porque todavía no existe
+// sesión. Cuando se implemente JWT basta conectar aquí el token para que
+// todas las llamadas de la API queden autenticadas sin tocar las vistas.
+const getAuthToken = () => null;
+
+export const request = async (path, options = {}) => {
   const headers = new Headers(options.headers);
 
   if (options.body !== undefined && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
+  }
+
+  const token = getAuthToken();
+
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
 
   const method = (options.method || 'GET').toUpperCase();
