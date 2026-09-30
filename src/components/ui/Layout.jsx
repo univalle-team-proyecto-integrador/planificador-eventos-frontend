@@ -1,5 +1,11 @@
-import { ChartNoAxesColumnIncreasing, House, Plus } from 'lucide-react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import {
+  ChartNoAxesColumnIncreasing,
+  House,
+  LogOut,
+  Plus,
+} from 'lucide-react';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useSession } from '../../providers/session-context';
 import logoUrl from '../../img/Logo_h1.png';
 import { Button } from './Button';
 
@@ -9,8 +15,25 @@ const navLinkClass =
 const isCurrentPath = (pathname, target) =>
   pathname === target || pathname.startsWith(`${target}/`);
 
+const getInitials = (nombre) =>
+  String(nombre ?? '')
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((palabra) => palabra[0]?.toUpperCase() ?? '')
+    .join('') || 'EV';
+
 export const Layout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { usuario, logout } = useSession();
+
+  // El token vive en localStorage, así que cerrar sesión es local: alcanza con
+  // borrarlo y volver a /login.
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
@@ -91,6 +114,30 @@ export const Layout = () => {
               <Plus aria-hidden="true" className="mr-2 inline size-4" />
               Crear Evento
             </Button>
+
+            <div className="mt-4 flex items-center justify-between gap-3 border-t border-gray-200 px-4 pt-4 md:mx-6 md:mb-6 md:mt-6 md:flex-col md:items-stretch">
+              <div className="flex min-w-0 items-center gap-3">
+                <span
+                  aria-hidden="true"
+                  className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-xs font-bold text-[#3323CC]"
+                >
+                  {getInitials(usuario?.nombre)}
+                </span>
+                <div className="min-w-0 md:hidden">
+                  <p className="truncate text-sm font-semibold text-gray-900">
+                    {usuario?.nombre || 'Invitado'}
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={handleLogout}
+                variant="neutral"
+                className="flex items-center justify-center rounded-full px-4 py-2 text-sm md:justify-start"
+              >
+                <LogOut aria-hidden="true" className="mr-2 inline size-4" />
+                Cerrar sesión
+              </Button>
+            </div>
           </nav>
         </aside>
 

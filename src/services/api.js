@@ -1,3 +1,5 @@
+import { getStoredToken, notifySessionExpired } from './tokenStorage';
+
 export const API_BASE_URL = (
   import.meta.env.VITE_API_URL ||
   'https://planificador-eventos-backend-1.onrender.com'
@@ -29,10 +31,14 @@ const getServerMessage = (payload, fallback) => {
 
 const REQUEST_TIMEOUT_MS = 15000;
 
-// Punto único de autenticación: hoy devuelve null porque todavía no existe
-// sesión. Cuando se implemente JWT basta conectar aquí el token para que
-// todas las llamadas de la API queden autenticadas sin tocar las vistas.
-const getAuthToken = () => null;
+// Rutas donde un 401 es la respuesta esperada y no una sesión caducada:
+// /api/users/login devuelve 401 si la contraseña no coincide.
+const RUTAS_SIN_SESION = ['/api/users/login', '/api/users/register'];
+
+// Punto único de autenticación: todas las llamadas de la API quedan
+// autenticadas sin tocar las vistas. El token vive en tokenStorage para no
+// crear un ciclo de importación con authService.
+const getAuthToken = () => getStoredToken();
 
 export const request = async (path, options = {}) => {
   const headers = new Headers(options.headers);
@@ -101,6 +107,12 @@ export const request = async (path, options = {}) => {
     }
   }
 
+  if (response.status === 401 && !RUTAS_SIN_SESION.includes(path)) {
+    // Token caducado o revocado: se cierra la sesión y el provider manda a
+    // /login en lugar de dejar la vista con datos a medias.
+    notifySessionExpired();
+  }
+
   if (!response.ok) {
     throw new ApiError(
       getServerMessage(
@@ -140,6 +152,10 @@ export const api = {
 
   listEventTypes() {
     return request('/api/tipos-evento');
+  },
+
+  getProfile() {
+    return request('/api/users/profile');
   },
 
   listEvents(usuarioId) {

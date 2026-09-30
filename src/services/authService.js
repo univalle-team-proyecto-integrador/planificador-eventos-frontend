@@ -1,47 +1,46 @@
 import { ApiError, request, unwrapData } from './api';
+import {
+  clearStoredSession,
+  getStoredToken,
+  readStoredSession,
+  saveSession,
+} from './tokenStorage';
 import { normalizeEmail } from '../utils/emailValidation';
 
 // ─── Contrato con el backend ────────────────────────────────────────────────
-// Estos dos puntos son lo único que hay que ajustar cuando el backend defina
-// la autenticación. El resto de la app no depende de ellos.
-//
-// LOGIN_PATH: toda la API del backend vive bajo /api/*, por eso se asume
-//   /api/auth/login. Si el endpoint real difiere, se cambia solo aquí.
-// AUTH_MODE: 'simulated' no llama al backend y sirve para revisar la pantalla.
-//   Cuando exista el endpoint se pasa a 'api' y se puede borrar el bloque
-//   simulateSession.
-const LOGIN_PATH = '/api/auth/login';
-const AUTH_MODE = 'simulated';
+// US-11 quedó así en el backend:
+//   POST /api/users/register -> 201 { token, tokenType, expiresIn, usuario }
+//   POST /api/users/login    -> 200 { token, tokenType, expiresIn, usuario }
+//   GET  /api/users/profile  -> 200 UsuarioDTO (exige Authorization: Bearer)
+// Ambos caminos aceptan la variante con barra final. Si algún día cambian,
+// se toca solo este bloque.
+const LOGIN_PATH = '/api/users/login';
+const REGISTER_PATH = '/api/users/register';
+const PROFILE_PATH = '/api/users/profile';
 
-// Respuesta esperada de LOGIN_PATH. Se leen campos alternativos para no
-// depender de un único nombre hasta que el backend fije el contrato.
+// El backend devuelve { usuario: { idUsuario, email, nombre, ... } }.
 const normalizeSession = (payload) => ({
-  token: payload?.token ?? payload?.accessToken ?? null,
-  idUsuario: payload?.idUsuario ?? payload?.id ?? null,
-  nombre: payload?.nombre ?? payload?.name ?? '',
+  token: payload?.token ?? null,
+  tokenType: payload?.tokenType ?? 'Bearer',
+  expiresIn: payload?.expiresIn ?? null,
+  idUsuario: payload?.usuario?.idUsuario ?? null,
+  email: payload?.usuario?.email ?? '',
+  nombre: payload?.usuario?.nombre ?? '',
 });
 
-const SIMULATED_DELAY_MS = 900;
-const SIMULATED_SESSION = {
-  token: 'simulated-token',
-  idUsuario: 1,
-  nombre: 'Coordinador invitado',
-};
-
-const simulateSession = (email) =>
-  new Promise((resolve) => {
-    window.setTimeout(() => {
-      resolve({ ...SIMULATED_SESSION, email: normalizeEmail(email) });
-    }, SIMULATED_DELAY_MS);
-  });
-
-const getStatusMessage = (status) => {
+const getStatusMessage = (status, contexto) => {
   if (status === 400) {
-    return 'El correo no es válido para iniciar sesión. Revísalo e inténtalo de nuevo.';
+    return 'Revisa los datos: el correo o la contraseña no tienen un formato válido.';
   }
 
-  if (status === 401 || status === 404) {
-    return 'No encontramos una cuenta con ese correo. Verifica el correo o crea tu cuenta.';
+  if (status === 401) {
+    return contexto === 'registro'
+      ? 'No pudimos crear la cuenta. Inténtalo de nuevo en unos minutos.'
+      : 'Correo o contraseña incorrectos. Revisa los datos e inténtalo de nuevo.';
+  }
+
+  if (status === 409) {
+    return 'Ese correo ya está registrado. Prueba a iniciar sesión.';
   }
 
   if (status >= 500) {
@@ -51,44 +50,99 @@ const getStatusMessage = (status) => {
   return 'No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.';
 };
 
-/**
- * Solicita el acceso al workspace. En modo 'api' hace POST a LOGIN_PATH y
- * devuelve la sesión normalizada; los errores llegan como ApiError con un
- * mensaje ya redactado para la persona usuaria.
- */
-export const requestLogin = async (email) => {
-  if (AUTH_MODE === 'simulated') {
-    return simulateSession(email);
+/** El backend responde ProblemDetail; su `detail` ya está redactado para la UI. */
+const toApiError = (error, contexto) => {
+  if (error instanceof ApiError) {
+    const mensajeDelServidor = error.details?.detail;
+    return new ApiError(
+      typeof mensajeDelServidor === 'string' && mensajeDelServidor
+        ? mensajeDelServidor
+        : getStatusMessage(error.status, contexto),
+      error.status,
+      error.details
+    );
   }
 
+  return new ApiError(getStatusMessage(0, contexto));
+};
+
+/**
+ * Inicia sesión contra el backend. A diferencia de la versión simulada, la
+ * contraseña es obligatoria: es lo que permite que el backend emita el JWT.
+ */
+export const requestLogin = async ({ email, password }) => {
   try {
     const response = unwrapData(
       await request(LOGIN_PATH, {
         method: 'POST',
-        body: JSON.stringify({ email: normalizeEmail(email) }),
+        body: JSON.stringify({
+          email: normalizeEmail(email),
+          password,
+        }),
       })
     );
 
-    return normalizeSession(response);
+    const session = normalizeSession(response);
+    saveSession(session);
+    return session;
   } catch (error) {
-    if (error instanceof ApiError) {
-      throw new ApiError(
-        getStatusMessage(error.status),
-        error.status,
-        error.details
-      );
-    }
+    throw toApiError(error, 'login');
+  }
+};
 
-    throw new ApiError(getStatusMessage(0));
+/** Crea la cuenta y deja la sesión iniciada, igual que un login exitoso. */
+export const requestRegister = async ({ nombre, email, password }) => {
+  try {
+    const response = unwrapData(
+      await request(REGISTER_PATH, {
+        method: 'POST',
+        body: JSON.stringify({
+          nombre: String(nombre ?? '').trim(),
+          email: normalizeEmail(email),
+          password,
+        }),
+      })
+    );
+
+    const session = normalizeSession(response);
+    saveSession(session);
+    return session;
+  } catch (error) {
+    throw toApiError(error, 'registro');
+  }
+};
+
+/**
+ * Confirma el token contra el backend. Un 401 significa que el token caducó o
+ * que se cambió el secreto, así que la sesión se descarta y hay que volver a
+ * entrar.
+ */
+export const requestProfile = async () => {
+  try {
+    const perfil = unwrapData(await request(PROFILE_PATH));
+    const session = {
+      ...(readStoredSession() ?? {}),
+      idUsuario: perfil?.idUsuario ?? null,
+      email: perfil?.email ?? '',
+      nombre: perfil?.nombre ?? '',
+    };
+    saveSession(session);
+    return perfil;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      clearStoredSession();
+    }
+    throw toApiError(error, 'perfil');
   }
 };
 
 // ─── Sesión ────────────────────────────────────────────────────────────────
-// Todavía no se guarda nada: no existe token real que persistir. Cuando se
-// implemente JWT, estas tres funciones son el único lugar que toca el
-// almacenamiento y se conecta con getAuthToken de services/api.js.
-export const getToken = () => null;
+export const getToken = () => getStoredToken();
 
-export const setToken = (token) => token;
+export const getSession = () => readStoredSession();
 
-export const clearToken = () => null;
+export const setToken = (token) => saveSession({ ...(readStoredSession() ?? {}), token });
+
+export const clearToken = () => clearStoredSession();
+
+export const isAuthenticated = () => Boolean(getStoredToken());

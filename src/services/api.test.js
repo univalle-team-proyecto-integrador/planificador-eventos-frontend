@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { api, ApiError, getDefaultUserId, toApiDateTime, unwrapData } from './api';
+import { api, ApiError, getDefaultUserId, request, toApiDateTime, unwrapData } from './api';
+import { getStoredToken, onSessionExpired, saveSession } from './tokenStorage';
 
 const BASE = 'https://planificador-eventos-backend-1.onrender.com';
 
@@ -168,5 +169,76 @@ describe('request', () => {
       'El servidor tardó demasiado en responder. Inténtalo de nuevo.'
     );
     expect(fetch).toHaveBeenCalledTimes(1);
+  });
+});
+describe('autenticación (US-11)', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    vi.stubGlobal('fetch', vi.fn());
+  });
+
+  afterEach(() => {
+    window.localStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
+  it('adjunta Authorization: Bearer cuando hay token guardado', async () => {
+    saveSession({ token: 'token-vigente', nombre: 'Santiago' });
+    fetch.mockResolvedValue(jsonResponse(200, [{ idEvento: 1, nombre: 'Boda' }]));
+
+    await api.listEvents(null);
+
+    const [, options] = fetch.mock.calls[0];
+    expect(options.headers.get('Authorization')).toBe('Bearer token-vigente');
+  });
+
+  it('no adjunta Authorization cuando no hay sesión', async () => {
+    fetch.mockResolvedValue(jsonResponse(200, []));
+
+    await api.listEvents(null);
+
+    const [, options] = fetch.mock.calls[0];
+    // Headers.get devuelve null cuando la cabecera no existe.
+    expect(options.headers.get('Authorization')).toBeNull();
+  });
+
+  it('getProfile llama a /api/users/profile con el token', async () => {
+    saveSession({ token: 'token-vigente', nombre: 'Santiago' });
+    fetch.mockResolvedValue(jsonResponse(200, { idUsuario: 1, nombre: 'Santiago' }));
+
+    const perfil = await api.getProfile();
+
+    const [url, options] = fetch.mock.calls[0];
+    expect(url).toBe(`${BASE}/api/users/profile`);
+    expect(options.headers.get('Authorization')).toBe('Bearer token-vigente');
+    expect(perfil.nombre).toBe('Santiago');
+  });
+
+  it('un 401 fuera del login cierra la sesión', async () => {
+    saveSession({ token: 'token-caducado', nombre: 'Santiago' });
+    fetch.mockResolvedValue(jsonResponse(401, { title: 'No autorizado' }));
+    const alExpirar = vi.fn();
+    const quitar = onSessionExpired(alExpirar);
+
+    await api.listEvents(null).catch(() => {});
+
+    expect(alExpirar).toHaveBeenCalledTimes(1);
+    expect(getStoredToken()).toBeNull();
+
+    quitar();
+  });
+
+  it('un 401 en /api/users/login no cierra la sesión de forma especial', async () => {
+    saveSession({ token: 'token-vigente', nombre: 'Santiago' });
+    fetch.mockResolvedValue(jsonResponse(401, { title: 'Credenciales inválidas' }));
+    const alExpirar = vi.fn();
+    const quitar = onSessionExpired(alExpirar);
+
+    await request({ method: 'POST', body: JSON.stringify({}) }, '/api/users/login').catch(() => {});
+
+    expect(alExpirar).not.toHaveBeenCalled();
+    expect(getStoredToken()).toBe('token-vigente');
+
+    quitar();
   });
 });

@@ -5,33 +5,22 @@ import {
   CalendarCheck,
   Eye,
   EyeOff,
-  Info,
-  LifeBuoy,
   LoaderCircle,
   Lock,
   Mail,
+  UserRound,
 } from 'lucide-react';
 import { useSession } from '../providers/session-context';
+import { focusFirstInvalidField } from '../utils/formFocus';
 import { getEmailErrorMessage, isValidEmail } from '../utils/emailValidation';
 import {
   getPasswordErrorMessage,
   isValidPassword,
 } from '../utils/passwordValidation';
-import { focusFirstInvalidField } from '../utils/formFocus';
-
-const DEMO_AVATARS = [
-  { initials: 'JD', bg: '#EEF0FF', fg: '#3323CC' },
-  { initials: 'MS', bg: '#FDF2F8', fg: '#BE185D' },
-  { initials: 'LR', bg: '#ECFDF5', fg: '#047857' },
-];
 
 const getSubmitErrorMessage = (error) =>
   error?.message ||
-  'No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.';
-
-// El `focus:outline-none!` de los campos enfoca en índigo según el diseño.
-// El `!` es necesario: index.css define un `:focus-visible` global azul fuera
-// de cualquier capa y, en CSS, lo no estratificado gana a @layer utilities.
+  'No pudimos crear la cuenta. Revisa tu conexión e inténtalo de nuevo.';
 
 const inputClass = (hasError) =>
   `w-full rounded-2xl border bg-[#EEF0FF] py-3.5 pl-12 pr-4 text-[15px] text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none! focus-visible:ring-2 focus-visible:ring-[#3323CC] focus-visible:ring-offset-2 ${
@@ -47,47 +36,35 @@ const FieldError = ({ id, children }) =>
     </p>
   ) : null;
 
-export function LoginView() {
+/**
+ * Alta de cuenta. El registro devuelve token, así que la persona queda
+ * conectada y entra directo a /hoy sin pasar por el login.
+ */
+export function RegisterView() {
   const navigate = useNavigate();
-  const { login, isLoading } = useSession();
+  const { register, isLoading } = useSession();
+  const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [submitError, setSubmitError] = useState('');
   const formRef = useRef(null);
 
   const isSubmitting = isLoading;
 
-  const updateEmail = (value) => {
-    setEmail(value);
-
-    if (error) {
-      setError(isValidEmail(value) ? '' : getEmailErrorMessage(value));
+  const getNameError = (value) => {
+    if (!String(value ?? '').trim()) {
+      return 'Escribe tu nombre para completar el registro.';
     }
 
-    setSubmitError('');
-  };
-
-  const updatePassword = (value) => {
-    setPassword(value);
-
-    if (passwordError) {
-      setPasswordError(isValidPassword(value) ? '' : getPasswordErrorMessage(value));
+    if (String(value).trim().length > 100) {
+      return 'El nombre no puede superar los 100 caracteres.';
     }
 
-    setSubmitError('');
-  };
-
-  const handleBlur = () => {
-    setError(isValidEmail(email) ? '' : getEmailErrorMessage(email));
-  };
-
-  const handlePasswordBlur = () => {
-    setPasswordError(
-      password ? (isValidPassword(password) ? '' : getPasswordErrorMessage(password)) : ''
-    );
+    return '';
   };
 
   const handleSubmit = async (event) => {
@@ -97,40 +74,32 @@ export function LoginView() {
       return;
     }
 
-    const emailError = isValidEmail(email) ? '' : getEmailErrorMessage(email);
-    const passError = isValidPassword(password) ? '' : getPasswordErrorMessage(password);
-    setError(emailError);
-    setPasswordError(passError);
+    const nombreValidacion = getNameError(nombre);
+    const emailValidacion = isValidEmail(email) ? '' : getEmailErrorMessage(email);
+    const passwordValidacion = isValidPassword(password)
+      ? ''
+      : getPasswordErrorMessage(password);
 
-    if (emailError || passError) {
+    setNameError(nombreValidacion);
+    setEmailError(emailValidacion);
+    setPasswordError(passwordValidacion);
+
+    if (nombreValidacion || emailValidacion || passwordValidacion) {
       setSubmitError('');
       focusFirstInvalidField(formRef, {
-        email: emailError,
-        password: passError,
+        nombre: nombreValidacion,
+        email: emailValidacion,
+        password: passwordValidacion,
       });
       return;
     }
 
     try {
-      await login({ email, password });
+      await register({ nombre, email, password });
       navigate('/hoy', { replace: true });
     } catch (requestError) {
       setSubmitError(getSubmitErrorMessage(requestError));
     }
-  };
-
-  const emailFieldProps = {
-    id: 'login-email',
-    name: 'email',
-    'aria-invalid': Boolean(error),
-    'aria-describedby': error ? 'login-email-error' : undefined,
-  };
-
-  const passwordFieldProps = {
-    id: 'login-password',
-    name: 'password',
-    'aria-invalid': Boolean(passwordError),
-    'aria-describedby': passwordError ? 'login-password-error' : undefined,
   };
 
   return (
@@ -154,10 +123,10 @@ export function LoginView() {
 
         <div className="rounded-3xl bg-white p-7 shadow-[0_18px_40px_-20px_rgba(17,24,39,0.25)] sm:p-9">
           <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-[#111827]">
-            Bienvenido de nuevo
+            Crea tu cuenta
           </h1>
           <p className="mt-2 text-sm text-[#6B7280]">
-            Ingresa tus datos para conectarte a tu cuenta
+            Organiza tus eventos y tu carga diaria en un solo lugar
           </p>
 
           {submitError && (
@@ -177,8 +146,41 @@ export function LoginView() {
             className="mt-6"
           >
             <label
-              htmlFor="login-email"
+              htmlFor="register-nombre"
               className="mb-2 block text-sm font-semibold text-[#111827]"
+            >
+              Nombre completo
+            </label>
+            <div className="relative">
+              <UserRound
+                aria-hidden="true"
+                className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-[#9CA3AF]"
+                strokeWidth={1.8}
+              />
+              <input
+                id="register-nombre"
+                name="nombre"
+                type="text"
+                autoComplete="name"
+                placeholder="Santiago Pérez"
+                aria-invalid={Boolean(nameError)}
+                aria-describedby={nameError ? 'register-nombre-error' : undefined}
+                className={inputClass(Boolean(nameError))}
+                value={nombre}
+                onChange={(changeEvent) => {
+                  setNombre(changeEvent.target.value);
+                  setNameError('');
+                  setSubmitError('');
+                }}
+                disabled={isSubmitting}
+                required
+              />
+            </div>
+            <FieldError id="register-nombre-error">{nameError}</FieldError>
+
+            <label
+              htmlFor="register-email"
+              className="mt-5 mb-2 block text-sm font-semibold text-[#111827]"
             >
               Correo electrónico
             </label>
@@ -189,23 +191,29 @@ export function LoginView() {
                 strokeWidth={1.8}
               />
               <input
-                {...emailFieldProps}
+                id="register-email"
+                name="email"
                 type="email"
                 inputMode="email"
                 autoComplete="email"
                 placeholder="ejemplo@correo.com"
-                className={inputClass(Boolean(error))}
+                aria-invalid={Boolean(emailError)}
+                aria-describedby={emailError ? 'register-email-error' : undefined}
+                className={inputClass(Boolean(emailError))}
                 value={email}
-                onChange={(changeEvent) => updateEmail(changeEvent.target.value)}
-                onBlur={handleBlur}
+                onChange={(changeEvent) => {
+                  setEmail(changeEvent.target.value);
+                  setEmailError('');
+                  setSubmitError('');
+                }}
                 disabled={isSubmitting}
                 required
               />
             </div>
-            <FieldError id="login-email-error">{error}</FieldError>
+            <FieldError id="register-email-error">{emailError}</FieldError>
 
             <label
-              htmlFor="login-password"
+              htmlFor="register-password"
               className="mt-5 mb-2 block text-sm font-semibold text-[#111827]"
             >
               Contraseña
@@ -217,16 +225,22 @@ export function LoginView() {
                 strokeWidth={1.8}
               />
               <input
-                {...passwordFieldProps}
+                id="register-password"
+                name="password"
                 type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                placeholder="Tu contraseña"
+                autoComplete="new-password"
+                placeholder="Mínimo 8 caracteres"
+                aria-invalid={Boolean(passwordError)}
+                aria-describedby={
+                  passwordError ? 'register-password-error' : undefined
+                }
                 className={`${inputClass(Boolean(passwordError))} pr-12`}
                 value={password}
-                onChange={(changeEvent) =>
-                  updatePassword(changeEvent.target.value)
-                }
-                onBlur={handlePasswordBlur}
+                onChange={(changeEvent) => {
+                  setPassword(changeEvent.target.value);
+                  setPasswordError('');
+                  setSubmitError('');
+                }}
                 disabled={isSubmitting}
                 required
               />
@@ -247,25 +261,11 @@ export function LoginView() {
                 )}
               </button>
             </div>
-            <FieldError id="login-password-error">{passwordError}</FieldError>
+            <FieldError id="register-password-error">{passwordError}</FieldError>
 
-            <div className="mt-5 flex items-start gap-2.5 rounded-2xl bg-[#EEF0FF] p-4">
-              <Info
-                aria-hidden="true"
-                className="mt-0.5 size-4 shrink-0 text-[#3323CC]"
-                strokeWidth={2}
-              />
-              <p className="text-[13px] leading-relaxed text-[#4B5563]">
-                Si aún no tienes cuenta,{' '}
-                <Link
-                  to="/registro"
-                  className="font-semibold text-[#3323CC] underline hover:no-underline"
-                >
-                  regístrate aquí
-                </Link>{' '}
-                y podrás organizar tus eventos desde el primer día.
-              </p>
-            </div>
+            <p className="mt-3 text-[12px] leading-relaxed text-[#6B7280]">
+              Usa al menos 8 caracteres, combinando letras y números.
+            </p>
 
             <button
               type="submit"
@@ -279,11 +279,11 @@ export function LoginView() {
                     aria-hidden="true"
                     className="size-4 animate-spin"
                   />
-                  Verificando…
+                  Creando cuenta…
                 </>
               ) : (
                 <>
-                  Iniciar sesión
+                  Crear cuenta
                   <ArrowRight
                     aria-hidden="true"
                     className="size-4"
@@ -295,46 +295,15 @@ export function LoginView() {
           </form>
         </div>
 
-        <div
-          aria-hidden="true"
-          className="mt-7 flex items-center justify-center gap-3"
-        >
-          <div className="flex -space-x-2">
-            {DEMO_AVATARS.map((avatar) => (
-              <span
-                key={avatar.initials}
-                className="flex size-8 items-center justify-center rounded-full text-[11px] font-bold ring-2 ring-[#FAFAFF]"
-                style={{ backgroundColor: avatar.bg, color: avatar.fg }}
-              >
-                {avatar.initials}
-              </span>
-            ))}
-          </div>
-          <span className="text-[13px] text-[#6B7280]">
-            +3.2k coordinadores activos hoy
-          </span>
-        </div>
-
-        <div className="mt-7 text-center">
-          <a
-            href="mailto:soporte@eventflow.co?subject=Ayuda%20para%20iniciar%20sesi%C3%B3n"
-            className="inline-flex items-center gap-2 rounded-md text-sm font-semibold text-[#3323CC] hover:underline focus:outline-none! focus-visible:ring-2 focus-visible:ring-[#3323CC] focus-visible:ring-offset-2"
+        <p className="mt-7 text-center text-sm text-[#6B7280]">
+          ¿Ya tienes cuenta?{' '}
+          <Link
+            to="/login"
+            className="font-semibold text-[#3323CC] underline hover:no-underline"
           >
-            <LifeBuoy aria-hidden="true" className="size-4" strokeWidth={2} />
-            ¿Necesitas ayuda para iniciar sesión?
-          </a>
-        </div>
-
-        <div className="mt-9 flex flex-col items-center gap-2.5 text-center">
-          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9CA3AF]">
-            <Lock aria-hidden="true" className="size-3" strokeWidth={2.2} />
-            Cifrado de extremo a extremo
-          </p>
-          <p className="max-w-sm text-[11px] leading-relaxed text-[#9CA3AF]">
-            Al continuar, aceptas la protección de datos y condiciones de
-            servicio corporativo de EventFlow.
-          </p>
-        </div>
+            Inicia sesión
+          </Link>
+        </p>
       </div>
     </div>
   );

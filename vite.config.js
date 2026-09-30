@@ -7,4 +7,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  test: {
+    // US-11: la sesión vive en localStorage, así que los tests necesitan un
+    // DOM real. Antes corría en node y `window` no existía.
+    environment: 'jsdom',
+  },
 })
