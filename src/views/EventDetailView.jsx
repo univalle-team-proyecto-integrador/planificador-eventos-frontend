@@ -29,12 +29,7 @@ import {
 } from '../utils/dateValidation';
 import { focusFirstInvalidField } from '../utils/formFocus';
 import { useNotifications } from '../providers/notifications-context';
-import {
-  api,
-  getDefaultUserId,
-  toApiDateTime,
-  unwrapData,
-} from '../services/api';
+import { api, toApiDateTime, unwrapData } from '../services/api';
 
 const initialSubtaskData = {
   title: '',
@@ -107,7 +102,7 @@ const normalizeEvent = (payload, fallbackId, typeName = '') => {
 
   return {
     id: source.id ?? source.idEvento ?? fallbackId,
-    idUsuario: source.idUsuario ?? getDefaultUserId(),
+    idUsuario: source.idUsuario ?? null,
     idTipoEvento: source.idTipoEvento ?? source.typeId ?? null,
     nombre: source.nombre ?? source.name ?? 'Evento sin nombre',
     cliente: source.cliente ?? source.client ?? 'Sin cliente',
@@ -711,7 +706,6 @@ export function EventDetailView() {
 
     try {
       const payload = {
-        idUsuario: event.idUsuario,
         idTipoEvento: event.idTipoEvento,
         nombre: eventForm.nombre.trim(),
         cliente: eventForm.cliente.trim(),

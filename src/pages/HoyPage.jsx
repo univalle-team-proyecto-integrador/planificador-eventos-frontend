@@ -6,7 +6,7 @@ import { ErrorState } from '../components/states/ErrorState';
 import { Card } from '../components/ui/Card';
 import { MetricCard } from '../components/ui/MetricCard';
 import { TaskCard } from '../components/ui/TaskCard';
-import { api, getDefaultUserId, unwrapData } from '../services/api';
+import { api, unwrapData } from '../services/api';
 import { getToday } from '../utils/dateValidation';
 import {
   classifyTasksByDate,
@@ -96,8 +96,7 @@ export const HoyPage = () => {
     setError('');
 
     try {
-      const userId = getDefaultUserId();
-      const eventsResponse = unwrapData(await api.listEvents(userId));
+      const eventsResponse = unwrapData(await api.listEvents());
       const normalizedEvents = (
         Array.isArray(eventsResponse) ? eventsResponse : []
       )

@@ -129,11 +129,6 @@ export const request = async (path, options = {}) => {
 
 export const unwrapData = (payload) => payload?.data ?? payload;
 
-export const getDefaultUserId = () => {
-  const configuredId = Number(import.meta.env.VITE_USER_ID || 1);
-  return Number.isInteger(configuredId) && configuredId > 0 ? configuredId : 1;
-};
-
 export const toApiDateTime = (value) => {
   if (!value) {
     return '';
@@ -158,11 +153,9 @@ export const api = {
     return request('/api/users/profile');
   },
 
-  listEvents(usuarioId) {
-    const query = usuarioId
-      ? `?usuarioId=${encodeURIComponent(usuarioId)}`
-      : '';
-    return request(`/api/eventos${query}`);
+  // Sin usuarioId: el backend toma el propietario del token de sesion.
+  listEvents() {
+    return request('/api/eventos');
   },
 
   getEvent(id) {
@@ -186,8 +179,8 @@ export const api = {
     return request(`/api/eventos/${encodeURIComponent(eventId)}/subtareas`);
   },
 
-  listTodaySubtasks(usuarioId, fecha) {
-    const query = `?usuarioId=${encodeURIComponent(usuarioId)}&fecha=${encodeURIComponent(fecha)}`;
+  listTodaySubtasks(fecha) {
+    const query = `?fecha=${encodeURIComponent(fecha)}`;
     return request(`/api/subtareas/hoy${query}`);
   },
 

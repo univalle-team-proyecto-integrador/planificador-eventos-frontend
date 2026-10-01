@@ -5,7 +5,7 @@ import { ErrorState } from '../components/states/ErrorState';
 import { Card } from '../components/ui/Card';
 import { EventCard } from '../components/ui/EventCard';
 import { WorkloadSummary } from '../components/ui/WorkloadSummary';
-import { api, getDefaultUserId, unwrapData } from '../services/api';
+import { api, unwrapData } from '../services/api';
 import { getTaskMetrics, normalizeSubtask } from '../utils/taskMetrics';
 
 const getErrorMessage = (error) =>
@@ -22,7 +22,7 @@ export const ProgresoPage = () => {
     setError('');
 
     try {
-      const response = unwrapData(await api.listEvents(getDefaultUserId()));
+      const response = unwrapData(await api.listEvents());
       const rawEvents = (Array.isArray(response) ? response : []).filter(
         (event) => event?.id ?? event?.idEvento
       );

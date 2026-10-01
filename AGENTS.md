@@ -27,7 +27,7 @@ npm run build   # vite build -> dist/
 
 ## Entorno (trampa importante)
 
-- `.env` está en `.gitignore` pero **existe en local y apunta a la API real en Render**: `VITE_API_URL=https://planificador-eventos-backend-1.onrender.com`, `VITE_USER_ID=1`.
+- `.env` está en `.gitignore` pero **existe en local y apunta a la API real en Render**: `VITE_API_URL=https://planificador-eventos-backend-1.onrender.com`. Ya no existe `VITE_USER_ID`: el propietario sale del token.
 - `src/services/api.js` además **cae a esa URL de Render** si falta `VITE_API_URL`. Consecuencia: `npm run dev` sin `.env` opera contra producción y escribe datos reales (crear/eliminar eventos). No apuntar a `localhost:8080` ni inventar endpoints sin avisar antes.
 - El backend solo habilita CORS para `https://*.vercel.app` y `http://localhost:5173`. Cambiar el puerto de Vite rompe la SPA.
 - `api.js` usa timeout de 15 s y **reintenta una vez los `GET`** por el cold start del plan free de Render. No eliminarlo sin motivo.
@@ -57,7 +57,7 @@ npm run build   # vite build -> dist/
 
 Todo el HTTP pasa por `src/services/api.js`; nunca hardcodear URLs en las vistas. DTOs:
 
-- Evento: `idUsuario`, `idTipoEvento`, `nombre`, `cliente`, `fechaEvento`, `lugar`. `GET /api/eventos/{id}` además trae `subtareas` (las vistas siguen usando `GET /api/eventos/{id}/subtareas`).
+- Evento: `idTipoEvento`, `nombre`, `cliente`, `fechaEvento`, `lugar`. El `idUsuario` es opcional y el backend lo ignora (el propietario sale del token). `GET /api/eventos/{id}` además trae `subtareas` (las vistas siguen usando `GET /api/eventos/{id}/subtareas`).
 - Tipo de evento: `idTipoEvento`, `nombre`, desde `/api/tipos-evento`.
 - Subtarea: `idEvento`, `nombreGestion`, `horasEstimadas`, `fechaObjetivo`, `estado` (`pendiente` | `ejecutada` | `pospuesta`).
 
@@ -76,6 +76,6 @@ Raíz (fuente de verdad): `PRD.md` (alcance y criterios de aceptación), `DESIGN
 
 ## Pendientes conocidos
 
-- US-11 (autenticación) sigue fuera de alcance; `VITE_USER_ID` es temporal.
+- US-11 (autenticación) ya está implementado y desplegado; falta evidencia en Jira.
 - Falta evidencia en Jira y la validación end-to-end contra Supabase/Render.
 - Auditorías Lighthouse/axe pendientes sobre el despliegue de Vercel.

@@ -86,9 +86,8 @@ Variables disponibles para Vite:
 | Variable       | Uso                                                                          |
 | -------------- | ---------------------------------------------------------------------------- |
 | `VITE_API_URL` | URL base del backend Spring Boot.                                            |
-| `VITE_USER_ID` | Identificador temporal del organizador mientras se implementa autenticación. |
 
-El frontend espera el contrato de eventos, tipos y subtareas definido por el backend. La fecha del evento se convierte a `LocalDateTime`; la fecha objetivo de una subtarea se envía como `LocalDate`. La vista `/hoy` consulta `GET /api/subtareas/hoy` con la fecha local y el identificador del organizador. Las mutaciones, incluida la eliminación de eventos, solo actualizan la vista después de recibir una respuesta persistida del servidor.
+El frontend espera el contrato de eventos, tipos y subtareas definido por el backend. La fecha del evento se convierte a `LocalDateTime`; la fecha objetivo de una subtarea se envía como `LocalDate`. La vista `/hoy` consulta `GET /api/subtareas/hoy` con la fecha local; el propietario lo determina el token de sesión. Las mutaciones, incluida la eliminación de eventos, solo actualizan la vista después de recibir una respuesta persistida del servidor.
 
 ## Despliegue
 
@@ -101,4 +100,4 @@ El frontend espera el contrato de eventos, tipos y subtareas definido por el bac
 - La eliminación de eventos usa `DELETE /api/eventos/{id}` y redirige al listado de progreso.
 - La capa de API está conectada mediante `src/services/api.js`.
 - La persistencia real depende de que el backend exponga los endpoints de eventos y subtareas con el contrato documentado.
-- La autenticación y la selección definitiva del organizador siguen fuera de alcance; `VITE_USER_ID` es una configuración temporal de desarrollo.
+- La autenticación está implementada: el propietario de cada petición lo determina el token de sesión, y el cliente ya no envía `idUsuario` ni `usuarioId`.

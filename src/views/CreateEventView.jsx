@@ -4,12 +4,7 @@ import { ErrorState } from '../components/states/ErrorState';
 import { Button } from '../components/ui/Button';
 import { FieldSuccess } from '../components/ui/FieldSuccess';
 import { useNotifications } from '../providers/notifications-context';
-import {
-  api,
-  getDefaultUserId,
-  toApiDateTime,
-  unwrapData,
-} from '../services/api';
+import { api, toApiDateTime, unwrapData } from '../services/api';
 import { focusFirstInvalidField } from '../utils/formFocus';
 import {
   getPastDateMessage,
@@ -217,7 +212,6 @@ export function CreateEventView() {
     try {
       const response = unwrapData(
         await api.createEvent({
-          idUsuario: getDefaultUserId(),
           idTipoEvento: Number(formData.tipoEvento),
           nombre: formData.nombre.trim(),
           cliente: formData.cliente.trim(),

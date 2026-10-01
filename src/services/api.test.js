@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { api, ApiError, getDefaultUserId, request, toApiDateTime, unwrapData } from './api';
+import { api, ApiError, request, toApiDateTime, unwrapData } from './api';
 import { getStoredToken, onSessionExpired, saveSession } from './tokenStorage';
 
 const BASE = 'https://planificador-eventos-backend-1.onrender.com';
@@ -26,10 +26,6 @@ describe('helpers', () => {
     expect(unwrapData({ data: { id: 1 } })).toEqual({ id: 1 });
     expect(unwrapData({ id: 1 })).toEqual({ id: 1 });
     expect(unwrapData(null)).toBeNull();
-  });
-
-  it('getDefaultUserId cae al organizador por defecto cuando no está configurado', () => {
-    expect(getDefaultUserId()).toBe(1);
   });
 
   it('ApiError expone estado y detalle del fallo', () => {
@@ -63,13 +59,13 @@ describe('request', () => {
     expect(resultado).toEqual(eventos);
   });
 
-  it('listEvents agrega el filtro de usuario a la consulta', async () => {
+  it('listEvents consulta sin usuarioId porque el propietario sale del token', async () => {
     fetch.mockResolvedValue(jsonResponse(200, []));
 
-    await api.listEvents(7);
+    await api.listEvents();
 
     const [url] = fetch.mock.calls[0];
-    expect(url).toBe(`${BASE}/api/eventos?usuarioId=7`);
+    expect(url).toBe(`${BASE}/api/eventos`);
   });
 
   it('createEvent publica POST con Content-Type JSON y cuerpo serializado', async () => {
