@@ -56,13 +56,13 @@ function TaskSection({
     <section aria-labelledby={id} className="space-y-3">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 id={id} className="text-lg font-semibold text-gray-900">
+          <h2 id={id} className="text-lg font-semibold text-primary">
             {title}
           </h2>
-          <p className="mt-1 text-sm text-gray-600">{description}</p>
+          <p className="mt-1 text-sm text-muted-text">{description}</p>
         </div>
         {total > tasks.length && (
-          <p className="text-xs font-medium text-gray-500">
+          <p className="text-xs font-medium text-muted-text">
             Mostrando {tasks.length} de {total}
           </p>
         )}
@@ -208,7 +208,7 @@ export const HoyPage = () => {
   if (isLoading) {
     return (
       <div
-        className="flex min-h-[50vh] items-center justify-center text-gray-600"
+        className="flex min-h-[50vh] items-center justify-center text-muted-text"
         role="status"
         aria-live="polite"
         aria-busy="true"
@@ -233,14 +233,14 @@ export const HoyPage = () => {
   return (
     <div className="space-y-6">
       <Card aria-labelledby="today-title" className="p-6">
-        <div className="border-b border-gray-200 pb-5">
+        <div className="border-b border-border pb-5">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">
             Panel del día
           </p>
           <div className="flex items-center gap-2">
             <h2
               id="today-title"
-              className="mt-2 text-2xl font-semibold text-gray-900"
+              className="mt-2 text-2xl font-semibold text-primary"
             >
               Hoy
             </h2>
@@ -278,7 +278,7 @@ export const HoyPage = () => {
           </div>
           <time
             dateTime={today}
-            className="mt-1 block text-sm capitalize text-gray-500"
+            className="mt-1 block text-sm capitalize text-muted-text"
           >
             {formatDate(today)}
           </time>

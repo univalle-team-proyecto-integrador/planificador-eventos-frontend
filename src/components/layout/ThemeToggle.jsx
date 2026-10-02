@@ -25,7 +25,7 @@ export function ThemeToggle({ className = '' }) {
         className={`relative block h-5 w-9 shrink-0 rounded-full transition-colors ${isDark ? 'bg-primary' : 'bg-border-strong'}`}
       >
         <span
-          className={`absolute top-0.5 size-4 rounded-full bg-white shadow transition-[left] duration-150 ${isDark ? 'left-[1.125rem]' : 'left-0.5'}`}
+          className={`absolute top-0.5 size-4 rounded-full bg-surface-raised shadow transition-[left] duration-150 ${isDark ? 'left-[1.125rem]' : 'left-0.5'}`}
         />
       </span>
       <span>{isDark ? 'Modo oscuro' : 'Modo claro'}</span>
