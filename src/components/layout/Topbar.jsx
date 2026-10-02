@@ -45,7 +45,7 @@ export function Topbar({ isNavOpen, onToggleNav }) {
           />
         </Link>
 
-        <div className="order-last w-full  ml-auto md:w-auto md:flex-1 md:px-2">
+        <div className="order-last w-full md:order-none md:w-auto md:flex-1 md:px-2">
           <SearchBar />
         </div>
 
