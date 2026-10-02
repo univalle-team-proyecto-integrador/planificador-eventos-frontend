@@ -53,7 +53,7 @@ export function ErrorModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-overlay)] p-4"
       onMouseDown={handleOverlayClick}
     >
       <section
@@ -63,10 +63,10 @@ export function ErrorModal({
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
         tabIndex={-1}
-        className="modal-in w-full max-w-md rounded-lg bg-white p-6 shadow-xl focus:outline-none"
+        className="modal-in w-full max-w-md rounded-lg bg-surface-raised p-6 shadow-xl focus:outline-none"
       >
         <div className="flex items-start gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-warning-soft text-warning-text">
             <TriangleAlert
               aria-hidden="true"
               className="size-6"
@@ -74,10 +74,10 @@ export function ErrorModal({
             />
           </span>
           <div className="flex-1">
-            <h2 id={titleId} className="text-lg font-semibold text-gray-800">
+            <h2 id={titleId} className="text-lg font-semibold text-primary-text">
               {title}
             </h2>
-            <p id={descriptionId} className="mt-1 text-sm text-gray-600">
+            <p id={descriptionId} className="mt-1 text-sm text-secondary-text">
               {message}
             </p>
           </div>

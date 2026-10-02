@@ -11,21 +11,21 @@ export function MetricCard({
   return (
     <Card as="div" variant={variant} className={`p-4 ${className}`.trim()}>
       <div className="flex items-start justify-between gap-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-text">
           {label}
         </p>
         {Icon && (
           <Icon
             aria-hidden="true"
-            className="size-4 shrink-0 text-gray-400"
+            className="size-4 shrink-0 text-muted-text"
             strokeWidth={2}
           />
         )}
       </div>
-      <p className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+      <p className="mt-2 text-2xl font-bold tracking-tight text-primary-text">
         {value}
       </p>
-      {helper && <p className="mt-1 text-xs text-gray-500">{helper}</p>}
+      {helper && <p className="mt-1 text-xs text-muted-text">{helper}</p>}
     </Card>
   );
 }

@@ -1,19 +1,16 @@
 const baseStyle =
-  'inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold';
+  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold';
 
+// Cada estado tiene su trio *-soft (fondo), *-text (texto) y el color fuerte.
+// Los tres vienen de tokens, así que el contraste se mantiene en ambos temas.
 const variants = {
-  neutral: 'bg-gray-100 text-gray-700',
-  info: 'bg-accent/10 text-accent',
-  pending: 'bg-amber-50 text-amber-700',
-  success: 'bg-accent/10 text-accent',
+  neutral: 'bg-surface-sunken text-secondary-text',
+  info: 'bg-info-soft text-info-text',
+  pending: 'bg-warning-soft text-warning-text',
+  success: 'bg-success-soft text-success-text',
 };
 
-export function Badge({
-  variant = 'neutral',
-  className = '',
-  children,
-  ...props
-}) {
+export function Badge({ variant = 'neutral', className = '', children, ...props }) {
   return (
     <span
       {...props}

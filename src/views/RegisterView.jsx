@@ -23,15 +23,15 @@ const getSubmitErrorMessage = (error) =>
   'No pudimos crear la cuenta. Revisa tu conexión e inténtalo de nuevo.';
 
 const inputClass = (hasError) =>
-  `w-full rounded-2xl border bg-[#EEF0FF] py-3.5 pl-12 pr-4 text-[15px] text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none! focus-visible:ring-2 focus-visible:ring-[#3323CC] focus-visible:ring-offset-2 ${
+  `w-full rounded-2xl border bg-primary-soft py-3.5 pl-12 pr-4 text-[15px] text-primary-text placeholder:text-muted-text focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 ${
     hasError
-      ? 'border-red-500 focus-visible:ring-red-300'
-      : 'border-transparent focus-visible:border-[#3323CC]'
+      ? 'border-red-500 focus-visible:ring-red-500'
+      : 'border-transparent focus-visible:border-primary'
   }`;
 
 const FieldError = ({ id, children }) =>
   children ? (
-    <p id={id} role="alert" className="mt-2 text-sm text-gray-600">
+    <p id={id} role="alert" className="mt-2 text-sm text-red-600">
       {children}
     </p>
   ) : null;
@@ -75,7 +75,9 @@ export function RegisterView() {
     }
 
     const nombreValidacion = getNameError(nombre);
-    const emailValidacion = isValidEmail(email) ? '' : getEmailErrorMessage(email);
+    const emailValidacion = isValidEmail(email)
+      ? ''
+      : getEmailErrorMessage(email);
     const passwordValidacion = isValidPassword(password)
       ? ''
       : getPasswordErrorMessage(password);
@@ -103,36 +105,36 @@ export function RegisterView() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#FAFAFF] px-4 py-10 text-[#111827] sm:px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-surface px-4 py-10 text-primary-text sm:px-6">
       <div className="w-full max-w-[420px]">
         <div className="mb-8 flex flex-col items-center text-center">
-          <span className="flex size-14 items-center justify-center rounded-2xl bg-[#3323CC] shadow-[0_10px_24px_-8px_rgba(51,35,204,0.55)]">
+          <span className="flex size-14 items-center justify-center rounded-2xl bg-primary shadow-[0_10px_24px_-8px_rgba(78,176,209,0.45)]">
             <CalendarCheck
               aria-hidden="true"
-              className="size-7 text-white"
+              className="size-7 text-primary-contrast"
               strokeWidth={2.2}
             />
           </span>
-          <p className="mt-4 text-2xl font-extrabold tracking-tight text-[#111827]">
-            EventFlow<span className="text-[#3323CC]">.</span>
+          <p className="mt-4 text-2xl font-extrabold tracking-tight text-primary-text">
+            EventFlow<span className="text-primary-text">.</span>
           </p>
-          <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#6B7280]">
+          <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-text">
             Workspace Orchestration
           </p>
         </div>
 
         <div className="rounded-3xl bg-white p-7 shadow-[0_18px_40px_-20px_rgba(17,24,39,0.25)] sm:p-9">
-          <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-[#111827]">
+          <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-primary-text">
             Crea tu cuenta
           </h1>
-          <p className="mt-2 text-sm text-[#6B7280]">
+          <p className="mt-2 text-sm text-muted-text">
             Organiza tus eventos y tu carga diaria en un solo lugar
           </p>
 
           {submitError && (
             <p
               role="alert"
-              className="mt-5 rounded-2xl bg-canvas px-4 py-3 text-sm text-gray-700"
+              className="mt-5 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700"
             >
               {submitError}
             </p>
@@ -147,14 +149,14 @@ export function RegisterView() {
           >
             <label
               htmlFor="register-nombre"
-              className="mb-2 block text-sm font-semibold text-[#111827]"
+              className="mb-2 block text-sm font-semibold text-primary-text"
             >
               Nombre completo
             </label>
             <div className="relative">
               <UserRound
                 aria-hidden="true"
-                className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-[#9CA3AF]"
+                className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-text"
                 strokeWidth={1.8}
               />
               <input
@@ -164,7 +166,9 @@ export function RegisterView() {
                 autoComplete="name"
                 placeholder="Santiago Pérez"
                 aria-invalid={Boolean(nameError)}
-                aria-describedby={nameError ? 'register-nombre-error' : undefined}
+                aria-describedby={
+                  nameError ? 'register-nombre-error' : undefined
+                }
                 className={inputClass(Boolean(nameError))}
                 value={nombre}
                 onChange={(changeEvent) => {
@@ -180,14 +184,14 @@ export function RegisterView() {
 
             <label
               htmlFor="register-email"
-              className="mt-5 mb-2 block text-sm font-semibold text-[#111827]"
+              className="mt-5 mb-2 block text-sm font-semibold text-primary-text"
             >
               Correo electrónico
             </label>
             <div className="relative">
               <Mail
                 aria-hidden="true"
-                className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-[#9CA3AF]"
+                className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-text"
                 strokeWidth={1.8}
               />
               <input
@@ -198,7 +202,9 @@ export function RegisterView() {
                 autoComplete="email"
                 placeholder="ejemplo@correo.com"
                 aria-invalid={Boolean(emailError)}
-                aria-describedby={emailError ? 'register-email-error' : undefined}
+                aria-describedby={
+                  emailError ? 'register-email-error' : undefined
+                }
                 className={inputClass(Boolean(emailError))}
                 value={email}
                 onChange={(changeEvent) => {
@@ -214,14 +220,14 @@ export function RegisterView() {
 
             <label
               htmlFor="register-password"
-              className="mt-5 mb-2 block text-sm font-semibold text-[#111827]"
+              className="mt-5 mb-2 block text-sm font-semibold text-primary-text"
             >
               Contraseña
             </label>
             <div className="relative">
               <Lock
                 aria-hidden="true"
-                className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-[#9CA3AF]"
+                className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-text"
                 strokeWidth={1.8}
               />
               <input
@@ -252,18 +258,28 @@ export function RegisterView() {
                   showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
                 }
                 aria-pressed={showPassword}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-[#9CA3AF] transition-colors hover:text-[#3323CC] focus:outline-none! focus-visible:ring-2 focus-visible:ring-[#3323CC]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted-text transition-colors hover:text-primary-text focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
                 {showPassword ? (
-                  <EyeOff aria-hidden="true" className="size-5" strokeWidth={1.8} />
+                  <EyeOff
+                    aria-hidden="true"
+                    className="size-5"
+                    strokeWidth={1.8}
+                  />
                 ) : (
-                  <Eye aria-hidden="true" className="size-5" strokeWidth={1.8} />
+                  <Eye
+                    aria-hidden="true"
+                    className="size-5"
+                    strokeWidth={1.8}
+                  />
                 )}
               </button>
             </div>
-            <FieldError id="register-password-error">{passwordError}</FieldError>
+            <FieldError id="register-password-error">
+              {passwordError}
+            </FieldError>
 
-            <p className="mt-3 text-[12px] leading-relaxed text-[#6B7280]">
+            <p className="mt-3 text-[12px] leading-relaxed text-muted-text">
               Usa al menos 8 caracteres, combinando letras y números.
             </p>
 
@@ -271,7 +287,7 @@ export function RegisterView() {
               type="submit"
               disabled={isSubmitting}
               aria-busy={isSubmitting}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#3323CC] px-5 py-3.5 text-[15px] font-semibold text-white shadow-[0_10px_20px_-10px_rgba(51,35,204,0.7)] transition-colors hover:bg-[#26189E] focus:outline-none! focus-visible:ring-2 focus-visible:ring-[#3323CC] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3.5 text-[15px] font-semibold text-primary-contrast shadow-[0_10px_20px_-10px_rgba(78,176,209,0.55)] transition-colors hover:bg-primary-hover focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSubmitting ? (
                 <>
@@ -295,11 +311,11 @@ export function RegisterView() {
           </form>
         </div>
 
-        <p className="mt-7 text-center text-sm text-[#6B7280]">
+        <p className="mt-7 text-center text-sm text-muted-text">
           ¿Ya tienes cuenta?{' '}
           <Link
             to="/login"
-            className="font-semibold text-[#3323CC] underline hover:no-underline"
+            className="font-semibold text-primary-text underline hover:no-underline"
           >
             Inicia sesión
           </Link>

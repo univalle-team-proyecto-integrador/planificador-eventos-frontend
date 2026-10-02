@@ -1,14 +1,6 @@
 import { useEffect, useId, useRef } from 'react';
 import { Button } from './Button';
-
-const focusableSelector = [
-  'button:not([disabled])',
-  '[href]',
-  'input:not([disabled])',
-  'select:not([disabled])',
-  'textarea:not([disabled])',
-  '[tabindex]:not([tabindex="-1"])',
-].join(',');
+import { lockBodyScroll, trapFocus } from '../../utils/focusTrap';
 
 export function ConfirmModal({
   open,
@@ -22,7 +14,6 @@ export function ConfirmModal({
   error = '',
 }) {
   const dialogRef = useRef(null);
-  const previousFocusRef = useRef(null);
   const cancelRef = useRef(onCancel);
   const confirmingRef = useRef(isConfirming);
   const titleId = useId();
@@ -38,45 +29,17 @@ export function ConfirmModal({
       return undefined;
     }
 
-    previousFocusRef.current = document.activeElement;
-    const dialog = dialogRef.current;
-    const focusableElements = dialog?.querySelectorAll(focusableSelector);
-    const firstFocusable = focusableElements?.[0];
+    // Mientras se confirma, Escape y el clic en el fondo se ignoran para que no
+    // se cancele a la mitad la operación que ya está en el servidor.
+    const releaseFocus = trapFocus(dialogRef.current, {
+      onEscape: () => {
+        if (!confirmingRef.current) {
+          cancelRef.current?.();
+        }
+      },
+    });
 
-    (firstFocusable || dialog)?.focus();
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape' && !confirmingRef.current) {
-        event.preventDefault();
-        cancelRef.current?.();
-        return;
-      }
-
-      if (event.key !== 'Tab' || !dialog) {
-        return;
-      }
-
-      const elements = Array.from(
-        dialog.querySelectorAll(focusableSelector)
-      ).filter((element) => !element.hasAttribute('disabled'));
-
-      if (elements.length === 0) {
-        event.preventDefault();
-        dialog.focus();
-        return;
-      }
-
-      const first = elements[0];
-      const last = elements[elements.length - 1];
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
+    const releaseScroll = lockBodyScroll();
 
     const handleMouseDown = (event) => {
       if (event.target === event.currentTarget && !confirmingRef.current) {
@@ -84,16 +47,13 @@ export function ConfirmModal({
       }
     };
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    document.addEventListener('keydown', handleKeyDown);
+    const dialog = dialogRef.current;
     dialog?.addEventListener('mousedown', handleMouseDown);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', handleKeyDown);
       dialog?.removeEventListener('mousedown', handleMouseDown);
-      previousFocusRef.current?.focus?.();
+      releaseScroll();
+      releaseFocus();
     };
   }, [open]);
 
@@ -103,7 +63,7 @@ export function ConfirmModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-overlay)] p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget && !confirmingRef.current) {
           onCancel?.();
@@ -117,19 +77,22 @@ export function ConfirmModal({
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
         tabIndex={-1}
-        className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+        className="w-full max-w-md rounded-lg bg-surface-raised p-6 text-primary-text shadow-xl"
       >
-        <h2 id={titleId} className="text-xl font-bold text-gray-900 mb-2">
+        <h2
+          id={titleId}
+          className="text-xl font-bold text-primary-text mb-2"
+        >
           {title}
         </h2>
-        <p id={descriptionId} className="text-sm text-gray-600 mb-5">
+        <p id={descriptionId} className="text-sm text-secondary-text mb-5">
           {message}
         </p>
 
         {error && (
           <p
             role="alert"
-            className="mb-4 rounded-md bg-gray-50 p-3 text-sm text-gray-700"
+            className="mb-4 rounded-md bg-danger-soft p-3 text-sm text-danger-text"
           >
             {error}
           </p>

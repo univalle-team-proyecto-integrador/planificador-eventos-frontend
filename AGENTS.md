@@ -20,9 +20,12 @@ npm run build   # vite build -> dist/
 
 ## Tests
 
-- `vite.config.js` no tiene bloque `test`: vitest corre con entorno `node`. **No hay `jsdom`, `happy-dom` ni `@testing-library` instalados**, así que solo se puede testear lógica pura.
-- Cobertura actual: 3 archivos, 24 tests — `src/services/api.test.js`, `src/utils/dateValidation.test.js`, `src/utils/taskMetrics.test.js`.
-- Patrón: la lógica testeable vive en `src/utils/` y `src/services/`; las vistas no se renderizan en tests.
+- `vite.config.js` **sí** tiene bloque `test`, con `environment: 'jsdom'` (la sesión vive en `localStorage`, así que `window` tiene que existir). **`jsdom` está instalado**; `@testing-library` y `happy-dom` no.
+- Cobertura actual: **10 archivos, 86 tests** — `api`, `authService`, `tokenStorage`, `dateValidation`, `emailValidation`, `passwordValidation`, `taskMetrics`, `taskSearch`, `theme` y `components/layout/shell.test.jsx`.
+- Dos patrones conviven:
+  - **Lógica pura** en `src/utils/` y `src/services/`. Es el patrón mayoritario y el preferido.
+  - **Un test de render** en `src/components/layout/shell.test.jsx` monta el árbol real con `createRoot` + `act` de `react` (sin testing-library) y comprueba el shell: rutas, ítem activo, nombre de usuario, persistencia del tema y menú de perfil. Existe porque un fallo de cableado de providers deja la app en blanco y ningún test de lógica lo detecta.
+- En tests de render hay que dejar que los `React.lazy` resuelvan antes de mirar el DOM: usar `vi.waitFor`, no un `setTimeout` fijo.
 - `api.test.js` stubbea `global.fetch` y fija `BASE = 'https://planificador-eventos-backend-1.onrender.com'`; sigue ese patrón al añadir casos.
 
 ## Entorno (trampa importante)
@@ -33,25 +36,52 @@ npm run build   # vite build -> dist/
 - `api.js` usa timeout de 15 s y **reintenta una vez los `GET`** por el cold start del plan free de Render. No eliminarlo sin motivo.
 - Nunca poner secretos en variables `VITE_*` (van al bundle).
 
+## Autenticación (US-11)
+
+- Es **JWT propio del backend**, no Supabase. `PRD.md` §alcance y §límites todavía la describen como pendiente y mencionan el flujo de Supabase: **eso está desactualizado**, no lo copies.
+- `src/services/tokenStorage.js` es la única capa que toca `localStorage`, con las claves `eventflow.token` y `eventflow.sesion`. No tiene dependencias a propósito: `authService` lo importa y al revés crearía un ciclo.
+- `src/services/authService.js` expone `requestLogin`, `requestRegister`, `requestProfile`, `getToken`, `getSession`, `setToken`, `clearToken`, `isAuthenticated`.
+- `SessionProvider` expone `usuario`, `login`, `register`, `logout`. `LoginView`/`RegisterView` llaman al servicio; el resto de la app solo lee `usuario`.
+- Un `401` dispara `onSessionExpired` → `SessionProvider` limpia la sesión y `RequireSession` manda a `/login`. `AppRoutes` tiene dos guards: `RequireSession` y su inverso para `/login` y `/registro`.
+
 ## Estructura y cableado
 
-- `src/main.jsx` monta `App`; `src/App.jsx` solo envuelve con `NotificationsProvider` + `AppRoutes`.
+- `src/main.jsx` monta `App`; `src/App.jsx` envuelve con `NotificationsProvider` → `ThemeProvider` → `SessionProvider` → `SearchProvider` → `AppRoutes`. **El orden importa**: el shell consume `useTheme` y `useTaskSearch`.
 - `src/routes/AppRoutes.jsx` contiene el `BrowserRouter`, el `Suspense` y las rutas. Usa la API clásica de React Router (`Routes`/`Route`/`Outlet`), no data APIs.
 - Cada ruta va con `React.lazy`. Las pantallas de `src/pages/` son envoltorios de 5 líneas y **deben tener export nombrado y `export default`** para que resuelva el `lazy`; la lógica nueva va en `src/views/`.
-- Rutas: `/` → `/hoy`, `/hoy`, `/crear`, `/evento/:id`, `/progreso`, `/login`, `*` → `/login`. La ruta de detalle es `/evento/:id`; no usar `/actividad`.
-- `src/components/ui/` = interfaz compartida; `src/components/states/` = `EmptyState` / `ErrorState`; `src/utils/` = lógica pura y testeable (normalizadores, métricas, validación de fechas, foco).
-- `src/providers/notifications-context.js` está separado del `.jsx` a propósito: `react/only-export-components` es `warn` en `.oxlintrc.json`. Mantener esa separación.
+- Rutas: `/login`, `/registro`, `/` → `/hoy`, `/hoy`, `/crear`, `/evento/:id`, `/progreso`, `/configuracion`, `*` → `/hoy`. La ruta de detalle es `/evento/:id`; no usar `/actividad`.
+- `/configuracion` es un placeholder ("Próximamente") dentro del shell, no una pantalla real todavía.
+- El shell vive en `src/components/layout/`: `Layout.jsx` (composición + `<Outlet />`), `Topbar`, `Sidebar`, `SearchBar`, `ProfileMenu`, `ThemeToggle`, `InfoTip`. `Layout` es el único punto que compone topbar + lateral + `<Outlet />`.
+- `src/components/ui/CalendarModal.jsx` y el botón "Ver calendario" de `src/pages/HoyPage.jsx` vienen del PR #4 y se fusionaron con este shell. Dependen solo de `Button` y `Link`, así que sobreviven a los cambios de tokens; `shell.test.jsx` cubre que abra y cierre.
+- `src/components/ui/` = interfaz compartida reutilizable (`Button`, `Card`, `Badge`, `ConfirmModal`, `ErrorModal`, `TaskCard`, `EventCard`, `Toast`, `ProgressBar`, `MetricCard`, `WorkloadSummary`, `FieldSuccess`); `src/components/states/` = `EmptyState` / `ErrorState`.
+- `src/utils/` = lógica pura y testeable (normalizadores, métricas, validación, foco, tema, búsqueda). `src/hooks/` = `useDebouncedValue` y `useClickOutside`.
+- Los contextos están separados del `.jsx` a propósito: `react/only-export-components` es `warn` en `.oxlintrc.json`. Mantener esa separación (`*-context.js` + `*Provider.jsx`).
 - `src/views/EventDetailView.jsx` tiene ~1700 líneas concentrando lectura, edición, subtareas, progreso y borrado del evento. Editarlo con cuidado y en pasos verificables.
-- Archivos muertos, no los reimportes: `src/App.css`, `src/assets/*`, `public/icons.svg`, `dist/` (gitignored).
+- Archivos muertos, no los reimportes: `src/App.css`, `src/assets/*`, `src/img/Logo_h1.png`, `public/icons.svg`, `dist/` (gitignored).
 
 ## Convenciones de interfaz
 
 - `Button` acepta `as` para navegación: `Button as={Link}`. **Nunca anidar un `button` dentro de un `Link`.**
 - Variantes de `Button`: `primary`, `success`, `neutral`, `danger`. Las de `Badge` son un set distinto: `neutral`, `info`, `pending`, `success`. No cruzarlos.
-- Acciones destructivas: `ConfirmModal` con confirmación explícita, cierre por `Escape`, focus trap y restauración del foco.
+- Acciones destructivas: `ConfirmModal` con confirmación explícita, cierre por `Escape`, focus trap y restauración del foco. `src/utils/focusTrap.js` es el focus trap compartido; `Sidebar` y `ConfirmModal` lo reutilizan.
 - Formularios: `label`/`input` asociados por `id`, `aria-invalid` + `aria-describedby`, y mensajes con la regla "qué pasó + cómo corregirlo" (`docs/guia-microcopy.md`).
 - Carga y errores de red: `ErrorState` / `EmptyState` con `role="status"` y `aria-live`.
-- `DESIGN_SYSTEM.md` documenta "tokens" que son **nombres mapeados a clases Tailwind por defecto** (`blue-700`, `emerald-700`…). `src/index.css` solo hace `@import 'tailwindcss'`, sin `@theme`: clases como `bg-primary-600` no existen.
+- **No uses `NavLink` para la barra lateral.** React Router 7 calcula su propio `aria-current` desde `to` y sobrescribe el que le pases, así que un ítem que cubre varias rutas (como "Eventos / Progreso" en `/evento/:id`) nunca se anunciaría como sección actual. Usa `Link` con un predicado propio sobre `useLocation()`.
+- La sidebar es `fixed` en móvil (drawer con velo, focus trap y cierre por `Escape`) y `sticky` en escritorio. Su posición depende de `--topbar-height`: si cambias la altura de la topbar, cambia también esa variable.
+
+## Color y tema (esto cambió, leer antes de tocar estilos)
+
+- Los colores son **tokens CSS semánticos**, no hex. Viven como variables en `:root` y en `[data-theme='dark']` dentro de `src/index.css`, y se publican como utilidades de Tailwind con `@theme inline`. Por eso `.bg-surface-raised` compila a `background-color: var(--surface-raised)`: resuelve en tiempo de ejecución y cambiar de tema no requiere recompilar ni duplicar clases.
+- **No escribas variantes `dark:`** ni hex en los componentes. Para ajustar un color se edita la variable en los dos bloques.
+- `--topbar-height` también es token, pero **no** pasa por `@theme`: se usa como `var(--topbar-height)`.
+- Tokens: `surface`, `surface-raised`, `surface-sunken`, `surface-overlay`, `border`, `border-strong`, `text-primary`, `text-secondary`, `text-muted`, `text-inverted`, `primary`, `primary-hover`, `primary-soft`, `primary-contrast`, `primary-text`, y las ternas `success`/`warning`/`danger`/`info` con sus `-soft` y `-text`, más `focus-ring`.
+- Utilidades: `bg-surface`, `bg-surface-raised`, `text-primary-text`, `text-secondary-text`, `text-muted-text`, `border-border`, `bg-primary`, `text-primary-contrast`, `bg-primary-soft`, `bg-danger-soft`, `text-danger-text`, `bg-[var(--surface-overlay)]`…
+- La paleta es la del PR #4 (rama `frontend/lead`): `brand` turquesa `#4eb0d1`, `accent` periwinkle `#8581d9` y `canvas` crema `#f7f6ed`, que ahora es `--surface`. Ya no queda morado en el producto: login y registro se repintaron solos porque sus colores literales se habían convertido en tokens.
+- `--primary-text` es un turquesa **oscuro** (`#17697f`), no el de los rellenos. El turquesa de marca con blanco encima se queda en 2.48:1, así que sirve como fondo pero no como texto ni como anillo de foco. En oscuro `--primary-contrast` también es texto oscuro, porque un relleno aclarado ya no admite blanco. Si cambias `--primary`, vuelve a medir ese par.
+- `brand`, `accent` y `canvas` se publican como alias de `--primary-text`, `--primary-text` y `--surface` para que los archivos que vienen del PR #4 (`CalendarModal`, `HoyPage`, `CreateEventView`, `EventDetailView`) no tengan que reescribirse. Si en algún momento reescribes esos archivos con tokens semánticos, borra los alias.
+- Contraste: los pares de texto pasan AA en los dos temas (el más bajo, el texto apagado sobre superficie, queda en 4.68:1). **`--border` no llega a 3:1** (1.24:1 claro, 1.36:1 oscuro): es un filete decorativo y por eso se acepta, pero un input cuyo borde sea lo único que lo identifica sí incumple 1.4.11. Si lo endureces, sube `--border-strong`.
+- `index.html` tiene un script inline que aplica `data-theme` **antes del primer render** leyendo `eventflow.tema`, para que no haya destello. Si tocas el nombre de la clave o los valores válidos (`light`/`dark`), actualiza a la vez `src/utils/theme.js` y ese script.
+- `ThemeProvider` cae a `prefers-color-scheme` si no hay preferencia guardada, y envuelve `localStorage` en `try/catch`.
 
 ## API y datos
 
@@ -60,8 +90,16 @@ Todo el HTTP pasa por `src/services/api.js`; nunca hardcodear URLs en las vistas
 - Evento: `idTipoEvento`, `nombre`, `cliente`, `fechaEvento`, `lugar`. El `idUsuario` es opcional y el backend lo ignora (el propietario sale del token). `GET /api/eventos/{id}` además trae `subtareas` (las vistas siguen usando `GET /api/eventos/{id}/subtareas`).
 - Tipo de evento: `idTipoEvento`, `nombre`, desde `/api/tipos-evento`.
 - Subtarea: `idEvento`, `nombreGestion`, `horasEstimadas`, `fechaObjetivo`, `estado` (`pendiente` | `ejecutada` | `pospuesta`).
+- Perfil: `GET /api/users/profile` (`api.getProfile`), usado por `SessionProvider` para recuperar el nombre cuando la sesión guardada no lo trae.
 
 `fechaEvento` se manda como `LocalDateTime` (`toApiDateTime`); `fechaObjetivo` como `LocalDate`. Las mutaciones solo actualizan la UI tras respuesta persistida del servidor. Las respuestas pueden venir envueltas en `{ data: ... }` (`unwrapData`).
+
+### Buscador global (trampa importante)
+
+- **No existe endpoint de búsqueda en el backend.** `EventoService.obtenerTodos()` devuelve `subtareas: []`, así que `GET /api/eventos` no sirve para buscar tareas.
+- `src/services/taskSearchService.js` arma el índice con un **N+1**: `GET /api/eventos` y luego `GET /api/eventos/{id}/subtareas` por evento. Se cachea en `SearchProvider`, se carga bajo demanda al escribir (no al montar) y se invalida desde `EventDetailView` y `CreateEventView` cuando cambian los datos.
+- `src/utils/taskSearch.js` es la lógica pura (normalización acentos/mayúsculas, ranking, orden por fecha) y la única que necesita tests.
+- La solución de fondo es un endpoint `GET /api/subtareas/buscar?search={texto}&limite=20` que devuelva tarea, `idEvento` y `eventoNombre`, filtrado por el usuario del JWT. Si lo añades, `SearchProvider` es el único punto a tocar.
 
 ## Git y entrega
 
@@ -74,8 +112,12 @@ Todo el HTTP pasa por `src/services/api.js`; nunca hardcodear URLs en las vistas
 
 Raíz (fuente de verdad): `PRD.md` (alcance y criterios de aceptación), `DESIGN_SYSTEM.md` (componentes y accesibilidad), `ARCHITECTURE.md` (capas, contrato HTTP, despliegue). Antes de tocar textos o interacciones, ver también `docs/decisiones-ux.md`, `docs/guia-microcopy.md` y `docs/auditoria-a11y.md`.
 
+Sabido desactualizado: `PRD.md` describe la autenticación como pendiente y menciona Supabase, y su tabla de rutas no incluye `/registro` ni `/configuracion`. `DESIGN_SYSTEM.md` documenta "tokens" como si fueran nombres mapeados a clases Tailwind por defecto (`blue-700`…); ya no es así, manda la sección **Color y tema** de este archivo.
+
 ## Pendientes conocidos
 
 - US-11 (autenticación) ya está implementado y desplegado; falta evidencia en Jira.
-- Falta evidencia en Jira y la validación end-to-end contra Supabase/Render.
+- Falta evidencia en Jira y la validación end-to-end contra Render.
+- Modo oscuro en dos fases: el shell y los componentes compartidos ya usan tokens. **Las vistas de `src/views/` (excepto login y registro) todavía tienen colores literales**, así que en tema oscuro se ven a medio migrar.
+- `/configuracion` es un placeholder; falta decidir qué va dentro.
 - Auditorías Lighthouse/axe pendientes sobre el despliegue de Vercel.

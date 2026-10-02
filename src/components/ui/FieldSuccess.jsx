@@ -5,7 +5,7 @@ export function FieldSuccess({ id, children }) {
     <p
       id={id}
       role="status"
-      className="mt-1 flex items-center gap-1 text-xs font-medium text-accent"
+      className="mt-1 flex items-center gap-1 text-xs font-medium text-success-text"
     >
       <Check aria-hidden="true" className="inline size-3.5" />
       {children}

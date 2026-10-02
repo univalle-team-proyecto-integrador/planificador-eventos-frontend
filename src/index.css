@@ -1,5 +1,155 @@
 @import 'tailwindcss';
 
+/* ─── Tokens de color ─────────────────────────────────────────────────────
+   Los tokens viven como variables CSS en :root y en [data-theme='dark'] para
+   poder cambiar de tema en caliente. `@theme inline` publica cada una como
+   utilidad de Tailwind (bg-surface, text-muted, border-border…) resolviendo la
+   variable en tiempo de ejecución, que es lo que permite el modo oscuro sin
+   duplicar clases ni usar variantes `dark:`.
+
+   Ojo: son nombres semánticos, no colores literales. Para cambiar el tema hay
+   que editar estas variables, nunca las clases de los componentes.
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+
+  /* Altura de la barra superior en escritorio. La barra lateral se posiciona
+     respecto a este valor, así que ambos deben moverse juntos. En móvil la
+     barra superior ocupa dos filas y no se usa: ahí la lateral es un drawer. */
+  --topbar-height: 4rem;
+
+  --surface: #f7f6ed;
+  --surface-raised: #ffffff;
+  --surface-sunken: #efede1;
+  --surface-overlay: rgb(17 24 39 / 0.55);
+
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #676f7b;
+  --text-inverted: #ffffff;
+
+  /* Paleta principal: morado de marca. `--primary-text` es una versión oscura
+     del morado porque el de los rellenos no llega a AA con blanco, así que
+     solo sirve como fondo, no como color de texto ni de anillo de foco. */
+  --primary: #8581d9;
+  --primary-hover: #6f6ac4;
+  --primary-soft: #e9e7f8;
+  --primary-contrast: #1b1830;
+  --primary-text: #514ea4;
+
+  --success: #047857;
+  --success-soft: #ecfdf5;
+  --success-text: #065f46;
+
+  --warning: #b45309;
+  --warning-soft: #fffbeb;
+  --warning-text: #92400e;
+
+  --danger: #d98a8a;
+  --danger-soft: #f9ecec;
+  --danger-text: #8f3a3a;
+
+  --info: #1d4ed8;
+  --info-soft: #eff6ff;
+  --info-text: #1e40af;
+
+  --focus-ring: #514ea4;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --surface: #0b1116;
+  --surface-raised: #12191f;
+  --surface-sunken: #1a232a;
+  --surface-overlay: rgb(2 6 16 / 0.7);
+
+  --border: #2a3142;
+  --border-strong: #3a4356;
+
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-inverted: #0b0f19;
+
+  /* El PR #4 no definió equivalentes oscuros, así que se derivan de su paleta:
+     el turquesa y el periwinkle se aclaran para conservar el contraste sobre
+     superficie oscura. `--primary-contrast` vuelve a ser texto oscuro porque
+     un relleno aclarado ya no admite blanco encima. */
+  --primary: #a49ef0;
+  --primary-hover: #c6c3f8;
+  --primary-soft: #26224a;
+  --primary-contrast: #14122b;
+  --primary-text: #b8b5f5;
+
+  --success: #34d399;
+  --success-soft: #052e23;
+  --success-text: #6ee7b7;
+
+  --warning: #fbbf24;
+  --warning-soft: #3b2606;
+  --warning-text: #fcd34d;
+
+  --danger: #c48383;
+  --danger-soft: #3a2020;
+  --danger-text: #f0b8b8;
+
+  --info: #60a5fa;
+  --info-soft: #172554;
+  --info-text: #93c5fd;
+
+  --focus-ring: #b8b5f5;
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-primary-text: var(--text-primary);
+  --color-secondary-text: var(--text-secondary);
+  --color-muted-text: var(--text-muted);
+  --color-inverted-text: var(--text-inverted);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-contrast: var(--primary-contrast);
+  --color-brand-text: var(--primary-text);
+
+  /* Alias de la paleta del PR #4 para que sus archivos (CalendarModal, HoyPage,
+     CreateEventView, EventDetailView) no tengan que reescribirse. Apuntan a los
+     tokens semánticos, no a hex, así que también cambian con el tema. */
+  --color-brand: var(--primary-text);
+  --color-accent: var(--primary-text);
+  --color-canvas: var(--surface);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-text: var(--success-text);
+
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-text: var(--warning-text);
+
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-text: var(--danger-text);
+
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-info-text: var(--info-text);
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────────── */
+
 :root {
   font-family:
     Inter,
@@ -9,16 +159,8 @@
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
-  color: #111827;
-  background: #f7f6ed;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-}
-
-@theme {
-  --color-brand: #8581d9;
-  --color-accent: #6f6ac4;
-  --color-canvas: #f7f6ed;
 }
 
 html,
@@ -32,6 +174,11 @@ body,
 
 body {
   min-width: 320px;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
 }
 
 button,
@@ -42,8 +189,14 @@ textarea {
 }
 
 :focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
+}
+
+/* El skip-link es el primer elemento enfocable: al tabular desde arriba debe
+   quedar por encima de la topbar fija. */
+.skip-link {
+  z-index: 60;
 }
 
 @keyframes toast-in {
@@ -97,6 +250,17 @@ textarea {
   }
 }
 
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .toast-enter {
   animation: toast-in 280ms ease-out both;
 }
@@ -109,6 +273,10 @@ textarea {
   animation: modal-in 180ms ease-out both;
 }
 
+.dropdown-in {
+  animation: dropdown-in 140ms ease-out both;
+}
+
 .event-card {
   transition:
     transform 240ms ease,
@@ -119,8 +287,8 @@ textarea {
 .event-card:focus-within {
   transform: scale(1.03);
   box-shadow:
-    0 18px 40px -12px var(--accent-glow, rgba(37, 99, 235, 0.4)),
-    0 2px 8px rgba(17, 24, 39, 0.08);
+    0 18px 40px -12px var(--accent-glow, rgb(51 35 204 / 0.4)),
+    0 2px 8px rgb(17 24 39 / 0.08);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -129,10 +297,11 @@ textarea {
   }
 
   .toast-leave {
-    animation: fade-out 150ms ease-in both;
+    animation: fade-out 150ms ease-out both;
   }
 
-  .modal-in {
+  .modal-in,
+  .dropdown-in {
     animation: fade-in 120ms ease-out both;
   }
 

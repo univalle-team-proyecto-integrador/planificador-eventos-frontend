@@ -25,23 +25,23 @@ export function TaskCard({
     <Card
       as="li"
       className={`p-4 transition-shadow hover:shadow-md ${
-        isOverdue ? 'border-amber-300 bg-amber-50/50' : ''
+        isOverdue ? 'border-warning bg-warning-soft/50' : ''
       }`}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-text">
             {eventName}
           </p>
-          <h3 className="mt-1 text-base font-semibold text-gray-900">
+          <h3 className="mt-1 text-base font-semibold text-primary-text">
             {task.title}
           </h3>
           {(dateLabel || isOverdue) && (
-            <p className="mt-2 flex items-center gap-1 text-sm text-gray-500">
+            <p className="mt-2 flex items-center gap-1 text-sm text-muted-text">
               {isOverdue && (
                 <TriangleAlert
                   aria-hidden="true"
-                  className="size-4 text-amber-600"
+                  className="size-4 text-warning-text"
                 />
               )}
               {dateLabel && <time dateTime={taskDate}>{dateLabel}</time>}

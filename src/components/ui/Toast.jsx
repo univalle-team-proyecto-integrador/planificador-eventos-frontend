@@ -8,10 +8,10 @@ const iconComponents = {
 };
 
 const badgeStyles = {
-  check: 'bg-accent/10 text-accent',
-  edit: 'bg-accent/10 text-accent',
-  trash: 'bg-gray-100 text-gray-500',
-  undo: 'bg-amber-50 text-amber-600',
+  check: 'bg-success-soft text-success-text',
+  edit: 'bg-info-soft text-brand-text',
+  trash: 'bg-surface-sunken text-muted-text',
+  undo: 'bg-warning-soft text-warning-text',
 };
 
 export function Toast({ toast, onDismiss }) {
@@ -21,7 +21,7 @@ export function Toast({ toast, onDismiss }) {
   return (
     <div
       role="status"
-      className={`pointer-events-auto flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-lg ${
+      className={`pointer-events-auto flex items-start gap-3 rounded-lg border border-border bg-surface-raised p-4 shadow-lg ${
         toast.leaving ? 'toast-leave' : 'toast-enter'
       }`}
     >
@@ -31,13 +31,13 @@ export function Toast({ toast, onDismiss }) {
         <Icon aria-hidden="true" className="size-5" strokeWidth={2} />
       </span>
 
-      <p className="flex-1 pt-1.5 text-sm text-gray-700">{toast.message}</p>
+      <p className="flex-1 pt-1.5 text-sm text-secondary-text">{toast.message}</p>
 
       <button
         type="button"
         onClick={() => onDismiss(toast.id)}
         aria-label="Cerrar notificación"
-        className="rounded-md p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="rounded-md p-1 text-muted-text transition-colors hover:bg-surface-sunken hover:text-secondary-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-text"
       >
         <X aria-hidden="true" className="size-4" strokeWidth={2} />
       </button>
