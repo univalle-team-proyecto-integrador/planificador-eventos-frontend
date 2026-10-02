@@ -72,6 +72,7 @@ export const normalizeEvent = (payload) => ({
   id: payload?.id ?? payload?.idEvento,
   name: payload?.name ?? payload?.nombre ?? 'Evento sin nombre',
   date: payload?.date ?? payload?.fechaEvento ?? '',
+  idTipoEvento: payload?.idTipoEvento ?? payload?.typeId ?? null,
 });
 
 export const sumHours = (tasks) =>
@@ -110,12 +111,18 @@ export const classifyTasksByDate = (
   const upcomingLimit = addDays(today, upcomingDays);
   const isOpen = (task) => !isTaskCompleted(task) && getTaskDate(task);
 
+  // Regla de prioridad (US-04): primero la fecha objetivo más antigua y, en
+  // empate de fecha, la gestión con menor esfuerzo estimado (menos horas).
+  const byDateThenEffort = (a, b) =>
+    getTaskDate(a).localeCompare(getTaskDate(b)) ||
+    getTaskHours(a) - getTaskHours(b);
+
   const overdue = taskList
     .filter((task) => isOpen(task) && getTaskDate(task) < today)
-    .sort((a, b) => getTaskDate(a).localeCompare(getTaskDate(b)));
-  const todayTasks = taskList.filter(
-    (task) => isOpen(task) && getTaskDate(task) === today
-  );
+    .sort(byDateThenEffort);
+  const todayTasks = taskList
+    .filter((task) => isOpen(task) && getTaskDate(task) === today)
+    .sort((a, b) => getTaskHours(a) - getTaskHours(b));
   const upcoming = taskList
     .filter(
       (task) =>
@@ -123,7 +130,7 @@ export const classifyTasksByDate = (
         getTaskDate(task) > today &&
         getTaskDate(task) <= upcomingLimit
     )
-    .sort((a, b) => getTaskDate(a).localeCompare(getTaskDate(b)));
+    .sort(byDateThenEffort);
 
   return {
     todayTasks,
