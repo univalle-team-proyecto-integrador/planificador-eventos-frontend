@@ -4,6 +4,7 @@ import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { Card } from '../components/ui/Card';
 import { EventCard } from '../components/ui/EventCard';
+import { FilterField, FiltersDropdown } from '../components/ui/FiltersDropdown';
 import { WorkloadSummary } from '../components/ui/WorkloadSummary';
 import { api, unwrapData } from '../services/api';
 import { getTaskMetrics, normalizeSubtask } from '../utils/taskMetrics';
@@ -11,19 +12,34 @@ import { getTaskMetrics, normalizeSubtask } from '../utils/taskMetrics';
 const getErrorMessage = (error) =>
   error?.message || 'No pudimos consultar el progreso de los eventos.';
 
+const getToday = () => {
+  const now = new Date();
+  const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  return localDate.toISOString().slice(0, 10);
+};
+
 export const ProgresoPage = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
+  const [eventTypes, setEventTypes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [filters, setFilters] = useState({
+    tipo: 'todas',
+    fecha: 'todas',
+    texto: '',
+  });
 
   const loadEvents = useCallback(async () => {
     setIsLoading(true);
     setError('');
 
     try {
-      const response = unwrapData(await api.listEvents());
-      const rawEvents = (Array.isArray(response) ? response : []).filter(
+      const [eventsResponse, typesResponse] = await Promise.all([
+        api.listEvents(),
+        api.listEventTypes(),
+      ]);
+      const rawEvents = (Array.isArray(eventsResponse) ? eventsResponse : []).filter(
         (event) => event?.id ?? event?.idEvento
       );
       const eventsWithProgress = await Promise.all(
@@ -47,6 +63,11 @@ export const ProgresoPage = () => {
       );
 
       setEvents(eventsWithProgress);
+      setEventTypes(
+        (Array.isArray(typesResponse) ? typesResponse : []).filter(
+          (type) => type?.id ?? type?.idTipoEvento
+        )
+      );
     } catch (loadError) {
       setError(getErrorMessage(loadError));
     } finally {
@@ -60,9 +81,48 @@ export const ProgresoPage = () => {
     void loadEvents();
   }, [loadEvents]);
 
+  const filteredEvents = useMemo(() => {
+    const { tipo, fecha, texto } = filters;
+    const query = texto.trim().toLowerCase();
+    const today = getToday();
+
+    return events.filter((event) => {
+      if (tipo !== 'todas' && String(event.idTipoEvento) !== String(tipo)) {
+        return false;
+      }
+      if (fecha !== 'todas') {
+        const eventDate = String(event.fechaEvento ?? event.date ?? '').slice(0, 10);
+        if (fecha === 'futuras' && eventDate < today) {
+          return false;
+        }
+        if (fecha === 'pasadas' && eventDate >= today) {
+          return false;
+        }
+      }
+      if (query) {
+        const name = String(event.nombre ?? event.name ?? '').toLowerCase();
+        if (!name.includes(query)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [events, filters]);
+
+  const activeFilterCount =
+    (filters.tipo !== 'todas' ? 1 : 0) +
+    (filters.fecha !== 'todas' ? 1 : 0) +
+    (filters.texto.trim() ? 1 : 0);
+
+  const clearFilters = () =>
+    setFilters({ tipo: 'todas', fecha: 'todas', texto: '' });
+
+  const updateFilter = (field, value) =>
+    setFilters((current) => ({ ...current, [field]: value }));
+
   const globalMetrics = useMemo(
     () =>
-      events.reduce(
+      filteredEvents.reduce(
         (metrics, event) => ({
           total: metrics.total + (event.total || 0),
           completed: metrics.completed + (event.completed || 0),
@@ -80,7 +140,7 @@ export const ProgresoPage = () => {
           hoursRemaining: 0,
         }
       ),
-    [events]
+    [filteredEvents]
   );
 
   const globalProgress = useMemo(() => {
@@ -120,25 +180,79 @@ export const ProgresoPage = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-accent">
-          Seguimiento
-        </p>
-        <h2 className="text-3xl font-bold text-gray-900">
-          Progreso del evento
-        </h2>
-        <p className="mt-2 max-w-2xl text-gray-600">
-          Consulta aquí el avance de los preparativos de cada evento.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-accent">
+            Seguimiento
+          </p>
+          <h2 className="text-3xl font-bold text-gray-900">
+            Progreso del evento
+          </h2>
+          <p className="mt-2 max-w-2xl text-gray-600">
+            Consulta aquí el avance de los preparativos de cada evento.
+          </p>
+        </div>
+        <FiltersDropdown
+          label="Filtros"
+          activeCount={activeFilterCount}
+          onClear={clearFilters}
+        >
+          <FilterField label="Tipo de evento">
+            <select
+              value={filters.tipo}
+              onChange={(event) => updateFilter('tipo', event.target.value)}
+              className="h-10 w-full rounded-md border border-border bg-surface-raised px-2 text-sm"
+            >
+              <option value="todas">Todos</option>
+              {eventTypes.map((type) => (
+                <option
+                  key={type.id ?? type.idTipoEvento}
+                  value={type.id ?? type.idTipoEvento}
+                >
+                  {type.name ?? type.nombre}
+                </option>
+              ))}
+            </select>
+          </FilterField>
+          <FilterField label="Fecha del evento">
+            <select
+              value={filters.fecha}
+              onChange={(event) => updateFilter('fecha', event.target.value)}
+              className="h-10 w-full rounded-md border border-border bg-surface-raised px-2 text-sm"
+            >
+              <option value="todas">Todas</option>
+              <option value="futuras">Próximas</option>
+              <option value="pasadas">Pasadas</option>
+            </select>
+          </FilterField>
+          <FilterField label="Buscar por nombre">
+            <input
+              type="search"
+              value={filters.texto}
+              onChange={(event) => updateFilter('texto', event.target.value)}
+              placeholder="Ej: Boda, conferencia..."
+              className="h-10 w-full rounded-md border border-border bg-surface-raised px-2 text-sm"
+            />
+          </FilterField>
+        </FiltersDropdown>
       </div>
 
-      {events.length === 0 ? (
-        <EmptyState
-          title="Aún no hay eventos para mostrar"
-          description="Crea tu primer evento para comenzar a organizar sus preparativos y subtareas."
-          actionLabel="Crear evento"
-          onAction={() => navigate('/crear')}
-        />
+      {filteredEvents.length === 0 ? (
+        activeFilterCount > 0 ? (
+          <EmptyState
+            title="Sin resultados para los filtros"
+            description="Ningún evento coincide con los filtros seleccionados. Prueba con otros criterios o límpialos."
+            actionLabel="Limpiar filtros"
+            onAction={clearFilters}
+          />
+        ) : (
+          <EmptyState
+            title="Aún no hay eventos para mostrar"
+            description="Crea tu primer evento para comenzar a organizar sus preparativos y subtareas."
+            actionLabel="Crear evento"
+            onAction={() => navigate('/crear')}
+          />
+        )
       ) : (
         <>
           <Card aria-labelledby="global-summary-title" className="p-6">
@@ -154,14 +268,14 @@ export const ProgresoPage = () => {
               </p>
             </div>
             <WorkloadSummary
-              eventCount={events.length}
+              eventCount={filteredEvents.length}
               progressLabel="Carga total"
               metrics={{ ...globalMetrics, progressHours: globalProgress }}
             />
           </Card>
 
           <div className="grid gap-4">
-            {events.map((event) => (
+            {filteredEvents.map((event) => (
               <EventCard key={event.id} event={event} />
             ))}
           </div>
