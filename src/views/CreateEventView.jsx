@@ -273,9 +273,6 @@ export function CreateEventView() {
   return (
     <div className="mx-auto mt-6 max-w-3xl rounded-lg bg-surface-raised p-6 shadow-sm">
       <div className="mb-6">
-        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-accent">
-          US-01 · Crear evento
-        </p>
         <h2 className="text-2xl font-bold text-primary">Crear nuevo evento</h2>
         <p className="mt-2 text-sm text-muted-text">
           Registra los datos esenciales para preparar el plan logístico.
