@@ -112,25 +112,25 @@ export function RegisterView() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-surface px-4 py-10 text-primary-text sm:px-6">
       <div className="w-full max-w-[420px]">
-        <div className="mb-8 flex items-start justify-between gap-4">
-          {/* El logo lleva el nombre, de ahí el `alt` con texto. La versión por tema se
-              lee de `useTheme()` y no de la preferencia del sistema. */}
-          <div className="flex flex-col items-center">
-            <img
-              src={logoUrl}
-              alt="BACO"
-              width={62}
-              height={96}
-              className="h-24 w-auto object-contain"
-            />
-            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-text">
-              Organiza. Coordina. Celebra
-            </p>
+        <div className="relative mb-8 flex flex-col items-center text-center">
+          {/* Igual que en /login: control del sitio, no de la cuenta. Va en
+              `absolute` para no entrar en el flujo y no descentrar la marca. */}
+          <div className="absolute right-0 top-0">
+            <ThemeToggle />
           </div>
 
-          {/* Igual que en /login: control del sitio, no de la cuenta. Sin él no se
-              puede elegir tema antes de crear la cuenta. */}
-          <ThemeToggle />
+          {/* El logo lleva el nombre, de ahí el `alt` con texto. La versión por tema se
+              lee de `useTheme()` y no de la preferencia del sistema. */}
+          <img
+            src={logoUrl}
+            alt="BACO"
+            width={62}
+            height={96}
+            className="h-24 w-auto object-contain"
+          />
+          <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-text">
+            Organiza. Coordina. Celebra
+          </p>
         </div>
 
         <div className="rounded-3xl bg-surface-raised p-7 shadow-[0_18px_40px_-20px_rgba(17,24,39,0.25)] sm:p-9">
