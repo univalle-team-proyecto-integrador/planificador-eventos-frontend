@@ -126,7 +126,7 @@ export function SearchBar() {
   const isErrorState = isEmptyState && Boolean(searchError);
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-md">
+    <div ref={containerRef} className="relative ml-[70px] w-full max-w-md max-sm:ml-0">
       <label htmlFor={`${listboxId}-input`} className="sr-only">
         Buscar tareas por nombre o por evento
       </label>
