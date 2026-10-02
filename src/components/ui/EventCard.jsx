@@ -30,7 +30,7 @@ export function EventCard({ event }) {
     <article className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <span className="text-xs font-semibold uppercase text-blue-600">
+          <span className="text-xs font-semibold uppercase text-accent">
             Evento #{id}
           </span>
           <h3 className="mt-1 text-lg font-semibold text-gray-900">{name}</h3>

@@ -180,7 +180,7 @@ export function CreateEventView() {
   return (
     <div className="mx-auto mt-6 max-w-3xl rounded-lg bg-white p-6 shadow-sm">
       <div className="mb-6">
-        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
+        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-accent">
           US-01 · Crear evento
         </p>
         <h2 className="text-2xl font-bold text-gray-900">Crear nuevo evento</h2>
@@ -217,7 +217,7 @@ export function CreateEventView() {
             <input
               {...fieldProps('nombre')}
               type="text"
-              className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+              className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                 errors.nombre ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="Ej: Boda de Carlos y Laura"
@@ -230,7 +230,7 @@ export function CreateEventView() {
               <p
                 id="event-nombre-error"
                 role="alert"
-                className="mt-1 text-xs text-red-600"
+                className="mt-1 text-xs text-gray-600"
               >
                 {errors.nombre}
               </p>
@@ -254,7 +254,7 @@ export function CreateEventView() {
                     ? 'event-tipoEvento-error'
                     : undefined
               }
-              className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 ${
+              className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 ${
                 errors.tipoEvento || typesError
                   ? 'border-red-500'
                   : 'border-gray-300'
@@ -285,7 +285,7 @@ export function CreateEventView() {
               <p
                 id="event-tipoEvento-error"
                 role="alert"
-                className="mt-1 text-xs text-red-600"
+                className="mt-1 text-xs text-gray-600"
               >
                 {errors.tipoEvento}
               </p>
@@ -294,12 +294,12 @@ export function CreateEventView() {
               <div
                 id="event-tipoEvento-load-error"
                 role="alert"
-                className="mt-1 flex items-center justify-between gap-2 text-xs text-red-600"
+                className="mt-1 flex items-center justify-between gap-2 text-xs text-gray-600"
               >
                 <span>{typesError}</span>
                 <button
                   type="button"
-                  className="font-semibold underline hover:text-red-800"
+                  className="font-semibold underline hover:text-gray-800"
                   onClick={() => void loadEventTypes()}
                   disabled={isLoadingTypes}
                 >
@@ -321,7 +321,7 @@ export function CreateEventView() {
             <input
               {...fieldProps('cliente')}
               type="text"
-              className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+              className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                 errors.cliente ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="Ej: María Pérez"
@@ -334,7 +334,7 @@ export function CreateEventView() {
               <p
                 id="event-cliente-error"
                 role="alert"
-                className="mt-1 text-xs text-red-600"
+                className="mt-1 text-xs text-gray-600"
               >
                 {errors.cliente}
               </p>
@@ -352,7 +352,7 @@ export function CreateEventView() {
               {...fieldProps('fecha')}
               type="date"
               min={getToday()}
-              className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+              className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                 errors.fecha ? 'border-red-500' : 'border-gray-300'
               }`}
               value={formData.fecha}
@@ -363,7 +363,7 @@ export function CreateEventView() {
               <p
                 id="event-fecha-error"
                 role="alert"
-                className="mt-1 text-xs text-red-600"
+                className="mt-1 text-xs text-gray-600"
               >
                 {errors.fecha}
               </p>
@@ -381,7 +381,7 @@ export function CreateEventView() {
           <input
             {...fieldProps('lugar')}
             type="text"
-            className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+            className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
               errors.lugar ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="Ej: Salón Campestre, Yumbo"
@@ -394,7 +394,7 @@ export function CreateEventView() {
             <p
               id="event-lugar-error"
               role="alert"
-              className="mt-1 text-xs text-red-600"
+              className="mt-1 text-xs text-gray-600"
             >
               {errors.lugar}
             </p>

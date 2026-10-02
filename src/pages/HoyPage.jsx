@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { Button } from '../components/ui/Button';
+import { CalendarModal } from '../components/ui/CalendarModal';
 import { api, getDefaultUserId, unwrapData } from '../services/api';
 
 const getToday = () => {
@@ -60,6 +61,9 @@ export const HoyPage = () => {
   const navigate = useNavigate();
   const [today] = useState(getToday);
   const [tasks, setTasks] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [tasksByDate, setTasksByDate] = useState(new Map());
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -92,6 +96,44 @@ export const HoyPage = () => {
               eventNames.get(String(task.eventId)) ?? `Evento #${task.eventId}`,
           }))
       );
+
+      const eventList = Array.isArray(rawEvents) ? rawEvents : [];
+      setEvents(eventList);
+
+      const subtasksByEvent = await Promise.all(
+        eventList.map(async (event) => {
+          const eventId = event?.id ?? event?.idEvento;
+
+          if (eventId === undefined || eventId === null) {
+            return [];
+          }
+
+          try {
+            const response = unwrapData(await api.getSubtasks(eventId));
+            return (Array.isArray(response) ? response : []).map((subtask) => ({
+              ...normalizeTask(subtask),
+              eventId,
+              eventName:
+                eventNames.get(String(eventId)) ?? `Evento #${eventId}`,
+            }));
+          } catch {
+            return [];
+          }
+        })
+      );
+      const grouped = new Map();
+
+      subtasksByEvent.flat().forEach((subtask) => {
+        if (!subtask.date) {
+          return;
+        }
+
+        const key = String(subtask.date).slice(0, 10);
+        const current = grouped.get(key) ?? [];
+        current.push(subtask);
+        grouped.set(key, current);
+      });
+      setTasksByDate(grouped);
     } catch (loadError) {
       setError(getErrorMessage(loadError));
     } finally {
@@ -133,7 +175,7 @@ export const HoyPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
+        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-accent">
           Panel del día
         </p>
         <h2 id="today-title" className="text-3xl font-bold text-gray-900">
@@ -146,6 +188,51 @@ export const HoyPage = () => {
           Revisa las tareas pendientes y pospuestas que tienen como fecha
           objetivo hoy.
         </p>
+        <div className="mt-4">
+          {(() => {
+            const eventToday = events.find(
+              (event) =>
+                String(event?.fechaEvento ?? event?.date ?? '').slice(0, 10) ===
+                today
+            );
+
+            if (eventToday) {
+              const id = eventToday.id ?? eventToday.idEvento;
+              return (
+                <Button
+                  as={Link}
+                  to={`/evento/${id}`}
+                  variant="primary"
+                  aria-label="Asignar gestión al evento de hoy"
+                >
+                  Asignar gestión
+                </Button>
+              );
+            }
+
+            if (events.length > 0) {
+              return (
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={() => setIsCalendarOpen(true)}
+                >
+                  Ver calendario
+                </Button>
+              );
+            }
+
+            return (
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => navigate('/crear')}
+              >
+                Crear Evento
+              </Button>
+            );
+          })()}
+        </div>
       </div>
 
       {tasks.length === 0 ? (
@@ -167,7 +254,7 @@ export const HoyPage = () => {
               className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+                <p className="text-xs font-semibold uppercase tracking-wide text-accent">
                   {task.eventName}
                 </p>
                 <h3 className="mt-1 text-lg font-semibold text-gray-900">
@@ -183,7 +270,7 @@ export const HoyPage = () => {
                 <span className="rounded bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-700">
                   {task.hours ?? '—'} hrs
                 </span>
-                <span className="rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
+                <span className="rounded bg-accent/10 px-2 py-1 text-xs font-semibold text-accent">
                   {getStateLabel(task.state)}
                 </span>
                 <Button
@@ -199,6 +286,12 @@ export const HoyPage = () => {
           ))}
         </ul>
       )}
+
+      <CalendarModal
+        open={isCalendarOpen}
+        onClose={() => setIsCalendarOpen(false)}
+        tasksByDate={tasksByDate}
+      />
     </div>
   );
 };

@@ -1,13 +1,13 @@
 const baseStyle =
-  'px-4 py-2 rounded-md font-semibold text-sm transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  'inline-flex h-10 items-center justify-center px-4 py-2 rounded-md font-semibold text-sm transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap';
 
 const variants = {
   primary:
-    'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500 border border-transparent',
+    'bg-brand text-white hover:bg-accent focus-visible:ring-accent border border-transparent',
   danger:
-    'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 border border-transparent',
+    'bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus-visible:ring-red-300 border border-red-500 shadow-sm',
   neutral:
-    'bg-white text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-400 border border-gray-300 shadow-sm',
+    'bg-white text-gray-700 hover:bg-gray-50 focus-visible:ring-accent border border-gray-300 shadow-sm',
 };
 
 const getButtonClassName = ({ variant = 'neutral', className = '' } = {}) =>

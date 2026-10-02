@@ -86,7 +86,7 @@ export const ProgresoPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
+        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-accent">
           Seguimiento
         </p>
         <h2 className="text-3xl font-bold text-gray-900">

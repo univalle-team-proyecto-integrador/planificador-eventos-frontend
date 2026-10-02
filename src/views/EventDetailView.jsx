@@ -552,7 +552,7 @@ export function EventDetailView() {
       <section className="rounded-lg bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase text-blue-600">
+            <span className="inline-flex rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold uppercase text-accent">
               Evento #{event.id}
             </span>
             <h2 className="mt-2 text-2xl font-bold text-gray-900">
@@ -614,7 +614,7 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.nombre ? 'edit-event-name-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                   eventErrors.nombre ? 'border-red-500' : 'border-gray-300'
                 }`}
                 required
@@ -623,7 +623,7 @@ export function EventDetailView() {
                 <p
                   id="edit-event-name-error"
                   role="alert"
-                  className="mt-1 text-xs text-red-600"
+                  className="mt-1 text-xs text-gray-600"
                 >
                   {eventErrors.nombre}
                 </p>
@@ -649,7 +649,7 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.cliente ? 'edit-event-client-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                   eventErrors.cliente ? 'border-red-500' : 'border-gray-300'
                 }`}
                 required
@@ -658,7 +658,7 @@ export function EventDetailView() {
                 <p
                   id="edit-event-client-error"
                   role="alert"
-                  className="mt-1 text-xs text-red-600"
+                  className="mt-1 text-xs text-gray-600"
                 >
                   {eventErrors.cliente}
                 </p>
@@ -685,7 +685,7 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.fecha ? 'edit-event-date-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                   eventErrors.fecha ? 'border-red-500' : 'border-gray-300'
                 }`}
                 required
@@ -694,7 +694,7 @@ export function EventDetailView() {
                 <p
                   id="edit-event-date-error"
                   role="alert"
-                  className="mt-1 text-xs text-red-600"
+                  className="mt-1 text-xs text-gray-600"
                 >
                   {eventErrors.fecha}
                 </p>
@@ -720,7 +720,7 @@ export function EventDetailView() {
                 aria-describedby={
                   eventErrors.lugar ? 'edit-event-location-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                   eventErrors.lugar ? 'border-red-500' : 'border-gray-300'
                 }`}
                 required
@@ -729,7 +729,7 @@ export function EventDetailView() {
                 <p
                   id="edit-event-location-error"
                   role="alert"
-                  className="mt-1 text-xs text-red-600"
+                  className="mt-1 text-xs text-gray-600"
                 >
                   {eventErrors.lugar}
                 </p>
@@ -817,7 +817,7 @@ export function EventDetailView() {
         {actionError && (
           <p
             role="alert"
-            className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700"
+            className="mb-4 rounded-md bg-gray-50 p-3 text-sm text-gray-700"
           >
             {actionError}
           </p>
@@ -862,7 +862,7 @@ export function EventDetailView() {
                 aria-describedby={
                   errors.title ? 'subtask-title-error' : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                   errors.title ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="Ej: Reservar salón de eventos"
@@ -872,7 +872,7 @@ export function EventDetailView() {
                 <p
                   id="subtask-title-error"
                   role="alert"
-                  className="mt-1 text-xs text-red-600"
+                  className="mt-1 text-xs text-gray-600"
                 >
                   {errors.title}
                 </p>
@@ -901,7 +901,7 @@ export function EventDetailView() {
                   aria-describedby={
                     errors.hours ? 'subtask-hours-error' : undefined
                   }
-                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                     errors.hours ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Ej: 4"
@@ -911,7 +911,7 @@ export function EventDetailView() {
                   <p
                     id="subtask-hours-error"
                     role="alert"
-                    className="mt-1 text-xs text-red-600"
+                    className="mt-1 text-xs text-gray-600"
                   >
                     {errors.hours}
                   </p>
@@ -937,7 +937,7 @@ export function EventDetailView() {
                   aria-describedby={
                     errors.date ? 'subtask-date-error' : undefined
                   }
-                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                     errors.date ? 'border-red-500' : 'border-gray-300'
                   }`}
                   required
@@ -946,7 +946,7 @@ export function EventDetailView() {
                   <p
                     id="subtask-date-error"
                     role="alert"
-                    className="mt-1 text-xs text-red-600"
+                    className="mt-1 text-xs text-gray-600"
                   >
                     {errors.date}
                   </p>
@@ -981,7 +981,7 @@ export function EventDetailView() {
         {editingSubtaskId !== null && (
           <form
             onSubmit={handleSaveSubtask}
-            className="mb-5 space-y-4 rounded-md border border-blue-200 bg-blue-50/40 p-4"
+            className="mb-5 space-y-4 rounded-md border border-accent/30 bg-accent/10 p-4"
             noValidate
             aria-busy={isSavingSubtaskEdit}
           >
@@ -1023,7 +1023,7 @@ export function EventDetailView() {
                 aria-describedby={
                   editingErrors.title ? 'edit-subtask-title-error' : undefined
                 }
-                className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                   editingErrors.title ? 'border-red-500' : 'border-gray-300'
                 }`}
                 required
@@ -1032,7 +1032,7 @@ export function EventDetailView() {
                 <p
                   id="edit-subtask-title-error"
                   role="alert"
-                  className="mt-1 text-xs text-red-600"
+                  className="mt-1 text-xs text-gray-600"
                 >
                   {editingErrors.title}
                 </p>
@@ -1061,7 +1061,7 @@ export function EventDetailView() {
                   aria-describedby={
                     editingErrors.hours ? 'edit-subtask-hours-error' : undefined
                   }
-                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                     editingErrors.hours ? 'border-red-500' : 'border-gray-300'
                   }`}
                   required
@@ -1070,7 +1070,7 @@ export function EventDetailView() {
                   <p
                     id="edit-subtask-hours-error"
                     role="alert"
-                    className="mt-1 text-xs text-red-600"
+                    className="mt-1 text-xs text-gray-600"
                   >
                     {editingErrors.hours}
                   </p>
@@ -1096,7 +1096,7 @@ export function EventDetailView() {
                   aria-describedby={
                     editingErrors.date ? 'edit-subtask-date-error' : undefined
                   }
-                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                     editingErrors.date ? 'border-red-500' : 'border-gray-300'
                   }`}
                   required
@@ -1105,7 +1105,7 @@ export function EventDetailView() {
                   <p
                     id="edit-subtask-date-error"
                     role="alert"
-                    className="mt-1 text-xs text-red-600"
+                    className="mt-1 text-xs text-gray-600"
                   >
                     {editingErrors.date}
                   </p>
@@ -1152,7 +1152,7 @@ export function EventDetailView() {
                   <span className="rounded bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-700">
                     {subtask.hours} hrs
                   </span>
-                  <span className="rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
+                  <span className="rounded bg-accent/10 px-2 py-1 text-xs font-semibold text-accent">
                     {getStateLabel(subtask.state)}
                   </span>
                   <Button
