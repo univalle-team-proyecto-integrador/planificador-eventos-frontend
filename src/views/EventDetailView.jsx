@@ -513,10 +513,10 @@ export function EventDetailView() {
 
   const inputBorderClass = (isError, isSuccess) =>
     isError
-      ? 'border-red-500'
+      ? 'border-danger'
       : isSuccess
         ? 'border-emerald-500'
-        : 'border-gray-300';
+        : 'border-border';
 
   const handleAddSubtask = async (event) => {
     event.preventDefault();
@@ -770,7 +770,7 @@ export function EventDetailView() {
   if (isLoading) {
     return (
       <div
-        className="flex min-h-[50vh] items-center justify-center text-gray-600"
+        className="flex min-h-[50vh] items-center justify-center text-muted-text"
         role="status"
         aria-live="polite"
         aria-busy="true"
@@ -797,7 +797,7 @@ export function EventDetailView() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <Card className="p-6">
-        <div className="space-y-4 border-b border-gray-200 pb-5">
+        <div className="space-y-4 border-b border-border pb-5">
           <Button
             type="button"
             variant="neutral"
@@ -810,10 +810,10 @@ export function EventDetailView() {
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="mt-2 text-2xl font-bold text-gray-900">
+              <h2 className="mt-2 text-2xl font-bold text-primary">
                 {event.nombre}
               </h2>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted-text">
                 Plan logístico del evento
               </p>
             </div>
@@ -856,14 +856,14 @@ export function EventDetailView() {
             aria-busy={isSavingEvent}
           >
             <fieldset className="space-y-4 border-0 p-0">
-              <legend className="mb-3 text-sm font-semibold text-gray-800">
+              <legend className="mb-3 text-sm font-semibold text-secondary-text">
                 ¿Qué evento es?
               </legend>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
                   <label
                     htmlFor="edit-event-name"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="mb-1 block text-sm font-medium text-secondary-text"
                   >
                     Nombre del evento *
                   </label>
@@ -895,7 +895,7 @@ export function EventDetailView() {
                     <p
                       id="edit-event-name-error"
                       role="alert"
-                      className="mt-1 text-xs text-gray-600"
+                      className="mt-1 text-xs text-muted-text"
                     >
                       {eventErrors.nombre}
                     </p>
@@ -909,7 +909,7 @@ export function EventDetailView() {
                 <div>
                   <label
                     htmlFor="edit-event-client"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="mb-1 block text-sm font-medium text-secondary-text"
                   >
                     Cliente / contacto *
                   </label>
@@ -941,7 +941,7 @@ export function EventDetailView() {
                     <p
                       id="edit-event-client-error"
                       role="alert"
-                      className="mt-1 text-xs text-gray-600"
+                      className="mt-1 text-xs text-muted-text"
                     >
                       {eventErrors.cliente}
                     </p>
@@ -955,14 +955,14 @@ export function EventDetailView() {
             </fieldset>
 
             <fieldset className="space-y-4 border-0 p-0">
-              <legend className="mb-3 text-sm font-semibold text-gray-800">
+              <legend className="mb-3 text-sm font-semibold text-secondary-text">
                 ¿Cuándo y dónde?
               </legend>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
                   <label
                     htmlFor="edit-event-date"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="mb-1 block text-sm font-medium text-secondary-text"
                   >
                     Fecha del evento *
                   </label>
@@ -994,7 +994,7 @@ export function EventDetailView() {
                     <p
                       id="edit-event-date-error"
                       role="alert"
-                      className="mt-1 text-xs text-gray-600"
+                      className="mt-1 text-xs text-muted-text"
                     >
                       {eventErrors.fecha}
                     </p>
@@ -1005,7 +1005,7 @@ export function EventDetailView() {
                   ) : (
                     <p
                       id="edit-event-date-help"
-                      className="mt-1 text-xs text-gray-500"
+                      className="mt-1 text-xs text-muted-text"
                     >
                       Selecciona hoy o una fecha futura.
                     </p>
@@ -1015,7 +1015,7 @@ export function EventDetailView() {
                 <div>
                   <label
                     htmlFor="edit-event-location"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="mb-1 block text-sm font-medium text-secondary-text"
                   >
                     Lugar del evento *
                   </label>
@@ -1047,7 +1047,7 @@ export function EventDetailView() {
                     <p
                       id="edit-event-location-error"
                       role="alert"
-                      className="mt-1 text-xs text-gray-600"
+                      className="mt-1 text-xs text-muted-text"
                     >
                       {eventErrors.lugar}
                     </p>
@@ -1086,45 +1086,45 @@ export function EventDetailView() {
         ) : (
           <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-text">
                 {getEventTypeIcon(event.tipo, {
                   className: 'mr-1 inline size-4 align-text-bottom',
                 })}
                 Tipo
               </dt>
-              <dd className="mt-1 text-sm text-gray-900">{event.tipo}</dd>
+              <dd className="mt-1 text-sm text-primary">{event.tipo}</dd>
             </div>
             <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-text">
                 <CalendarDays
                   aria-hidden="true"
                   className="mr-1 inline size-4 align-text-bottom"
                 />
                 Fecha
               </dt>
-              <dd className="mt-1 text-sm text-gray-900">
+              <dd className="mt-1 text-sm text-primary">
                 {formatDate(event.fechaEvento)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-text">
                 <UserRound
                   aria-hidden="true"
                   className="mr-1 inline size-4 align-text-bottom"
                 />
                 Cliente / contacto
               </dt>
-              <dd className="mt-1 text-sm text-gray-900">{event.cliente}</dd>
+              <dd className="mt-1 text-sm text-primary">{event.cliente}</dd>
             </div>
             <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-text">
                 <MapPin
                   aria-hidden="true"
                   className="mr-1 inline size-4 align-text-bottom"
                 />
                 Lugar
               </dt>
-              <dd className="mt-1 text-sm text-gray-900">{event.lugar}</dd>
+              <dd className="mt-1 text-sm text-primary">{event.lugar}</dd>
             </div>
           </dl>
         )}
@@ -1133,10 +1133,10 @@ export function EventDetailView() {
       <Card className="p-6">
         <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-primary">
               Plan inicial de subtareas
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-text">
               {subtasks.length === 0
                 ? 'Añade la primera gestión para comenzar.'
                 : `${workload.completed} de ${subtasks.length} tareas completadas.`}
@@ -1180,18 +1180,18 @@ export function EventDetailView() {
             noValidate
             aria-busy={isSavingSubtask}
           >
-            <h4 className="text-sm font-semibold text-gray-700">
+            <h4 className="text-sm font-semibold text-secondary-text">
               Nueva gestión logística
             </h4>
 
             <fieldset className="space-y-4 border-0 p-0">
-              <legend className="text-sm font-semibold text-gray-700">
+              <legend className="text-sm font-semibold text-secondary-text">
                 ¿Qué gestión necesitas?
               </legend>
               <div>
                 <label
                   htmlFor="subtask-title"
-                  className="mb-1 block text-sm font-medium text-gray-700"
+                  className="mb-1 block text-sm font-medium text-secondary-text"
                 >
                   Nombre de la gestión *
                 </label>
@@ -1223,7 +1223,7 @@ export function EventDetailView() {
                   <p
                     id="subtask-title-error"
                     role="alert"
-                    className="mt-1 text-xs text-gray-600"
+                    className="mt-1 text-xs text-muted-text"
                   >
                     {errors.title}
                   </p>
@@ -1236,14 +1236,14 @@ export function EventDetailView() {
             </fieldset>
 
             <fieldset className="space-y-4 border-0 p-0">
-              <legend className="text-sm font-semibold text-gray-700">
+              <legend className="text-sm font-semibold text-secondary-text">
                 ¿Cuánto esfuerzo requiere y cuándo debe estar lista?
               </legend>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <label
                     htmlFor="subtask-hours"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="mb-1 block text-sm font-medium text-secondary-text"
                   >
                     Horas estimadas *
                   </label>
@@ -1277,7 +1277,7 @@ export function EventDetailView() {
                     <p
                       id="subtask-hours-error"
                       role="alert"
-                      className="mt-1 text-xs text-gray-600"
+                      className="mt-1 text-xs text-muted-text"
                     >
                       {errors.hours}
                     </p>
@@ -1291,7 +1291,7 @@ export function EventDetailView() {
                 <div>
                   <label
                     htmlFor="subtask-date"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="mb-1 block text-sm font-medium text-secondary-text"
                   >
                     Fecha límite *
                   </label>
@@ -1323,7 +1323,7 @@ export function EventDetailView() {
                     <p
                       id="subtask-date-error"
                       role="alert"
-                      className="mt-1 text-xs text-gray-600"
+                      className="mt-1 text-xs text-muted-text"
                     >
                       {errors.date}
                     </p>
@@ -1334,7 +1334,7 @@ export function EventDetailView() {
                   ) : (
                     <p
                       id="subtask-date-help"
-                      className="mt-1 text-xs text-gray-500"
+                      className="mt-1 text-xs text-muted-text"
                     >
                       Selecciona hoy o una fecha futura.
                     </p>
@@ -1378,10 +1378,10 @@ export function EventDetailView() {
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h4 className="text-sm font-semibold text-gray-800">
+                <h4 className="text-sm font-semibold text-secondary-text">
                   Editar gestión
                 </h4>
-                <p className="mt-1 text-xs text-gray-600">
+                <p className="mt-1 text-xs text-muted-text">
                   Modifica el nombre, la fecha límite o las horas estimadas.
                 </p>
               </div>
@@ -1396,13 +1396,13 @@ export function EventDetailView() {
             </div>
 
             <fieldset className="space-y-4 border-0 p-0">
-              <legend className="text-sm font-semibold text-gray-700">
+              <legend className="text-sm font-semibold text-secondary-text">
                 ¿Qué gestión necesitas?
               </legend>
               <div>
                 <label
                   htmlFor="edit-subtask-title"
-                  className="mb-1 block text-sm font-medium text-gray-700"
+                  className="mb-1 block text-sm font-medium text-secondary-text"
                 >
                   Nombre de la gestión *
                 </label>
@@ -1423,7 +1423,7 @@ export function EventDetailView() {
                         ? 'edit-subtask-title-success'
                         : undefined
                   }
-                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
+                  className={`w-full rounded-md border bg-surface-raised p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                     Boolean(editingErrors.title),
                     isEditingSubtaskFieldSuccess('title')
                   )}`}
@@ -1434,7 +1434,7 @@ export function EventDetailView() {
                   <p
                     id="edit-subtask-title-error"
                     role="alert"
-                    className="mt-1 text-xs text-gray-600"
+                    className="mt-1 text-xs text-muted-text"
                   >
                     {editingErrors.title}
                   </p>
@@ -1447,14 +1447,14 @@ export function EventDetailView() {
             </fieldset>
 
             <fieldset className="space-y-4 border-0 p-0">
-              <legend className="text-sm font-semibold text-gray-700">
+              <legend className="text-sm font-semibold text-secondary-text">
                 ¿Cuánto esfuerzo requiere y cuándo debe estar lista?
               </legend>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <label
                     htmlFor="edit-subtask-hours"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="mb-1 block text-sm font-medium text-secondary-text"
                   >
                     Horas estimadas *
                   </label>
@@ -1477,7 +1477,7 @@ export function EventDetailView() {
                           ? 'edit-subtask-hours-success'
                           : undefined
                     }
-                    className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
+                    className={`w-full rounded-md border bg-surface-raised p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(editingErrors.hours),
                       isEditingSubtaskFieldSuccess('hours')
                     )}`}
@@ -1488,7 +1488,7 @@ export function EventDetailView() {
                     <p
                       id="edit-subtask-hours-error"
                       role="alert"
-                      className="mt-1 text-xs text-gray-600"
+                      className="mt-1 text-xs text-muted-text"
                     >
                       {editingErrors.hours}
                     </p>
@@ -1502,7 +1502,7 @@ export function EventDetailView() {
                 <div>
                   <label
                     htmlFor="edit-subtask-date"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="mb-1 block text-sm font-medium text-secondary-text"
                   >
                     Fecha límite *
                   </label>
@@ -1524,7 +1524,7 @@ export function EventDetailView() {
                           ? ' edit-subtask-date-success'
                           : ''
                     }`}
-                    className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
+                    className={`w-full rounded-md border bg-surface-raised p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(editingErrors.date),
                       isEditingSubtaskFieldSuccess('date')
                     )}`}
@@ -1534,7 +1534,7 @@ export function EventDetailView() {
                     <p
                       id="edit-subtask-date-error"
                       role="alert"
-                      className="mt-1 text-xs text-gray-600"
+                      className="mt-1 text-xs text-muted-text"
                     >
                       {editingErrors.date}
                     </p>
@@ -1545,7 +1545,7 @@ export function EventDetailView() {
                   ) : (
                     <p
                       id="edit-subtask-date-help"
-                      className="mt-1 text-xs text-gray-500"
+                      className="mt-1 text-xs text-muted-text"
                     >
                       Selecciona hoy o una fecha futura.
                     </p>
@@ -1580,13 +1580,13 @@ export function EventDetailView() {
                     <p
                       className={`font-medium ${
                         subtask.state === 'ejecutada'
-                          ? 'text-gray-500 line-through'
-                          : 'text-gray-800'
+                          ? 'text-muted-text line-through'
+                          : 'text-secondary-text'
                       }`}
                     >
                       {subtask.title}
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-muted-text">
                       Fecha límite: {formatDate(subtask.date)}
                     </p>
                   </div>

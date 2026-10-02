@@ -36,13 +36,13 @@ const getSubmitErrorMessage = (error) =>
 const inputClass = (hasError) =>
   `w-full rounded-2xl border bg-primary-soft py-3.5 pl-12 pr-4 text-[15px] text-primary-text placeholder:text-muted-text focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 ${
     hasError
-      ? 'border-red-500 focus-visible:ring-red-500'
+      ? 'border-danger focus-visible:ring-red-500'
       : 'border-transparent focus-visible:border-primary'
   }`;
 
 const FieldError = ({ id, children }) =>
   children ? (
-    <p id={id} role="alert" className="mt-2 text-sm text-red-600">
+    <p id={id} role="alert" className="mt-2 text-sm text-danger-text">
       {children}
     </p>
   ) : null;
@@ -160,7 +160,7 @@ export function LoginView() {
           </p>
         </div>
 
-        <div className="rounded-3xl bg-white p-7 shadow-[0_18px_40px_-20px_rgba(17,24,39,0.25)] sm:p-9">
+        <div className="rounded-3xl bg-surface-raised p-7 shadow-[0_18px_40px_-20px_rgba(17,24,39,0.25)] sm:p-9">
           <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-primary-text">
             Bienvenido de nuevo
           </h1>
@@ -171,7 +171,7 @@ export function LoginView() {
           {submitError && (
             <p
               role="alert"
-              className="mt-5 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700"
+              className="mt-5 rounded-2xl bg-danger-soft px-4 py-3 text-sm text-danger-text"
             >
               {submitError}
             </p>
