@@ -46,6 +46,7 @@ export function Topbar({ isNavOpen, onToggleNav }) {
         </Link>
 
         <div className="mx-auto sm:w-full sm:max-w-md">
+          <SearchBar />
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
