@@ -217,6 +217,17 @@ textarea {
   font: inherit;
 }
 
+/* El desplegable de un `<select>` se pinta fuera del árbol del documento, así que
+   no hereda los tokens. Además Chromium ignora `color-scheme` cuando el select ya
+   tiene un `background-color` propio (aquí, `bg-surface-raised`) y deja la lista
+   con la paleta del sistema: en modo oscuro sale blanca sobre un control oscuro.
+   Firefox sí la respeta, de ahí que solo se notara en Chrome y Brave.
+   Con colores explícitos en `option` queda igual en todos. */
+select option {
+  background-color: var(--surface-raised);
+  color: var(--text-primary);
+}
+
 :focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
