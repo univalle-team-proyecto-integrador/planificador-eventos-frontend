@@ -30,6 +30,35 @@ const stubApi = () => {
   return fetchMock;
 };
 
+/**
+ * Devuelve un evento con fecha futura en el listado. Con un evento en el futuro
+ * la lista de "hoy" queda vacía, que es la rama donde aparece el botón de abrir
+ * el calendario.
+ */
+const stubApiWithFutureEvent = () => {
+  const evento = {
+    id: 9,
+    nombre: 'Boda de Prueba',
+    cliente: 'Cliente',
+    fechaEvento: '2030-05-10T18:00:00',
+    lugar: 'Bogotá',
+    idTipoEvento: 1,
+  };
+
+  const fetchMock = vi.fn(async (url) => {
+    const esListado = /\/api\/eventos(\?|$)/.test(String(url));
+
+    return {
+      ok: true,
+      status: 200,
+      text: () => Promise.resolve(JSON.stringify(esListado ? [evento] : [])),
+    };
+  });
+
+  vi.stubGlobal('fetch', fetchMock);
+  return fetchMock;
+};
+
 describe('shell de la aplicación', () => {
   let container;
   let root;
@@ -177,5 +206,41 @@ describe('shell de la aplicación', () => {
     expect(menu).not.toBeNull();
     expect(menu.textContent).toContain('Cerrar sesión');
     expect(menu.querySelector('[role="menuitem"]')).not.toBeNull();
+  });
+
+  // El calendario de gestiones viene del PR #4 y se fusionó con este shell, así
+  // que este caso vigila que la combinación siga montando y cerrando.
+  it('el calendario de /hoy abre como diálogo y cierra con Escape', async () => {
+    stubApiWithFutureEvent();
+    saveSession({ token: 'abc', nombre: 'Santiago Perez' });
+
+    await renderAt('/hoy');
+
+    const trigger = [...container.querySelectorAll('button')].find((button) =>
+      button.textContent.includes('Ver calendario')
+    );
+    expect(trigger).toBeTruthy();
+
+    await act(async () => {
+      trigger.click();
+    });
+
+    const dialog = container.querySelector(
+      '[role="dialog"][aria-modal="true"]'
+    );
+    expect(dialog).not.toBeNull();
+
+    await act(async () => {
+      dialog.dispatchEvent(
+        new window.KeyboardEvent('keydown', {
+          key: 'Escape',
+          bubbles: true,
+        })
+      );
+    });
+
+    expect(
+      container.querySelector('[role="dialog"][aria-modal="true"]')
+    ).toBeNull();
   });
 });

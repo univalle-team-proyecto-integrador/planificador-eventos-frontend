@@ -3,7 +3,7 @@
 // modo claro y oscuro. Si agregas un color nuevo, agrégalo como token allí, no
 // como clase de Tailwind: una clase literal no cambia con el tema.
 const baseStyle =
-  'px-3.5 py-1.5 rounded-md font-semibold text-sm transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  'inline-flex h-10 items-center justify-center gap-2 px-4 py-2 whitespace-nowrap rounded-md font-semibold text-sm transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
 const variants = {
   primary:

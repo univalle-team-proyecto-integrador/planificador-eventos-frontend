@@ -108,7 +108,7 @@ export function RegisterView() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-surface px-4 py-10 text-primary-text sm:px-6">
       <div className="w-full max-w-[420px]">
         <div className="mb-8 flex flex-col items-center text-center">
-          <span className="flex size-14 items-center justify-center rounded-2xl bg-primary shadow-[0_10px_24px_-8px_rgba(51,35,204,0.55)]">
+          <span className="flex size-14 items-center justify-center rounded-2xl bg-primary shadow-[0_10px_24px_-8px_rgba(78,176,209,0.45)]">
             <CalendarCheck
               aria-hidden="true"
               className="size-7 text-primary-contrast"
@@ -287,7 +287,7 @@ export function RegisterView() {
               type="submit"
               disabled={isSubmitting}
               aria-busy={isSubmitting}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3.5 text-[15px] font-semibold text-primary-contrast shadow-[0_10px_20px_-10px_rgba(51,35,204,0.7)] transition-colors hover:bg-primary-hover focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3.5 text-[15px] font-semibold text-primary-contrast shadow-[0_10px_20px_-10px_rgba(78,176,209,0.55)] transition-colors hover:bg-primary-hover focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSubmitting ? (
                 <>

@@ -19,9 +19,9 @@
      barra superior ocupa dos filas y no se usa: ahí la lateral es un drawer. */
   --topbar-height: 4rem;
 
-  --surface: #f9fafb;
+  --surface: #f7f6ed;
   --surface-raised: #ffffff;
-  --surface-sunken: #f3f4f6;
+  --surface-sunken: #efede1;
   --surface-overlay: rgb(17 24 39 / 0.55);
 
   --border: #e5e7eb;
@@ -29,16 +29,18 @@
 
   --text-primary: #111827;
   --text-secondary: #4b5563;
-  --text-muted: #6b7280;
+  --text-muted: #676f7b;
   --text-inverted: #ffffff;
 
-  /* Morado de marca. Es el mismo que ya usaban login y registro (#3323CC), así
-     que el token no introduce un color nuevo en el producto. */
-  --primary: #3323cc;
-  --primary-hover: #26189e;
-  --primary-soft: #eef0ff;
-  --primary-contrast: #ffffff;
-  --primary-text: #3323cc;
+  /* Paleta del PR #4 (integración de `frontend/lead`): brand turquesa, accent
+     periwinkle y canvas crema. `--primary-text` es una versión oscura del
+     turquesa porque el de los rellenos se queda en 2.48:1 con blanco y solo
+     sirve como fondo, no como color de texto ni de anillo de foco. */
+  --primary: #4eb0d1;
+  --primary-hover: #8581d9;
+  --primary-soft: #dff0f5;
+  --primary-contrast: #0a242b;
+  --primary-text: #17697f;
 
   --success: #047857;
   --success-soft: #ecfdf5;
@@ -56,15 +58,15 @@
   --info-soft: #eff6ff;
   --info-text: #1e40af;
 
-  --focus-ring: #3323cc;
+  --focus-ring: #17697f;
 }
 
 [data-theme='dark'] {
   color-scheme: dark;
 
-  --surface: #0b0f19;
-  --surface-raised: #141a2a;
-  --surface-sunken: #1b2233;
+  --surface: #0b1116;
+  --surface-raised: #12191f;
+  --surface-sunken: #1a232a;
   --surface-overlay: rgb(2 6 16 / 0.7);
 
   --border: #2a3142;
@@ -75,16 +77,15 @@
   --text-muted: #9ca3af;
   --text-inverted: #0b0f19;
 
-  /* El morado se aclara en oscuro para mantener el contraste sobre superficie
-     oscura; el tono claro se usaría como texto y el de marca como fondo. */
-  --primary: #7c6bf0;
-  --primary-hover: #8e80f4;
-  --primary-soft: #1e1b4b;
-
-  /* El morado de fondo aclara en oscuro, asi que el texto sobre el relleno pasa a
-     oscuro: blanco sobre #7c6bf0 se queda en 4.03:1 y no alcanza AA. */
-  --primary-contrast: #0b0f19;
-  --primary-text: #a99df5;
+  /* El PR #4 no definió equivalentes oscuros, así que se derivan de su paleta:
+     el turquesa y el periwinkle se aclaran para conservar el contraste sobre
+     superficie oscura. `--primary-contrast` vuelve a ser texto oscuro porque
+     un relleno aclarado ya no admite blanco encima. */
+  --primary: #5cc7e0;
+  --primary-hover: #a49ef0;
+  --primary-soft: #0f2f3a;
+  --primary-contrast: #04181f;
+  --primary-text: #7fd3e8;
 
   --success: #34d399;
   --success-soft: #052e23;
@@ -102,7 +103,7 @@
   --info-soft: #172554;
   --info-text: #93c5fd;
 
-  --focus-ring: #a99df5;
+  --focus-ring: #7fd3e8;
 }
 
 @theme inline {
@@ -123,6 +124,13 @@
   --color-primary-soft: var(--primary-soft);
   --color-primary-contrast: var(--primary-contrast);
   --color-brand-text: var(--primary-text);
+
+  /* Alias de la paleta del PR #4 para que sus archivos (CalendarModal, HoyPage,
+     CreateEventView, EventDetailView) no tengan que reescribirse. Apuntan a los
+     tokens semánticos, no a hex, así que también cambian con el tema. */
+  --color-brand: var(--primary-text);
+  --color-accent: var(--primary-text);
+  --color-canvas: var(--surface);
 
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
