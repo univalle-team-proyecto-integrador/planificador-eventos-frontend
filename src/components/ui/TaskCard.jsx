@@ -30,7 +30,7 @@ export function TaskCard({
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-600">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">
             {eventName}
           </p>
           <h3 className="mt-1 text-base font-semibold text-gray-900">

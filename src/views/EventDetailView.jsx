@@ -866,7 +866,7 @@ export function EventDetailView() {
                           ? 'edit-event-name-success'
                           : undefined
                     }
-                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(eventErrors.nombre),
                       isEventFieldSuccess('nombre')
                     )}`}
@@ -877,7 +877,7 @@ export function EventDetailView() {
                     <p
                       id="edit-event-name-error"
                       role="alert"
-                      className="mt-1 text-xs text-red-600"
+                      className="mt-1 text-xs text-gray-600"
                     >
                       {eventErrors.nombre}
                     </p>
@@ -912,7 +912,7 @@ export function EventDetailView() {
                           ? 'edit-event-client-success'
                           : undefined
                     }
-                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(eventErrors.cliente),
                       isEventFieldSuccess('cliente')
                     )}`}
@@ -923,7 +923,7 @@ export function EventDetailView() {
                     <p
                       id="edit-event-client-error"
                       role="alert"
-                      className="mt-1 text-xs text-red-600"
+                      className="mt-1 text-xs text-gray-600"
                     >
                       {eventErrors.cliente}
                     </p>
@@ -966,7 +966,7 @@ export function EventDetailView() {
                           ? ' edit-event-date-success'
                           : ''
                     }`}
-                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(eventErrors.fecha),
                       isEventFieldSuccess('fecha')
                     )}`}
@@ -976,7 +976,7 @@ export function EventDetailView() {
                     <p
                       id="edit-event-date-error"
                       role="alert"
-                      className="mt-1 text-xs text-red-600"
+                      className="mt-1 text-xs text-gray-600"
                     >
                       {eventErrors.fecha}
                     </p>
@@ -1018,7 +1018,7 @@ export function EventDetailView() {
                           ? 'edit-event-location-success'
                           : undefined
                     }
-                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(eventErrors.lugar),
                       isEventFieldSuccess('lugar')
                     )}`}
@@ -1029,7 +1029,7 @@ export function EventDetailView() {
                     <p
                       id="edit-event-location-error"
                       role="alert"
-                      className="mt-1 text-xs text-red-600"
+                      className="mt-1 text-xs text-gray-600"
                     >
                       {eventErrors.lugar}
                     </p>
@@ -1158,7 +1158,7 @@ export function EventDetailView() {
           <form
             ref={subtaskFormRef}
             onSubmit={handleAddSubtask}
-            className="space-y-4 rounded-md border bg-gray-50 p-4"
+            className="space-y-4 rounded-md border bg-canvas p-4"
             noValidate
             aria-busy={isSavingSubtask}
           >
@@ -1194,7 +1194,7 @@ export function EventDetailView() {
                         ? 'subtask-title-success'
                         : undefined
                   }
-                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                  className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                     Boolean(errors.title),
                     isSubtaskFieldSuccess('title')
                   )}`}
@@ -1205,7 +1205,7 @@ export function EventDetailView() {
                   <p
                     id="subtask-title-error"
                     role="alert"
-                    className="mt-1 text-xs text-red-600"
+                    className="mt-1 text-xs text-gray-600"
                   >
                     {errors.title}
                   </p>
@@ -1248,7 +1248,7 @@ export function EventDetailView() {
                           ? 'subtask-hours-success'
                           : undefined
                     }
-                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(errors.hours),
                       isSubtaskFieldSuccess('hours')
                     )}`}
@@ -1259,7 +1259,7 @@ export function EventDetailView() {
                     <p
                       id="subtask-hours-error"
                       role="alert"
-                      className="mt-1 text-xs text-red-600"
+                      className="mt-1 text-xs text-gray-600"
                     >
                       {errors.hours}
                     </p>
@@ -1295,7 +1295,7 @@ export function EventDetailView() {
                           ? ' subtask-date-success'
                           : ''
                     }`}
-                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                    className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(errors.date),
                       isSubtaskFieldSuccess('date')
                     )}`}
@@ -1305,7 +1305,7 @@ export function EventDetailView() {
                     <p
                       id="subtask-date-error"
                       role="alert"
-                      className="mt-1 text-xs text-red-600"
+                      className="mt-1 text-xs text-gray-600"
                     >
                       {errors.date}
                     </p>
@@ -1354,7 +1354,7 @@ export function EventDetailView() {
           <form
             ref={editingSubtaskFormRef}
             onSubmit={handleSaveSubtask}
-            className="mb-5 space-y-4 rounded-md border border-blue-200 bg-blue-50/40 p-4"
+            className="mb-5 space-y-4 rounded-md border border-accent/30 bg-accent/10/40 p-4"
             noValidate
             aria-busy={isSavingSubtaskEdit}
           >
@@ -1405,7 +1405,7 @@ export function EventDetailView() {
                         ? 'edit-subtask-title-success'
                         : undefined
                   }
-                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                  className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                     Boolean(editingErrors.title),
                     isEditingSubtaskFieldSuccess('title')
                   )}`}
@@ -1416,7 +1416,7 @@ export function EventDetailView() {
                   <p
                     id="edit-subtask-title-error"
                     role="alert"
-                    className="mt-1 text-xs text-red-600"
+                    className="mt-1 text-xs text-gray-600"
                   >
                     {editingErrors.title}
                   </p>
@@ -1459,7 +1459,7 @@ export function EventDetailView() {
                           ? 'edit-subtask-hours-success'
                           : undefined
                     }
-                    className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                    className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(editingErrors.hours),
                       isEditingSubtaskFieldSuccess('hours')
                     )}`}
@@ -1470,7 +1470,7 @@ export function EventDetailView() {
                     <p
                       id="edit-subtask-hours-error"
                       role="alert"
-                      className="mt-1 text-xs text-red-600"
+                      className="mt-1 text-xs text-gray-600"
                     >
                       {editingErrors.hours}
                     </p>
@@ -1506,7 +1506,7 @@ export function EventDetailView() {
                           ? ' edit-subtask-date-success'
                           : ''
                     }`}
-                    className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${inputBorderClass(
+                    className={`w-full rounded-md border bg-white p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(editingErrors.date),
                       isEditingSubtaskFieldSuccess('date')
                     )}`}
@@ -1516,7 +1516,7 @@ export function EventDetailView() {
                     <p
                       id="edit-subtask-date-error"
                       role="alert"
-                      className="mt-1 text-xs text-red-600"
+                      className="mt-1 text-xs text-gray-600"
                     >
                       {editingErrors.date}
                     </p>

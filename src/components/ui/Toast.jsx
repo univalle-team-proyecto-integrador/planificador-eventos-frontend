@@ -8,8 +8,8 @@ const iconComponents = {
 };
 
 const badgeStyles = {
-  check: 'bg-emerald-50 text-emerald-600',
-  edit: 'bg-blue-50 text-blue-600',
+  check: 'bg-accent/10 text-accent',
+  edit: 'bg-accent/10 text-accent',
   trash: 'bg-gray-100 text-gray-500',
   undo: 'bg-amber-50 text-amber-600',
 };
@@ -37,7 +37,7 @@ export function Toast({ toast, onDismiss }) {
         type="button"
         onClick={() => onDismiss(toast.id)}
         aria-label="Cerrar notificación"
-        className="rounded-md p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="rounded-md p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         <X aria-hidden="true" className="size-4" strokeWidth={2} />
       </button>

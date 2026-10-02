@@ -3,9 +3,9 @@ const baseStyle =
 
 const variants = {
   neutral: 'bg-gray-100 text-gray-700',
-  info: 'bg-blue-50 text-blue-700',
+  info: 'bg-accent/10 text-accent',
   pending: 'bg-amber-50 text-amber-700',
-  success: 'bg-emerald-50 text-emerald-700',
+  success: 'bg-accent/10 text-accent',
 };
 
 export function Badge({

@@ -25,13 +25,13 @@ const getSubmitErrorMessage = (error) =>
 const inputClass = (hasError) =>
   `w-full rounded-2xl border bg-[#EEF0FF] py-3.5 pl-12 pr-4 text-[15px] text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none! focus-visible:ring-2 focus-visible:ring-[#3323CC] focus-visible:ring-offset-2 ${
     hasError
-      ? 'border-red-500 focus-visible:ring-red-500'
+      ? 'border-red-500 focus-visible:ring-red-300'
       : 'border-transparent focus-visible:border-[#3323CC]'
   }`;
 
 const FieldError = ({ id, children }) =>
   children ? (
-    <p id={id} role="alert" className="mt-2 text-sm text-red-600">
+    <p id={id} role="alert" className="mt-2 text-sm text-gray-600">
       {children}
     </p>
   ) : null;
@@ -132,7 +132,7 @@ export function RegisterView() {
           {submitError && (
             <p
               role="alert"
-              className="mt-5 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700"
+              className="mt-5 rounded-2xl bg-canvas px-4 py-3 text-sm text-gray-700"
             >
               {submitError}
             </p>
