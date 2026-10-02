@@ -101,10 +101,10 @@ export function CalendarModal({ open, onClose, tasksByDate }) {
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="w-full max-w-xl rounded-lg bg-white p-6 shadow-xl"
+        className="w-full max-w-xl rounded-lg bg-surface-raised p-6 shadow-xl"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 id={titleId} className="text-xl font-bold text-gray-900">
+          <h2 id={titleId} className="text-xl font-bold text-primary">
             Calendario de gestiones
           </h2>
           <Button type="button" variant="neutral" onClick={onClose}>
@@ -121,7 +121,7 @@ export function CalendarModal({ open, onClose, tasksByDate }) {
           >
             ←
           </Button>
-          <p className="text-sm font-semibold capitalize text-gray-700">
+          <p className="text-sm font-semibold capitalize text-secondary-text">
             {monthLabel}
           </p>
           <Button
@@ -134,7 +134,7 @@ export function CalendarModal({ open, onClose, tasksByDate }) {
           </Button>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-gray-500">
+        <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-muted-text">
           {WEEKDAYS.map((day) => (
             <span key={day}>{day}</span>
           ))}
@@ -161,8 +161,8 @@ export function CalendarModal({ open, onClose, tasksByDate }) {
                   isSelected
                     ? 'bg-accent text-white'
                     : hasTasks
-                      ? 'bg-brand/20 font-semibold text-gray-900 hover:bg-accent/30'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-brand/20 font-semibold text-primary hover:bg-accent/30'
+                      : 'text-muted-text hover:bg-gray-100'
                 }`}
               >
                 {date.getDate()}
@@ -175,13 +175,13 @@ export function CalendarModal({ open, onClose, tasksByDate }) {
         </div>
 
         <div className="mt-4 border-t pt-4">
-          <h3 className="text-sm font-semibold text-gray-800">
+          <h3 className="text-sm font-semibold text-secondary-text">
             {selectedDate
               ? `Gestiones del ${formatLongDate(selectedDate)}`
               : 'Selecciona un día marcado'}
           </h3>
           {selectedDate && selectedTasks.length === 0 && (
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-muted-text">
               No hay gestiones para este día.
             </p>
           )}
@@ -190,7 +190,7 @@ export function CalendarModal({ open, onClose, tasksByDate }) {
               <li key={`${task.id}-${task.eventId}`}>
                 <Link
                   to={`/evento/${task.eventId}`}
-                  className="block rounded-md px-2 py-1.5 text-sm text-gray-700 hover:bg-accent/10 hover:text-accent"
+                  className="block rounded-md px-2 py-1.5 text-sm text-secondary-text hover:bg-accent/10 hover:text-accent"
                 >
                   {task.title} · {task.eventName}
                 </Link>

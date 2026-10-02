@@ -178,10 +178,10 @@ export function CreateEventView() {
 
   const inputBorderClass = (field) =>
     errors[field]
-      ? 'border-red-500'
+      ? 'border-danger'
       : isFieldSuccess(field)
         ? 'border-emerald-500'
-        : 'border-gray-300';
+        : 'border-border';
 
   const submitEvent = async () => {
     if (isSubmitting) {
@@ -271,13 +271,13 @@ export function CreateEventView() {
   };
 
   return (
-    <div className="mx-auto mt-6 max-w-3xl rounded-lg bg-white p-6 shadow-sm">
+    <div className="mx-auto mt-6 max-w-3xl rounded-lg bg-surface-raised p-6 shadow-sm">
       <div className="mb-6">
         <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-accent">
           US-01 · Crear evento
         </p>
-        <h2 className="text-2xl font-bold text-gray-900">Crear nuevo evento</h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <h2 className="text-2xl font-bold text-primary">Crear nuevo evento</h2>
+        <p className="mt-2 text-sm text-muted-text">
           Registra los datos esenciales para preparar el plan logístico.
         </p>
       </div>
@@ -311,14 +311,14 @@ export function CreateEventView() {
         aria-busy={isSubmitting || isLoadingTypes}
       >
         <fieldset className="space-y-4 border-0 p-0">
-          <legend className="mb-3 text-sm font-semibold text-gray-800">
+          <legend className="mb-3 text-sm font-semibold text-secondary-text">
             ¿Qué evento es?
           </legend>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div>
               <label
                 htmlFor="event-nombre"
-                className="mb-1 block text-sm font-medium text-gray-700"
+                className="mb-1 block text-sm font-medium text-secondary-text"
               >
                 Nombre del evento *
               </label>
@@ -337,7 +337,7 @@ export function CreateEventView() {
                 <p
                   id="event-nombre-error"
                   role="alert"
-                  className="mt-1 text-xs text-gray-600"
+                  className="mt-1 text-xs text-muted-text"
                 >
                   {errors.nombre}
                 </p>
@@ -351,7 +351,7 @@ export function CreateEventView() {
             <div>
               <label
                 htmlFor="event-tipoEvento"
-                className="mb-1 block text-sm font-medium text-gray-700"
+                className="mb-1 block text-sm font-medium text-secondary-text"
               >
                 Tipo de evento *
               </label>
@@ -369,10 +369,10 @@ export function CreateEventView() {
                 }
                 className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 ${
                   errors.tipoEvento || typesError
-                    ? 'border-red-500'
+                    ? 'border-danger'
                     : isFieldSuccess('tipoEvento')
                       ? 'border-emerald-500'
-                      : 'border-gray-300'
+                      : 'border-border'
                 }`}
                 value={formData.tipoEvento}
                 onChange={(event) =>
@@ -401,7 +401,7 @@ export function CreateEventView() {
                 <p
                   id="event-tipoEvento-error"
                   role="alert"
-                  className="mt-1 text-xs text-gray-600"
+                  className="mt-1 text-xs text-muted-text"
                 >
                   {errors.tipoEvento}
                 </p>
@@ -418,14 +418,14 @@ export function CreateEventView() {
         </fieldset>
 
         <fieldset className="space-y-4 border-0 p-0">
-          <legend className="mb-3 text-sm font-semibold text-gray-800">
+          <legend className="mb-3 text-sm font-semibold text-secondary-text">
             ¿Cuándo, dónde y con quién?
           </legend>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div>
               <label
                 htmlFor="event-cliente"
-                className="mb-1 block text-sm font-medium text-gray-700"
+                className="mb-1 block text-sm font-medium text-secondary-text"
               >
                 Cliente / contacto *
               </label>
@@ -444,7 +444,7 @@ export function CreateEventView() {
                 <p
                   id="event-cliente-error"
                   role="alert"
-                  className="mt-1 text-xs text-gray-600"
+                  className="mt-1 text-xs text-muted-text"
                 >
                   {errors.cliente}
                 </p>
@@ -458,7 +458,7 @@ export function CreateEventView() {
             <div>
               <label
                 htmlFor="event-fecha"
-                className="mb-1 block text-sm font-medium text-gray-700"
+                className="mb-1 block text-sm font-medium text-secondary-text"
               >
                 Fecha del evento *
               </label>
@@ -476,7 +476,7 @@ export function CreateEventView() {
                 <p
                   id="event-fecha-error"
                   role="alert"
-                  className="mt-1 text-xs text-gray-600"
+                  className="mt-1 text-xs text-muted-text"
                 >
                   {errors.fecha}
                 </p>
@@ -487,7 +487,7 @@ export function CreateEventView() {
               ) : (
                 <p
                   id="event-fecha-help"
-                  className="mt-1 text-xs text-gray-500"
+                  className="mt-1 text-xs text-muted-text"
                 >
                   Selecciona hoy o una fecha futura.
                 </p>
@@ -498,7 +498,7 @@ export function CreateEventView() {
           <div>
             <label
               htmlFor="event-lugar"
-              className="mb-1 block text-sm font-medium text-gray-700"
+              className="mb-1 block text-sm font-medium text-secondary-text"
             >
               Lugar del evento *
             </label>
@@ -517,7 +517,7 @@ export function CreateEventView() {
                 <p
                   id="event-lugar-error"
                   role="alert"
-                  className="mt-1 text-xs text-gray-600"
+                  className="mt-1 text-xs text-muted-text"
                 >
                   {errors.lugar}
                 </p>

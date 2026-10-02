@@ -156,7 +156,7 @@ export const ProgresoPage = () => {
   if (isLoading) {
     return (
       <div
-        className="flex min-h-[50vh] items-center justify-center text-gray-600"
+        className="flex min-h-[50vh] items-center justify-center text-muted-text"
         role="status"
         aria-live="polite"
         aria-busy="true"
@@ -185,10 +185,10 @@ export const ProgresoPage = () => {
           <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-accent">
             Seguimiento
           </p>
-          <h2 className="text-3xl font-bold text-gray-900">
+          <h2 className="text-3xl font-bold text-primary">
             Progreso del evento
           </h2>
-          <p className="mt-2 max-w-2xl text-gray-600">
+          <p className="mt-2 max-w-2xl text-muted-text">
             Consulta aquí el avance de los preparativos de cada evento.
           </p>
         </div>
@@ -259,11 +259,11 @@ export const ProgresoPage = () => {
             <div className="mb-5">
               <h3
                 id="global-summary-title"
-                className="text-lg font-semibold text-gray-900"
+                className="text-lg font-semibold text-primary"
               >
                 Resumen global
               </h3>
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="mt-1 text-sm text-muted-text">
                 El avance se calcula principalmente con las horas estimadas.
               </p>
             </div>
