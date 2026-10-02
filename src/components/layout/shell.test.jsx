@@ -31,6 +31,23 @@ const stubApi = () => {
 };
 
 /**
+ * Abre el menú de perfil y devuelve su `<div role="menu">`.
+ *
+ * El interruptor de tema vive dentro de este menú, así que cualquier prueba
+ * que lo necesite tiene que abrirlo primero: si no, `[role="switch"]` da `null`
+ * y el fallo parece de tema cuando en realidad es de orden de renderizado.
+ */
+const abrirMenuPerfil = async (container) => {
+  const trigger = container.querySelector('[aria-haspopup="menu"]');
+
+  await act(async () => {
+    trigger.click();
+  });
+
+  return container.querySelector('[role="menu"]');
+};
+
+/**
  * Devuelve un evento con fecha futura en el listado. Con un evento en el futuro
  * la lista de "hoy" queda vacía, que es la rama donde aparece el botón de abrir
  * el calendario.
@@ -171,13 +188,19 @@ describe('shell de la aplicación', () => {
     expect(container.textContent).toContain('Próximamente');
   });
 
-  it('el interruptor de tema alterna data-theme y lo persiste', async () => {
+  it('el interruptor de tema vive en el menú de perfil y persiste el cambio', async () => {
     stubApi();
     saveSession({ token: 'abc', nombre: 'Santiago Perez' });
 
     await renderAt('/hoy');
 
-    const toggle = container.querySelector('[role="switch"]');
+    // Cerrado no existe todavía: el interruptor no anda suelto en la barra superior.
+    expect(container.querySelector('[role="switch"]')).toBeNull();
+
+    const menu = await abrirMenuPerfil(container);
+
+    const toggle = menu.querySelector('[role="switch"]');
+    expect(toggle).not.toBeNull();
     expect(toggle.getAttribute('aria-checked')).toBe('false');
 
     await act(async () => {
@@ -198,11 +221,8 @@ describe('shell de la aplicación', () => {
     const trigger = container.querySelector('[aria-haspopup="menu"]');
     expect(trigger.textContent).toContain('Santiago Perez');
 
-    await act(async () => {
-      trigger.click();
-    });
+    const menu = await abrirMenuPerfil(container);
 
-    const menu = container.querySelector('[role="menu"]');
     expect(menu).not.toBeNull();
     expect(menu.textContent).toContain('Cerrar sesión');
     expect(menu.querySelector('[role="menuitem"]')).not.toBeNull();

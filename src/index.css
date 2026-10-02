@@ -38,12 +38,18 @@
   --primary: #8581d9;
   --primary-hover: #6966ab;
   --primary-soft: #e9e7f8;
-  --primary-contrast: #ffffff;
+  --primary-contrast: #1b1830;
+  /* El hover del primario se va a morado oscuro (#6e6bb5) y ahi el texto
+     oscuro de `--primary-contrast` se queda en 3.63:1. El blanco llega a
+     4.74:1 y es el mismo valor en los dos temas, porque --primary-hover no
+     cambia entre ellos. */
+  --primary-contrast-hover: #ffffff;
   --primary-text: #514ea4;
 
   --success: #047857;
   --success-soft: #ecfdf5;
   --success-text: #065f46;
+  --success-contrast: #ffffff;
 
   --warning: #b45309;
   --warning-soft: #fffbeb;
@@ -84,11 +90,13 @@
   --primary-hover: #6e6bb5;
   --primary-soft: #26224a;
   --primary-contrast: #14122b;
+  --primary-contrast-hover: #ffffff;
   --primary-text: #b8b5f5;
 
   --success: #34d399;
   --success-soft: #052e23;
   --success-text: #6ee7b7;
+  --success-contrast: #04181f;
 
   --warning: #fbbf24;
   --warning-soft: #3b2606;
@@ -122,6 +130,7 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-soft: var(--primary-soft);
   --color-primary-contrast: var(--primary-contrast);
+  --color-primary-contrast-hover: var(--primary-contrast-hover);
   --color-brand-text: var(--primary-text);
 
   /* Alias de la paleta del PR #4 para que sus archivos (CalendarModal, HoyPage,
@@ -134,6 +143,7 @@
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-success-text: var(--success-text);
+  --color-success-contrast: var(--success-contrast);
 
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);

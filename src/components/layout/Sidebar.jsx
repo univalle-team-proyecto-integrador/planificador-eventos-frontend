@@ -82,7 +82,7 @@ export function Sidebar({ isOpen, onClose }) {
               type="button"
               onClick={onClose}
               aria-label="Cerrar el menú de navegación"
-              className="inline-flex size-8 items-center justify-center rounded-full text-muted-text hover:bg-surface-sunken hover:text-secondary-text"
+              className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full text-muted-text transition-[color,background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:bg-surface-sunken hover:shadow-md hover:text-secondary-text active:translate-y-0 motion-reduce:transform-none motion-reduce:transition-none"
             >
               <X aria-hidden="true" className="size-5" />
             </button>
@@ -101,7 +101,7 @@ export function Sidebar({ isOpen, onClose }) {
                   to={to}
                   onClick={onClose}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold transition-colors ${
+                  className={`flex cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold transition-[color,background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 motion-reduce:transform-none motion-reduce:transition-none ${
                     isActive
                       ? 'bg-primary text-primary-contrast'
                       : 'text-secondary-text hover:bg-surface-sunken hover:text-primary-text'

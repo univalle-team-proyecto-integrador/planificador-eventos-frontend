@@ -51,6 +51,18 @@ const SUBTASK_SUCCESS_MESSAGES = {
   date: '¡Listo! Fecha límite válida.',
 };
 
+/**
+ * Clase compartida por los cuatro botones de acción de cada gestión (editar,
+ * completar, reabrir y eliminar).
+ *
+ * La anchura fija es lo que los mantiene alineados: "Editar" y "Eliminar" son
+ * muy distintos en longitud y, sin `w-28`, la fila se ve desigual. El color no
+ * va aquí sino en la variante de cada botón: verde para editar y completar,
+ * neutro para reabrir (es un deshacer, no una finalización) y rojo para
+ * eliminar.
+ */
+const TASK_ACTION_CLASS = 'w-28 rounded-full text-xs';
+
 const getErrorMessage = (error) =>
   error?.message || 'No pudimos conectar con el servidor. Inténtalo de nuevo.';
 
@@ -1590,7 +1602,8 @@ export function EventDetailView() {
                     </Badge>
                     <Button
                       type="button"
-                      variant="danger"
+                      variant="danger-outline"
+                      className={TASK_ACTION_CLASS}
                       onClick={() => {
                         setDeleteError('');
                         setDeleteTarget(subtask);
@@ -1610,7 +1623,8 @@ export function EventDetailView() {
                     </Button>
                     <Button
                       type="button"
-                      variant="primary"
+                      variant="success-outline"
+                      className={TASK_ACTION_CLASS}
                       onClick={() => startEditingSubtask(subtask)}
                       disabled={
                         updatingSubtaskId === subtask.id ||
@@ -1628,8 +1642,11 @@ export function EventDetailView() {
                     <Button
                       type="button"
                       variant={
-                        subtask.state === 'ejecutada' ? 'neutral' : 'primary'
+                        subtask.state === 'ejecutada'
+                          ? 'neutral-outline'
+                          : 'success-outline'
                       }
+                      className={TASK_ACTION_CLASS}
                       onClick={() => void handleToggleSubtask(subtask)}
                       disabled={
                         updatingSubtaskId === subtask.id ||

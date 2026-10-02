@@ -1,5 +1,5 @@
 import { useId, useRef, useState } from 'react';
-import { CircleHelp } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 /**
  * Ícono de información con un texto corto de ayuda.
@@ -41,9 +41,9 @@ export function InfoTip({ text, label = 'Información de tu cuenta y ayuda' }) {
         aria-expanded={isOpen}
         aria-describedby={isOpen ? tipId : undefined}
         onClick={() => setIsOpen((open) => !open)}
-        className="inline-flex size-8 items-center justify-center rounded-full text-muted-text transition-colors hover:bg-surface-sunken hover:text-secondary-text"
+        className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full text-muted-text transition-[color,background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:bg-surface-sunken hover:shadow-md hover:text-secondary-text active:translate-y-0 motion-reduce:transform-none motion-reduce:transition-none"
       >
-        <CircleHelp aria-hidden="true" className="size-5" />
+        <Info aria-hidden="true" className="size-5" />
       </button>
 
       {isOpen && (

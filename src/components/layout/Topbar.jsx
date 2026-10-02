@@ -3,7 +3,6 @@ import { Menu, Plus } from 'lucide-react';
 import logoUrl from '../../img/Logo_h1.png';
 import { Button } from '../ui/Button';
 import { SearchBar } from './SearchBar';
-import { ThemeToggle } from './ThemeToggle';
 import { InfoTip } from './InfoTip';
 import { ProfileMenu } from './ProfileMenu';
 
@@ -29,7 +28,7 @@ export function Topbar({ isNavOpen, onToggleNav }) {
           onClick={onToggleNav}
           aria-expanded={isNavOpen}
           aria-label="Abrir el menú de navegación"
-          className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-secondary-text transition-colors hover:bg-surface-sunken md:hidden"
+          className="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg text-secondary-text transition-[color,background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:bg-surface-sunken hover:shadow-md active:translate-y-0 motion-reduce:transform-none motion-reduce:transition-none md:hidden"
         >
           <Menu aria-hidden="true" className="size-5" />
         </button>
@@ -62,7 +61,6 @@ export function Topbar({ isNavOpen, onToggleNav }) {
             <span className="sm:hidden">Crear</span>
           </Button>
 
-          <ThemeToggle />
           <InfoTip text="Información de tu cuenta y ayuda" />
           <ProfileMenu />
         </div>

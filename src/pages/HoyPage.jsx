@@ -1,24 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { CalendarDays, Clock3, ListChecks, TriangleAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { CalendarModal } from '../components/ui/CalendarModal';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { Card } from '../components/ui/Card';
-import { MetricCard } from '../components/ui/MetricCard';
 import { TaskCard } from '../components/ui/TaskCard';
 import { api, unwrapData } from '../services/api';
 import { getToday } from '../utils/dateValidation';
 import {
   classifyTasksByDate,
-  formatHours,
   formatOverdueLabel,
   formatRelativeDate,
-  isEventToday,
   normalizeEvent,
   normalizeSubtask,
-  sumHours,
 } from '../utils/taskMetrics';
 
 const formatDate = (value) => {
@@ -135,10 +130,6 @@ export const HoyPage = () => {
     () => classifyTasksByDate(tasks, today),
     [tasks, today]
   );
-  const eventsToday = useMemo(
-    () => events.filter((event) => isEventToday(event, today)),
-    [events, today]
-  );
   const tasksByDate = useMemo(() => {
     const grouped = new Map();
 
@@ -149,16 +140,16 @@ export const HoyPage = () => {
 
       const key = String(task.date).slice(0, 10);
       const current = grouped.get(key) ?? [];
-      current.push({ ...task, eventId: task.eventId ?? task.idEvento, title: task.title ?? task.nombreGestion });
+      current.push({
+        ...task,
+        eventId: task.eventId ?? task.idEvento,
+        title: task.title ?? task.nombreGestion,
+      });
       grouped.set(key, current);
     });
 
     return grouped;
   }, [tasks]);
-  const hoursToday = useMemo(
-    () => sumHours(groups.todayTasks),
-    [groups.todayTasks]
-  );
 
   if (isLoading) {
     return (
@@ -204,30 +195,6 @@ export const HoyPage = () => {
           >
             {formatDate(today)}
           </time>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 pt-5 sm:grid-cols-4">
-          <MetricCard
-            label="Tareas de hoy"
-            value={groups.todayTotal}
-            icon={ListChecks}
-          />
-          <MetricCard
-            label="Eventos de hoy"
-            value={eventsToday.length}
-            icon={CalendarDays}
-          />
-          <MetricCard
-            label="Carga de hoy"
-            value={formatHours(hoursToday)}
-            icon={Clock3}
-          />
-          <MetricCard
-            label="Atrasadas"
-            value={groups.overdueTotal}
-            icon={TriangleAlert}
-            className={groups.overdueTotal ? 'border-amber-300' : ''}
-          />
         </div>
 
         <div className="pt-5">
