@@ -164,7 +164,7 @@ export function SearchBar() {
             type="button"
             onClick={handleClear}
             aria-label="Limpiar la búsqueda"
-            className="absolute right-2 top-1/2 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-text hover:bg-surface-sunken hover:text-secondary-text"
+            className="absolute right-2 top-1/2 inline-flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-muted-text hover:bg-surface-sunken hover:text-secondary-text"
           >
             <X aria-hidden="true" className="size-4" />
           </button>

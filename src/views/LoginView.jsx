@@ -307,7 +307,7 @@ export function LoginView() {
               type="submit"
               disabled={isSubmitting}
               aria-busy={isSubmitting}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3.5 text-[15px] font-semibold text-primary-contrast shadow-[0_10px_20px_-10px_rgba(78,176,209,0.55)] transition-colors hover:bg-primary-hover focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-primary px-5 py-3.5 text-[15px] font-semibold text-primary-contrast shadow-[0_10px_20px_-10px_rgba(78,176,209,0.55)] transition-colors hover:bg-primary-hover focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSubmitting ? (
                 <>

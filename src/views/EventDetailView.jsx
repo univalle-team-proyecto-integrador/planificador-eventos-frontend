@@ -21,7 +21,7 @@ import { FieldSuccess } from '../components/ui/FieldSuccess';
 import { WorkloadSummary } from '../components/ui/WorkloadSummary';
 import { getEventAccent } from '../utils/eventAccent';
 import { getEventTypeIcon } from '../utils/eventTypeIcons';
-import { getTaskMetrics } from '../utils/taskMetrics';
+import { getTaskMetrics, toDateKey } from '../utils/taskMetrics';
 import {
   getPastDateMessage,
   getToday,
@@ -207,6 +207,26 @@ const validateSubtask = (formData) => {
   }
 
   return newErrors;
+};
+
+/**
+ * Valida una fecha límite de gestión contra la del evento.
+ *
+ * El `max` del `<input type="date">` solo acota el calendario nativo: la fecha se
+ * puede seguir escribiendo a mano, y en algunos navegadores el teclado salta el
+ * selector. La comprobación va aparte para que el backend nunca reciba una
+ * gestión con vencimiento posterior a su propio evento.
+ */
+const validateGestionDate = (date, fechaEvento) => {
+  const limite = toDateKey(fechaEvento);
+
+  if (!limite || !date) {
+    return '';
+  }
+
+  return date > limite
+    ? 'La gestión no puede vencer después del evento. Elige una fecha anterior o el mismo día del evento.'
+    : '';
 };
 
 const validateEventForm = (formData) => {
@@ -448,6 +468,15 @@ export function EventDetailView() {
 
   const workload = useMemo(() => getTaskMetrics(subtasks), [subtasks]);
 
+  // Una gestión no puede vencer después de su evento: para el día del evento
+  // todavía hay margen para ejecutarla, después ya no. El `max` del input deja
+  // el calendario del navegador limitado, y si el evento no tiene fecha no se
+  // acota para no dejar el campo bloqueado sin motivo.
+  const fechaMaxGestion = useMemo(
+    () => toDateInputValue(event?.fechaEvento),
+    [event]
+  );
+
   const updateSubtaskField = (field, value) => {
     const next = { ...formData, [field]: value };
     setFormData(next);
@@ -555,7 +584,10 @@ export function EventDetailView() {
       return;
     }
 
-    const validationErrors = validateSubtask(formData);
+    const validationErrors = {
+      ...validateSubtask(formData),
+      ...validateGestionDate(formData.date, event?.fechaEvento),
+    };
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -652,7 +684,10 @@ export function EventDetailView() {
       return;
     }
 
-    const validationErrors = validateSubtask(editingSubtaskData);
+    const validationErrors = {
+      ...validateSubtask(editingSubtaskData),
+      ...validateGestionDate(editingSubtaskData.date, event?.fechaEvento),
+    };
     if (Object.keys(validationErrors).length > 0) {
       setEditingErrors(validationErrors);
       focusFirstInvalidField(editingSubtaskFormRef, validationErrors);
@@ -1335,6 +1370,7 @@ export function EventDetailView() {
                     name="date"
                     type="date"
                     min={getToday()}
+                    max={fechaMaxGestion || undefined}
                     value={formData.date}
                     onChange={(event) =>
                       updateSubtaskField('date', event.target.value)
@@ -1552,6 +1588,7 @@ export function EventDetailView() {
                     name="date"
                     type="date"
                     min={getToday()}
+                    max={fechaMaxGestion || undefined}
                     value={editingSubtaskData.date}
                     onChange={(event) =>
                       updateEditingSubtaskField('date', event.target.value)

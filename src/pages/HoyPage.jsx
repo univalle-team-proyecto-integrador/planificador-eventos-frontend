@@ -341,7 +341,7 @@ export const HoyPage = () => {
               <button
                 type="button"
                 aria-label="¿Cómo se ordena esto?"
-                className="inline-flex size-6 items-center justify-center rounded-full text-muted-text transition-colors hover:bg-surface-sunken hover:text-secondary-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-text"
+                className="inline-flex size-6 cursor-pointer items-center justify-center rounded-full text-muted-text transition-colors hover:bg-surface-sunken hover:text-secondary-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-text"
               >
                 <svg
                   viewBox="0 0 24 24"

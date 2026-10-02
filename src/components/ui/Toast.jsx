@@ -37,7 +37,7 @@ export function Toast({ toast, onDismiss }) {
         type="button"
         onClick={() => onDismiss(toast.id)}
         aria-label="Cerrar notificación"
-        className="rounded-md p-1 text-muted-text transition-colors hover:bg-surface-sunken hover:text-secondary-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-text"
+        className="cursor-pointer rounded-md p-1 text-muted-text transition-colors hover:bg-surface-sunken hover:text-secondary-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-text"
       >
         <X aria-hidden="true" className="size-4" strokeWidth={2} />
       </button>
