@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
-  CalendarCheck,
   Eye,
   EyeOff,
   Info,
@@ -11,6 +10,9 @@ import {
   Lock,
   Mail,
 } from 'lucide-react';
+import logoUrlLight from '../img/Logo_h1.png';
+import logoUrlDark from '../img/Logo_h2.png';
+import { useTheme } from '../providers/theme-context';
 import { useSession } from '../providers/session-context';
 import { getEmailErrorMessage, isValidEmail } from '../utils/emailValidation';
 import {
@@ -50,6 +52,10 @@ const FieldError = ({ id, children }) =>
 export function LoginView() {
   const navigate = useNavigate();
   const { login, isLoading } = useSession();
+  // Sigue al tema aplicado, no a la preferencia del sistema: quien fuerza el
+  // tema con el interruptor tiene que ver el logo de ese mismo tema.
+  const { isDark } = useTheme();
+  const logoUrl = isDark ? logoUrlDark : logoUrlLight;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -145,18 +151,21 @@ export function LoginView() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-surface px-4 py-10 text-primary-text sm:px-6">
       <div className="w-full max-w-[420px]">
         <div className="mb-8 flex flex-col items-center text-center">
-          <span className="flex size-14 items-center justify-center rounded-2xl bg-primary shadow-[0_10px_24px_-8px_rgba(78,176,209,0.45)]">
-            <CalendarCheck
-              aria-hidden="true"
-              className="size-7 text-primary-contrast"
-              strokeWidth={2.2}
-            />
-          </span>
+          {/* El logo tiene su propia versión por tema, igual que en la topbar, y
+              el texto se queda como respaldo: si la imagen no llegara a cargar,
+              el nombre de la app sigue estando. */}
+          <img
+            src={logoUrl}
+            alt=""
+            width={96}
+            height={150}
+            className="h-24 w-auto object-contain"
+          />
           <p className="mt-4 text-2xl font-extrabold tracking-tight text-primary-text">
-            EventFlow<span className="text-primary-text">.</span>
+            BACO<span className="text-primary-text">.</span>
           </p>
           <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-text">
-            Workspace Orchestration
+            Organiza. Coordina. Celebra
           </p>
         </div>
 
@@ -350,7 +359,7 @@ export function LoginView() {
           </p>
           <p className="max-w-sm text-[11px] leading-relaxed text-muted-text">
             Al continuar, aceptas la protección de datos y condiciones de
-            servicio corporativo de EventFlow.
+            servicio corporativo de BACO.
           </p>
         </div>
       </div>

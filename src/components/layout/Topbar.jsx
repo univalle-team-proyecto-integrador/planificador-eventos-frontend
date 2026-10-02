@@ -44,7 +44,7 @@ export function Topbar({ isNavOpen, onToggleNav }) {
 
         <Link
           to="/hoy"
-          aria-label="Organizador de Eventos, ir a Hoy"
+          aria-label="BACO, ir a Hoy"
           className="flex shrink-0 items-center rounded-md"
         >
           <img
