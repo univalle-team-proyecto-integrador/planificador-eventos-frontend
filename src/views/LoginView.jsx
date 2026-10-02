@@ -15,6 +15,7 @@ import logoUrlDark from '../img/Logo_h2.png';
 import { useTheme } from '../providers/theme-context';
 import { useSession } from '../providers/session-context';
 import { getEmailErrorMessage, isValidEmail } from '../utils/emailValidation';
+import { ThemeToggle } from '../components/layout/ThemeToggle';
 import {
   getPasswordErrorMessage,
   isValidPassword,
@@ -150,21 +151,29 @@ export function LoginView() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-surface px-4 py-10 text-primary-text sm:px-6">
       <div className="w-full max-w-[420px]">
-        <div className="mb-8 flex flex-col items-center text-center">
+        <div className="mb-8 flex items-start justify-between gap-4">
           {/* El logo lleva el nombre, así que es el único sitio donde se dice
               cómo se llama la app: de ahí el `alt` con texto. La versión por
               tema se lee de `useTheme()` y no de la preferencia del sistema,
               para que quien fuerce el tema vea el logo de ese mismo tema. */}
-          <img
-            src={logoUrl}
-            alt="BACO"
-            width={62}
-            height={96}
-            className="h-24 w-auto object-contain"
-          />
-          <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-text">
-            Organiza. Coordina. Celebra
-          </p>
+          <div className="flex flex-col items-center">
+            <img
+              src={logoUrl}
+              alt="BACO"
+              width={62}
+              height={96}
+              className="h-24 w-auto object-contain"
+            />
+            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-text">
+              Organiza. Coordina. Celebra
+            </p>
+          </div>
+
+          {/* El interruptor va arriba y no dentro del formulario porque es un
+              control del sitio, no de la cuenta. Aquí no hay shell ni menú de
+              perfil, así que sin él no habría forma de elegir tema sin iniciar
+              sesión. */}
+          <ThemeToggle />
         </div>
 
         <div className="rounded-3xl bg-surface-raised p-7 shadow-[0_18px_40px_-20px_rgba(17,24,39,0.25)] sm:p-9">
