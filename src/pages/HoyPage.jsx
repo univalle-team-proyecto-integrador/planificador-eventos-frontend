@@ -246,14 +246,8 @@ export const HoyPage = () => {
           <EmptyState
             title="No hay gestiones para hoy"
             description="No tienes gestiones con fecha objetivo de hoy, pero sí gestiones programadas para otros días. Consulta las próximas para planear tu jornada."
-            actionLabel="Consultar próximas gestiones"
-            onAction={() =>
-              document
-                .getElementById('upcoming-tasks-title')
-                ?.scrollIntoView({ behavior: 'smooth' })
-            }
-            secondaryActionLabel="Asignar gestión"
-            onSecondaryAction={() => navigate('/progreso')}
+            actionLabel="Asignar gestión"
+            onAction={() => navigate('/progreso')}
           />
         ) : events.length > 0 ? (
           <EmptyState

@@ -9,7 +9,7 @@ const variants = {
   primary:
     'bg-primary text-primary-contrast hover:bg-primary-hover focus-visible:ring-brand-text border border-transparent',
   danger:
-    'bg-danger text-primary-contrast hover:bg-danger-text focus-visible:ring-danger border border-transparent',
+    'bg-danger text-danger-text hover:bg-danger-soft focus-visible:ring-danger border border-[#ab0100]',
   success:
     'bg-success text-primary-contrast hover:bg-success-text focus-visible:ring-success border border-transparent',
   neutral:
