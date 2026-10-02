@@ -7,6 +7,7 @@ import {
   getTaskDate,
   getTaskHours,
 } from '../../utils/taskMetrics';
+import { getEventAccent } from '../../utils/eventAccent';
 import { Badge } from './Badge';
 import { Button } from './Button';
 import { Card } from './Card';
@@ -23,13 +24,20 @@ export function TaskCard({
   // tarea, que es lo que importa.
   const eventName = task.eventName;
   const taskDate = getTaskDate(task);
+  // Mismo acento por evento que la tarjeta de /progreso, para que una gestión y
+  // su evento se lean como el mismo objeto aunque estén en pantallas distintas.
+  const accent = getEventAccent(eventId);
 
   return (
     <Card
       as="li"
-      className={`p-4 transition-shadow hover:shadow-md ${
+      // `event-card` aporta la sombra y el realce del hover. No se declaran aquí
+      // `transition-shadow` ni `hover:shadow-md`: `.event-card` va sin capa y
+      // manda sobre ellas, así que quedarían como clases muertas.
+      className={`event-card p-4 ${
         isOverdue ? 'border-warning bg-warning-soft/50' : ''
       }`}
+      style={{ '--accent-glow': accent.glow }}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">

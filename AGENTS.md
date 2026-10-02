@@ -108,8 +108,9 @@ Todo el HTTP pasa por `src/services/api.js`; nunca hardcodear URLs en las vistas
 
 ## Git y entrega
 
-- Rama activa `main`; `frontend/lead` ya está fusionada. **Vercel auto-despliega `main`**: un push a `main` publica producción.
-- Mensajes de commit en español con prefijos conventional: `feat:`, `fix:`, `docs:`, `style:`, `test:`, `merge:`.
+- Rama de trabajo `frontend/lead`, se integra a `main` por merge. El backend es un repo aparte y sigue el mismo patrón con `backend/lead`. **`main` es la rama de integración y Vercel auto-despliega desde ella**: un push a `frontend/lead` no publica nada, hay que fusionar a `main` para que salga a producción. No commitear directo a `main`.
+- Antes de empezar a trabajar, `git fetch` y arrancar desde `frontend/lead` al día, para no partir de una copia vieja.
+- Mensajes de commit en español con prefijos conventional: `feat:`, `fix:`, `docs:`, `style:`, `test:`, `merge:`. Con cuerpo cuando el _porqué_ no se entiende leyendo el diff; el cuerpo dice qué cambió y por qué, no el qué.
 - El backend es un **repo git aparte** en `../planificador-eventos-backend` (no es submódulo). `./mvnw test`, `./mvnw spring-boot:run` (puerto 8080). Render despliega desde su `main`; su rama de desarrollo es `backend/lead`.
 - Bóveda: crear un registro en `boveda/mejoras/` solo para mejoras notables (interfaz, UX, a11y, integración), no por cada commit. Al crearlo hay que actualizar también el índice `boveda/mejoras/README.md` y añadir el nodo en `boveda/lienzo-maestro.canvas`. Numeración usada: 001–016 (falta 009); el backend ya va por 021.
 

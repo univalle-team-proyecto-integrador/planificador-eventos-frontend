@@ -69,12 +69,12 @@
 
   --focus-ring: #514ea4;
 
-  /* Sombras de las tarjetas de evento. La capa del hover usa `--accent-glow`,
-     que cada tarjeta define en su propio estilo para teñir la sombra con el
-     color del evento. */
+  /* Sombra de las tarjetas con relieve (`.event-card`): eventos de /progreso y
+     gestiones de /hoy. La capa del hover usa `--accent-glow`, que cada tarjeta
+     define en su estilo para teñir la sombra con el color de su evento. */
   --shadow-card: 0 4px 6px rgb(0 0 0 / 0.05);
   --shadow-card-hover:
-    0 18px 40px -12px var(--accent-glow, rgb(51 35 204 / 0.4)),
+    0 18px 40px -12px var(--accent-glow, rgb(133 129 217 / 0.45)),
     0 2px 8px rgb(0 0 0 / 0.08);
 }
 
@@ -128,7 +128,7 @@
      separando la tarjeta del fondo; si no, la tarjeta se ve plana. */
   --shadow-card: 0 4px 6px rgb(0 0 0 / 0.45);
   --shadow-card-hover:
-    0 18px 40px -12px var(--accent-glow, rgb(51 35 204 / 0.4)),
+    0 18px 40px -12px var(--accent-glow, rgb(133 129 217 / 0.45)),
     0 2px 8px rgb(0 0 0 / 0.55);
 }
 
@@ -306,21 +306,22 @@ textarea {
   animation: dropdown-in 140ms ease-out both;
 }
 
-/* La tarjeta de evento se decora aquí además de en `Card`, para que la clase
-   sea autosuficiente y para que el hover con acento por evento siga siendo un
-   solo bloque. Los valores coinciden con la variante por defecto de `Card`;
-   si algún día se separan, esta regla manda porque aparece después en la hoja
-   de estilos. */
+/* Tarjeta con relieve: la comparten las tarjetas de evento de /progreso y las de
+   gestión de /hoy.
+   Solo se ocupa de la sombra y del hover. El fondo, el borde y el radio los
+   pone `Card`, y dejarlos aquí los haría ganarle a las utilidades de Tailwind
+   porque esta regla va sin capa: la tarjeta de tarea, que se pinta de
+   `bg-warning-soft/50` cuando está atrasada, se quedaría sin su aviso. */
 .event-card {
-  border-radius: 0.75rem;
-  border: 1px solid var(--border);
-  background-color: var(--surface-raised);
   box-shadow: var(--shadow-card);
   transition:
     transform 240ms ease,
     box-shadow 240ms ease;
 }
 
+/* `:focus-within` va con `:hover` a propósito: el realce no es solo un adorno
+   del mouse, alguien que tabula hasta el botón de la tarjeta tiene que ver
+   también dónde está. */
 .event-card:hover,
 .event-card:focus-within {
   transform: scale(1.03);
