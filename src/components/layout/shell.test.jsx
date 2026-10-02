@@ -83,6 +83,9 @@ describe('shell de la aplicación', () => {
   beforeEach(() => {
     global.IS_REACT_ACT_ENVIRONMENT = true;
     window.localStorage.clear();
+    // La regla de orden de /hoy se muestra una sola vez; los tests la dan por
+    // vista para que el modal no tape el resto de aserciones.
+    window.localStorage.setItem('eventflow.reglaHoy', '1');
     document.documentElement.removeAttribute('data-theme');
 
     container = document.createElement('div');
@@ -262,5 +265,32 @@ describe('shell de la aplicación', () => {
     expect(
       container.querySelector('[role="dialog"][aria-modal="true"]')
     ).toBeNull();
+  });
+
+  it('la regla de orden de /hoy se muestra una sola vez', async () => {
+    stubApiWithFutureEvent();
+    saveSession({ token: 'abc', nombre: 'Santiago Perez' });
+    window.localStorage.removeItem('eventflow.reglaHoy');
+
+    await renderAt('/hoy');
+
+    const dialog = container.querySelector(
+      '[role="dialog"][aria-modal="true"]'
+    );
+    expect(dialog).not.toBeNull();
+    expect(dialog.textContent).toContain('Vencidas');
+    expect(dialog.textContent).toContain('menor esfuerzo estimado');
+
+    const entendido = [...dialog.querySelectorAll('button')].find((button) =>
+      button.textContent.includes('Entendido')
+    );
+    await act(async () => {
+      entendido.click();
+    });
+
+    expect(
+      container.querySelector('[role="dialog"][aria-modal="true"]')
+    ).toBeNull();
+    expect(window.localStorage.getItem('eventflow.reglaHoy')).toBe('1');
   });
 });

@@ -89,6 +89,7 @@ export const HoyPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isRuleOpen, setIsRuleOpen] = useState(false);
   const [filters, setFilters] = useState({
     estado: 'todas',
     evento: 'todos',
@@ -169,6 +170,16 @@ export const HoyPage = () => {
   const updateFilter = (field, value) =>
     setFilters((current) => ({ ...current, [field]: value }));
 
+  useEffect(() => {
+    // La regla de orden se explica una sola vez: la próxima visita a /hoy
+    // solo la muestra en el tooltip.
+    // oxlint-disable-next-line react/set-state-in-effect
+    if (!window.localStorage.getItem('eventflow.reglaHoy')) {
+      setIsRuleOpen(true);
+      window.localStorage.setItem('eventflow.reglaHoy', '1');
+    }
+  }, []);
+
   const groups = useMemo(
     () => classifyTasksByDate(filteredTasks, today),
     [filteredTasks, today]
@@ -226,12 +237,45 @@ export const HoyPage = () => {
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">
             Panel del día
           </p>
-          <h2
-            id="today-title"
-            className="mt-2 text-2xl font-semibold text-gray-900"
-          >
-            Hoy
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2
+              id="today-title"
+              className="mt-2 text-2xl font-semibold text-gray-900"
+            >
+              Hoy
+            </h2>
+            <span className="group relative mt-2 inline-flex">
+              <button
+                type="button"
+                aria-label="¿Cómo se ordena esto?"
+                className="inline-flex size-6 items-center justify-center rounded-full text-muted-text transition-colors hover:bg-surface-sunken hover:text-secondary-text focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-text"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                  className="size-5"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 16v-4m0-4h.01M22 12a10 10 0 11-20 0 10 10 0 0120 0z"
+                  />
+                </svg>
+              </button>
+              <span
+                role="tooltip"
+                className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-72 -translate-x-1/2 rounded-lg border border-border bg-surface-raised p-3 text-left text-xs text-secondary-text opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+              >
+                Las gestiones se agrupan en Vencidas, Para hoy y Próximas según
+                su fecha objetivo. Dentro de cada grupo se ordenan por fecha (más
+                antigua/cercana primero). En caso de empate, se muestra primero la
+                de menor esfuerzo estimado.
+              </span>
+            </span>
+          </div>
           <time
             dateTime={today}
             className="mt-1 block text-sm capitalize text-gray-500"
@@ -295,12 +339,39 @@ export const HoyPage = () => {
         </div>
       </Card>
 
-      <p className="rounded-lg border border-border bg-surface-raised p-4 text-sm text-secondary-text">
-        ¿Cómo se ordena esto? Primero van las gestiones vencidas, luego las de
-        hoy y al final las próximas. Dentro de cada grupo se ordenan de la
-        fecha más antigua a la más reciente; si dos gestiones comparten fecha,
-        aparece primero la de menor esfuerzo estimado.
-      </p>
+      {isRuleOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-overlay)] p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="regla-hoy-title"
+        >
+          <section className="w-full max-w-md rounded-lg border border-border bg-surface-raised p-6 shadow-xl">
+            <h2
+              id="regla-hoy-title"
+              className="text-xl font-bold text-primary-text"
+            >
+              ¿Cómo se ordenan las gestiones?
+            </h2>
+            <p className="mt-3 text-sm text-secondary-text">
+              Las gestiones se agrupan en <strong>Vencidas</strong>,{' '}
+              <strong>Para hoy</strong> y <strong>Próximas</strong> según su
+              fecha objetivo. Dentro de cada grupo se ordenan por fecha (más
+              antigua/cercana primero). En caso de empate, se muestra primero la
+              de menor esfuerzo estimado.
+            </p>
+            <div className="mt-5 flex justify-end">
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => setIsRuleOpen(false)}
+              >
+                Entendido
+              </Button>
+            </div>
+          </section>
+        </div>
+      )}
 
       {groups.overdueTasks.length === 0 &&
       groups.todayTasks.length === 0 &&
