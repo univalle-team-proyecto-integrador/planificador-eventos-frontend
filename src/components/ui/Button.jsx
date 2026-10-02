@@ -5,7 +5,7 @@ const variants = {
   primary:
     'bg-brand text-white hover:bg-accent focus-visible:ring-accent border border-transparent',
   danger:
-    'bg-white text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-red-300 border border-red-500 shadow-sm',
+    'bg-red-50 text-red-800 hover:bg-red-100 focus-visible:ring-red-300 border border-red-300 shadow-sm',
   success:
     'bg-accent text-white hover:bg-brand focus-visible:ring-accent border border-transparent',
   neutral:
