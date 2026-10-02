@@ -36,7 +36,7 @@
      del morado porque el de los rellenos no llega a AA con blanco, así que
      solo sirve como fondo, no como color de texto ni de anillo de foco. */
   --primary: #8581d9;
-  --primary-hover: #6e6bb5;
+  --primary-hover: #6966ab;
   --primary-soft: #e9e7f8;
   --primary-contrast: #1b1830;
   --primary-text: #514ea4;
@@ -49,9 +49,9 @@
   --warning-soft: #fffbeb;
   --warning-text: #92400e;
 
-  --danger: #d98a8a;
-  --danger-soft: #f9ecec;
-  --danger-text: #8f3a3a;
+  --danger: #ffffff;
+  --danger-soft: #fdecec;
+  --danger-text: #ab0100;
 
   --info: #1d4ed8;
   --info-soft: #eff6ff;
