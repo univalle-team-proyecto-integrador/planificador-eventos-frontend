@@ -37,7 +37,7 @@ export function EventCard({ event }) {
   return (
     <Card
       as="article"
-      className="event-card p-5"
+      className="rounded-xl border border-border bg-surface-raised shadow-[0_4px_6px_rgba(0,0,0,0.05)] p-5"
       style={{
         '--accent': accent.hex,
         '--accent-soft': accent.soft,
