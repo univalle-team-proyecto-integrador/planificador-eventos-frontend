@@ -151,20 +151,18 @@ export function LoginView() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-surface px-4 py-10 text-primary-text sm:px-6">
       <div className="w-full max-w-[420px]">
         <div className="mb-8 flex flex-col items-center text-center">
-          {/* El logo tiene su propia versión por tema, igual que en la topbar, y
-              el texto se queda como respaldo: si la imagen no llegara a cargar,
-              el nombre de la app sigue estando. */}
+          {/* El logo lleva el nombre, así que es el único sitio donde se dice
+              cómo se llama la app: de ahí el `alt` con texto. La versión por
+              tema se lee de `useTheme()` y no de la preferencia del sistema,
+              para que quien fuerce el tema vea el logo de ese mismo tema. */}
           <img
             src={logoUrl}
-            alt=""
-            width={96}
-            height={150}
+            alt="BACO"
+            width={62}
+            height={96}
             className="h-24 w-auto object-contain"
           />
-          <p className="mt-4 text-2xl font-extrabold tracking-tight text-primary-text">
-            BACO<span className="text-primary-text">.</span>
-          </p>
-          <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-text">
+          <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-text">
             Organiza. Coordina. Celebra
           </p>
         </div>
