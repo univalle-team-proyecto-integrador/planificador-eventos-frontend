@@ -32,15 +32,14 @@
   --text-muted: #676f7b;
   --text-inverted: #ffffff;
 
-  /* Paleta del PR #4 (integración de `frontend/lead`): brand turquesa, accent
-     periwinkle y canvas crema. `--primary-text` es una versión oscura del
-     turquesa porque el de los rellenos se queda en 2.48:1 con blanco y solo
-     sirve como fondo, no como color de texto ni de anillo de foco. */
-  --primary: #4eb0d1;
-  --primary-hover: #8581d9;
-  --primary-soft: #dff0f5;
-  --primary-contrast: #0a242b;
-  --primary-text: #17697f;
+  /* Paleta principal: morado de marca. `--primary-text` es una versión oscura
+     del morado porque el de los rellenos no llega a AA con blanco, así que
+     solo sirve como fondo, no como color de texto ni de anillo de foco. */
+  --primary: #8581d9;
+  --primary-hover: #6f6ac4;
+  --primary-soft: #e9e7f8;
+  --primary-contrast: #1b1830;
+  --primary-text: #514ea4;
 
   --success: #047857;
   --success-soft: #ecfdf5;
@@ -50,15 +49,15 @@
   --warning-soft: #fffbeb;
   --warning-text: #92400e;
 
-  --danger: #b91c1c;
-  --danger-soft: #fef2f2;
-  --danger-text: #991b1b;
+  --danger: #d98a8a;
+  --danger-soft: #f9ecec;
+  --danger-text: #8f3a3a;
 
   --info: #1d4ed8;
   --info-soft: #eff6ff;
   --info-text: #1e40af;
 
-  --focus-ring: #17697f;
+  --focus-ring: #514ea4;
 }
 
 [data-theme='dark'] {
@@ -81,11 +80,11 @@
      el turquesa y el periwinkle se aclaran para conservar el contraste sobre
      superficie oscura. `--primary-contrast` vuelve a ser texto oscuro porque
      un relleno aclarado ya no admite blanco encima. */
-  --primary: #5cc7e0;
-  --primary-hover: #a49ef0;
-  --primary-soft: #0f2f3a;
-  --primary-contrast: #04181f;
-  --primary-text: #7fd3e8;
+  --primary: #a49ef0;
+  --primary-hover: #c6c3f8;
+  --primary-soft: #26224a;
+  --primary-contrast: #14122b;
+  --primary-text: #b8b5f5;
 
   --success: #34d399;
   --success-soft: #052e23;
@@ -95,15 +94,15 @@
   --warning-soft: #3b2606;
   --warning-text: #fcd34d;
 
-  --danger: #f87171;
-  --danger-soft: #3f1212;
-  --danger-text: #fca5a5;
+  --danger: #c48383;
+  --danger-soft: #3a2020;
+  --danger-text: #f0b8b8;
 
   --info: #60a5fa;
   --info-soft: #172554;
   --info-text: #93c5fd;
 
-  --focus-ring: #7fd3e8;
+  --focus-ring: #b8b5f5;
 }
 
 @theme inline {
