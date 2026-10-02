@@ -176,9 +176,57 @@ export const HoyPage = () => {
     // oxlint-disable-next-line react/set-state-in-effect
     if (!window.localStorage.getItem('eventflow.reglaHoy')) {
       setIsRuleOpen(true);
-      window.localStorage.setItem('eventflow.reglaHoy', '1');
     }
   }, []);
+
+  const cerrarRegla = useCallback(() => {
+    setIsRuleOpen(false);
+    // La marca se escribe al cerrar, no al abrir. Si se escribiera al abrir, un
+    // desmontaje antes del primer pintado (que es lo que pasa en el arranque,
+    // mientras `isLoading` sigue en true y el modal aún no existe en el DOM)
+    // dejaría el aviso consumido sin que nadie lo haya visto nunca.
+    window.localStorage.setItem('eventflow.reglaHoy', '1');
+  }, []);
+
+  // A qué evento va el "Asignar gestión" del estado vacío. Va al más próximo por
+  // fecha entre los que todavía no pasaron: añadir una gestión nueva a un evento
+  // que ya se llevó a cabo no sirve de mucho. Si todos ya pasaron, se cae al más
+  // reciente, que es lo mejor que se puede ofrecer.
+  const eventoParaGestionar = useMemo(() => {
+    if (events.length === 0) {
+      return null;
+    }
+
+    const conFecha = [...events].filter((event) => event.date);
+    if (conFecha.length === 0) {
+      return events[0];
+    }
+
+    const hoy = today;
+    const futuros = conFecha
+      .filter((event) => String(event.date).slice(0, 10) >= hoy)
+      .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+    if (futuros.length > 0) {
+      return futuros[0];
+    }
+
+    return conFecha.sort((a, b) =>
+      String(b.date).localeCompare(String(a.date))
+    )[0];
+  }, [events, today]);
+
+  const irAAsignarGestion = useCallback(() => {
+    if (!eventoParaGestionar) {
+      navigate('/progreso');
+      return;
+    }
+
+    // `nueva=1` le dice al detalle que abra el formulario de alta ya listo. La
+    // ruta lleva `?` porque el parámetro viaja en el query string, no en el
+    // path: `/evento/7?nueva=1` sigue resolviendo a `/evento/:id`.
+    navigate(`/evento/${eventoParaGestionar.id}?nueva=1`);
+  }, [eventoParaGestionar, navigate]);
 
   const groups = useMemo(
     () => classifyTasksByDate(filteredTasks, today),
@@ -205,28 +253,73 @@ export const HoyPage = () => {
     return grouped;
   }, [tasks]);
 
+  // El modal de la regla se pinta por encima de los tres estados de la página,
+  // así que va en un fragmento aparte en vez de dentro del JSX normal. Si se
+  // quedara al final, los retornos tempranos de carga y de error lo dejarían
+  // fuera del DOM y la explicación se perdería sin haberse visto.
+  const modalRegla = isRuleOpen ? (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-overlay)] p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="regla-hoy-title"
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          cerrarRegla();
+        }
+      }}
+    >
+      <section className="w-full max-w-md rounded-lg border border-border bg-surface-raised p-6 shadow-xl">
+        <h2
+          id="regla-hoy-title"
+          className="text-xl font-bold text-primary-text"
+        >
+          ¿Cómo se ordenan las gestiones?
+        </h2>
+        <p className="mt-3 text-sm text-secondary-text">
+          Las gestiones se agrupan en <strong>Vencidas</strong>,{' '}
+          <strong>Para hoy</strong> y <strong>Próximas</strong> según su fecha
+          objetivo. Dentro de cada grupo se ordenan por fecha (más
+          antigua/cercana primero). En caso de empate, se muestra primero la de
+          menor esfuerzo estimado.
+        </p>
+        <div className="mt-5 flex justify-end">
+          <Button type="button" variant="primary" onClick={cerrarRegla}>
+            Entendido
+          </Button>
+        </div>
+      </section>
+    </div>
+  ) : null;
+
   if (isLoading) {
     return (
-      <div
-        className="flex min-h-[50vh] items-center justify-center text-muted-text"
-        role="status"
-        aria-live="polite"
-        aria-busy="true"
-      >
-        Cargando el panel de hoy...
-      </div>
+      <>
+        <div
+          className="flex min-h-[50vh] items-center justify-center text-muted-text"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          Cargando el panel de hoy...
+        </div>
+        {modalRegla}
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="mx-auto max-w-2xl">
-        <ErrorState
-          title="No pudimos cargar las gestiones de hoy"
-          message={error}
-          onRetry={() => void loadToday()}
-        />
-      </div>
+      <>
+        <div className="mx-auto max-w-2xl">
+          <ErrorState
+            title="No pudimos cargar las gestiones de hoy"
+            message={error}
+            onRetry={() => void loadToday()}
+          />
+        </div>
+        {modalRegla}
+      </>
     );
   }
 
@@ -270,9 +363,9 @@ export const HoyPage = () => {
                 className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-72 -translate-x-1/2 rounded-lg border border-border bg-surface-raised p-3 text-left text-xs text-secondary-text opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
               >
                 Las gestiones se agrupan en Vencidas, Para hoy y Próximas según
-                su fecha objetivo. Dentro de cada grupo se ordenan por fecha (más
-                antigua/cercana primero). En caso de empate, se muestra primero la
-                de menor esfuerzo estimado.
+                su fecha objetivo. Dentro de cada grupo se ordenan por fecha
+                (más antigua/cercana primero). En caso de empate, se muestra
+                primero la de menor esfuerzo estimado.
               </span>
             </span>
           </div>
@@ -339,40 +432,6 @@ export const HoyPage = () => {
         </div>
       </Card>
 
-      {isRuleOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-overlay)] p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="regla-hoy-title"
-        >
-          <section className="w-full max-w-md rounded-lg border border-border bg-surface-raised p-6 shadow-xl">
-            <h2
-              id="regla-hoy-title"
-              className="text-xl font-bold text-primary-text"
-            >
-              ¿Cómo se ordenan las gestiones?
-            </h2>
-            <p className="mt-3 text-sm text-secondary-text">
-              Las gestiones se agrupan en <strong>Vencidas</strong>,{' '}
-              <strong>Para hoy</strong> y <strong>Próximas</strong> según su
-              fecha objetivo. Dentro de cada grupo se ordenan por fecha (más
-              antigua/cercana primero). En caso de empate, se muestra primero la
-              de menor esfuerzo estimado.
-            </p>
-            <div className="mt-5 flex justify-end">
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => setIsRuleOpen(false)}
-              >
-                Entendido
-              </Button>
-            </div>
-          </section>
-        </div>
-      )}
-
       {groups.overdueTasks.length === 0 &&
       groups.todayTasks.length === 0 &&
       groups.upcomingTasks.length === 0 ? (
@@ -383,12 +442,19 @@ export const HoyPage = () => {
             actionLabel="Limpiar filtros"
             onAction={clearFilters}
           />
-        ) : (
+        ) : events.length === 0 ? (
           <EmptyState
-            title="Hoy no tienes gestiones urgentes"
-            description="No hay gestiones vencidas, de hoy ni próximas. ¿Quieres crear un evento?"
+            title="Aún no tienes eventos"
+            description="Crea tu primer evento para empezar a organizar sus preparativos."
             actionLabel="Crear evento"
             onAction={() => navigate('/crear')}
+          />
+        ) : (
+          <EmptyState
+            title="Ninguno de tus eventos tiene una gestión para hoy"
+            description="Ya tienes eventos, pero ninguno tiene una gestión pendiente. Añade la primera y aparecerá aquí."
+            actionLabel="Asignar gestión"
+            onAction={irAAsignarGestion}
           />
         )
       ) : (
@@ -428,6 +494,8 @@ export const HoyPage = () => {
         onClose={() => setIsCalendarOpen(false)}
         tasksByDate={tasksByDate}
       />
+
+      {modalRegla}
     </div>
   );
 };

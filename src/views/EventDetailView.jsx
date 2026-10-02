@@ -10,7 +10,7 @@ import {
   Undo2,
   UserRound,
 } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
@@ -310,16 +310,46 @@ export function EventDetailView() {
   const { notifySuccess, notifyError } = useNotifications();
   const { invalidate: invalidateSearchIndex } = useTaskSearch();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const goToProgress = () => navigate('/progreso', { replace: true });
   const [event, setEvent] = useState(null);
   const [subtasks, setSubtasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
 
-  const [showForm, setShowForm] = useState(false);
+  // `/evento/:id?nueva=1` llega desde el estado vacío de /hoy para que la
+  // persona aterrice con el formulario de alta ya abierto, sin tener que buscar
+  // el botón "Añadir gestión". Se lee en el inicializador y no en un efecto: con
+  // un efecto, el primer render mostraría la lista de Gestiones vacía y el
+  // formulario aparecería un instante después.
+  const [showForm, setShowForm] = useState(
+    () => searchParams.get('nueva') === '1'
+  );
   const [formData, setFormData] = useState(initialSubtaskData);
   const [errors, setErrors] = useState({});
   const [subtaskTouched, setSubtaskTouched] = useState({});
+
+  // Cuando el formulario viene abierto desde el query string, el foco se pone en
+  // el primer campo: si no, la persona aterriza en medio de la pantalla sin saber
+  // que hay un formulario esperándola, y en móvil el teclado ni siquiera se
+  // abre. Solo cuando llega por `?nueva=1`; si lo abren con el botón de la
+  // página, el foco se queda donde está, que es lo esperable.
+  const abrioDesdeQuery = useRef(searchParams.get('nueva') === '1');
+  useEffect(() => {
+    // `isLoading` está en las dependencias a propósito: el formulario no existe
+    // en el DOM hasta que los datos del evento llegan, así que un efecto que solo
+    // mirara `showForm` correría una vez con el campo todavía ausente y no volvería
+    // a intentarlo. Cuando el evento ya cargó, el campo existe y el foco cae.
+    if (!abrioDesdeQuery.current || !showForm || isLoading) {
+      return;
+    }
+
+    const campo = document.getElementById('subtask-title');
+    if (campo) {
+      campo.focus();
+    }
+  }, [showForm, isLoading]);
+
   const [isSavingSubtask, setIsSavingSubtask] = useState(false);
 
   const [isEditingEvent, setIsEditingEvent] = useState(false);
@@ -551,6 +581,11 @@ export function EventDetailView() {
       setFormData(initialSubtaskData);
       setSubtaskTouched({});
       setShowForm(false);
+      // Igual que en Cancelar: al guardar, el `?nueva=1` ya cumplió su función y
+      // dejarlo haría que una recarga reabriera el formulario.
+      if (searchParams.has('nueva')) {
+        setSearchParams({}, { replace: true });
+      }
       notifySuccess({
         icon: 'check',
         message: 'Gestión añadida correctamente.',
@@ -1351,6 +1386,12 @@ export function EventDetailView() {
                   setShowForm(false);
                   setErrors({});
                   setSubtaskTouched({});
+                  // Se limpia el `?nueva=1` de la URL. Si se queda, recargar la
+                  // página volvería a abrir el formulario y el enlace de la
+                  // ventana sería distinto de lo que se ve.
+                  if (searchParams.has('nueva')) {
+                    setSearchParams({}, { replace: true });
+                  }
                 }}
                 disabled={isSavingSubtask}
               >
