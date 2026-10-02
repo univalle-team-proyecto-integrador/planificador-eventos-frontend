@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronDown, LogOut } from 'lucide-react';
 import { useSession } from '../../providers/session-context';
 import { useClickOutside } from '../../hooks/useClickOutside';
+import { ThemeToggle } from './ThemeToggle';
 
 /** Iniciales para el círculo del avatar: hasta dos letras del nombre real. */
 const getInitials = (nombre) =>
@@ -72,7 +73,7 @@ export function ProfileMenu() {
             setIsOpen(true);
           }
         }}
-        className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-raised py-1 pl-1 pr-2 transition-colors hover:bg-surface-sunken"
+        className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border bg-surface-raised py-1 pl-1 pr-2 transition-[color,background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:bg-surface-sunken hover:shadow-md active:translate-y-0 motion-reduce:transform-none motion-reduce:transition-none"
       >
         <span
           aria-hidden="true"
@@ -104,11 +105,21 @@ export function ProfileMenu() {
             )}
           </div>
 
+          {/* El interruptor de tema vive aquí y no suelto en la barra superior:
+              la barra superior es para acciones del trabajo y este control es
+              parte de las preferencias de la cuenta. */}
+          <div className="border-b border-border px-4 py-3">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-text">
+              Apariencia
+            </p>
+            <ThemeToggle className="w-full justify-between" />
+          </div>
+
           <button
             type="button"
             role="menuitem"
             onClick={handleLogout}
-            className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-secondary-text transition-colors hover:bg-surface-sunken hover:text-primary-text"
+            className="flex w-full cursor-pointer items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-secondary-text transition-colors hover:bg-surface-sunken hover:text-primary-text"
           >
             <LogOut aria-hidden="true" className="size-4" />
             Cerrar sesión

@@ -52,6 +52,7 @@ npm run build   # vite build -> dist/
 - Rutas: `/login`, `/registro`, `/` → `/hoy`, `/hoy`, `/crear`, `/evento/:id`, `/progreso`, `/configuracion`, `*` → `/hoy`. La ruta de detalle es `/evento/:id`; no usar `/actividad`.
 - `/configuracion` es un placeholder ("Próximamente") dentro del shell, no una pantalla real todavía.
 - El shell vive en `src/components/layout/`: `Layout.jsx` (composición + `<Outlet />`), `Topbar`, `Sidebar`, `SearchBar`, `ProfileMenu`, `ThemeToggle`, `InfoTip`. `Layout` es el único punto que compone topbar + lateral + `<Outlet />`.
+- El interruptor de tema **no** está en la topbar: vive dentro de `ProfileMenu`, en una fila "Apariencia" sobre "Cerrar sesión". Es una preferencia de la cuenta, no una acción del trabajo. Conserva `role="switch"` + `aria-checked`, así que `shell.test.jsx` tiene que abrir el menú antes de buscarlo.
 - `src/components/ui/CalendarModal.jsx` y el botón "Ver calendario" de `src/pages/HoyPage.jsx` vienen del PR #4 y se fusionaron con este shell. Dependen solo de `Button` y `Link`, así que sobreviven a los cambios de tokens; `shell.test.jsx` cubre que abra y cierre.
 - `src/components/ui/` = interfaz compartida reutilizable (`Button`, `Card`, `Badge`, `ConfirmModal`, `ErrorModal`, `TaskCard`, `EventCard`, `Toast`, `ProgressBar`, `MetricCard`, `WorkloadSummary`, `FieldSuccess`); `src/components/states/` = `EmptyState` / `ErrorState`.
 - `src/utils/` = lógica pura y testeable (normalizadores, métricas, validación, foco, tema, búsqueda). `src/hooks/` = `useDebouncedValue` y `useClickOutside`.
@@ -62,7 +63,9 @@ npm run build   # vite build -> dist/
 ## Convenciones de interfaz
 
 - `Button` acepta `as` para navegación: `Button as={Link}`. **Nunca anidar un `button` dentro de un `Link`.**
-- Variantes de `Button`: `primary`, `success`, `neutral`, `danger`. Las de `Badge` son un set distinto: `neutral`, `info`, `pending`, `success`. No cruzarlos.
+- Variantes de `Button`: `primary`, `success`, `neutral`, `danger`, y las de contorno `success-outline`, `danger-outline`, `neutral-outline`. Las de `Badge` son un set distinto: `neutral`, `info`, `pending`, `success`. No cruzarlos.
+- La base de `Button` lleva la "reacción de agarre": `cursor-pointer`, elevación al pasar el mouse y hundido al presionar. Ojo con la transición: hay que animar `transform` y `box-shadow` además del color, o no se ve. Los botones de tarea de `EventDetailView` comparten `TASK_ACTION_CLASS` (`w-28 rounded-full`) para que la fila no se vea desigual; el ancho va en esa constante, no repetido por botón.
+- Todo hover que desplace elementos lleva `motion-reduce:transform-none motion-reduce:transition-none`.
 - Acciones destructivas: `ConfirmModal` con confirmación explícita, cierre por `Escape`, focus trap y restauración del foco. `src/utils/focusTrap.js` es el focus trap compartido; `Sidebar` y `ConfirmModal` lo reutilizan.
 - Formularios: `label`/`input` asociados por `id`, `aria-invalid` + `aria-describedby`, y mensajes con la regla "qué pasó + cómo corregirlo" (`docs/guia-microcopy.md`).
 - Carga y errores de red: `ErrorState` / `EmptyState` con `role="status"` y `aria-live`.
@@ -75,6 +78,8 @@ npm run build   # vite build -> dist/
 - **No escribas variantes `dark:`** ni hex en los componentes. Para ajustar un color se edita la variable en los dos bloques.
 - `--topbar-height` también es token, pero **no** pasa por `@theme`: se usa como `var(--topbar-height)`.
 - Tokens: `surface`, `surface-raised`, `surface-sunken`, `surface-overlay`, `border`, `border-strong`, `text-primary`, `text-secondary`, `text-muted`, `text-inverted`, `primary`, `primary-hover`, `primary-soft`, `primary-contrast`, `primary-text`, y las ternas `success`/`warning`/`danger`/`info` con sus `-soft` y `-text`, más `focus-ring`.
+- `success` y `danger` tienen además un `-contrast` para el texto sobre el **relleno** de color (`--success-contrast`, `--danger-contrast`). No es lo mismo que `-text`, que es para el tinte `-soft`. Hace falta porque los verdes y rojos se invierten entre temas: en claro el relleno es oscuro y admite blanco, en oscuro es aclarado y lo admite oscuro. Con `--primary-contrast` el botón de tarea quedaba en 2.95:1 en claro, y con blanco fijo en 1.92:1 en oscuro. `warning` e `info` no lo tienen porque aún no hay ningún botón que se rellene con ellos.
+- `--border-strong` **no** llega a 3:1 contra `--surface-raised` (1.47:1 en claro, 1.79:1 en oscuro): sirve como filete decorativo, no como borde de control. Para el borde de un botón hay que usar el color del propio tono (`border-success`, `border-danger`) o `border-muted-text`, que sí pasa de 3:1.
 - Utilidades: `bg-surface`, `bg-surface-raised`, `text-primary-text`, `text-secondary-text`, `text-muted-text`, `border-border`, `bg-primary`, `text-primary-contrast`, `bg-primary-soft`, `bg-danger-soft`, `text-danger-text`, `bg-[var(--surface-overlay)]`…
 - La paleta es la del PR #4 (rama `frontend/lead`): `brand` turquesa `#4eb0d1`, `accent` periwinkle `#8581d9` y `canvas` crema `#f7f6ed`, que ahora es `--surface`. Ya no queda morado en el producto: login y registro se repintaron solos porque sus colores literales se habían convertido en tokens.
 - `--primary-text` es un turquesa **oscuro** (`#17697f`), no el de los rellenos. El turquesa de marca con blanco encima se queda en 2.48:1, así que sirve como fondo pero no como texto ni como anillo de foco. En oscuro `--primary-contrast` también es texto oscuro, porque un relleno aclarado ya no admite blanco. Si cambias `--primary`, vuelve a medir ese par.

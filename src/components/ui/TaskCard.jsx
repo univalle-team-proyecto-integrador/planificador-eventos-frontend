@@ -18,7 +18,10 @@ export function TaskCard({
   showState = true,
 }) {
   const eventId = task.eventId;
-  const eventName = task.eventName || `Evento #${eventId}`;
+  // Sin nombre de evento no se inventa un "Evento #12": ese numeral solo
+  // ocupaba sitio y no decía nada. La línea se omite y queda el título de la
+  // tarea, que es lo que importa.
+  const eventName = task.eventName;
   const taskDate = getTaskDate(task);
 
   return (
@@ -30,9 +33,11 @@ export function TaskCard({
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-text">
-            {eventName}
-          </p>
+          {eventName && (
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-text">
+              {eventName}
+            </p>
+          )}
           <h3 className="mt-1 text-base font-semibold text-primary-text">
             {task.title}
           </h3>
@@ -62,7 +67,7 @@ export function TaskCard({
               as={Link}
               to={`/evento/${eventId}`}
               variant="neutral"
-              aria-label={`Ver evento ${eventName}`}
+              aria-label={eventName ? `Ver evento ${eventName}` : 'Ver evento'}
             >
               <ArrowUpRight aria-hidden="true" className="mr-1 inline size-4" />
               Ver evento
