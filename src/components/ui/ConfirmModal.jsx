@@ -129,7 +129,7 @@ export function ConfirmModal({
         {error && (
           <p
             role="alert"
-            className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700"
+            className="mb-4 rounded-md bg-gray-50 p-3 text-sm text-gray-700"
           >
             {error}
           </p>

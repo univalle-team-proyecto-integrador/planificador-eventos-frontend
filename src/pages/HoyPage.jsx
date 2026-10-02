@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CalendarDays, Clock3, ListChecks, TriangleAlert } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '../components/ui/Button';
+import { CalendarModal } from '../components/ui/CalendarModal';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { Card } from '../components/ui/Card';
@@ -90,6 +92,7 @@ export const HoyPage = () => {
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const loadToday = useCallback(async () => {
     setIsLoading(true);
@@ -133,9 +136,25 @@ export const HoyPage = () => {
     [tasks, today]
   );
   const eventsToday = useMemo(
-    () => events.filter((event) => isEventToday(event, today)).length,
+    () => events.filter((event) => isEventToday(event, today)),
     [events, today]
   );
+  const tasksByDate = useMemo(() => {
+    const grouped = new Map();
+
+    tasks.forEach((task) => {
+      if (!task.date) {
+        return;
+      }
+
+      const key = String(task.date).slice(0, 10);
+      const current = grouped.get(key) ?? [];
+      current.push({ ...task, eventId: task.eventId ?? task.idEvento, title: task.title ?? task.nombreGestion });
+      grouped.set(key, current);
+    });
+
+    return grouped;
+  }, [tasks]);
   const hoursToday = useMemo(
     () => sumHours(groups.todayTasks),
     [groups.todayTasks]
@@ -170,7 +189,7 @@ export const HoyPage = () => {
     <div className="space-y-6">
       <Card aria-labelledby="today-title" className="p-6">
         <div className="border-b border-gray-200 pb-5">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">
             Panel del día
           </p>
           <h2
@@ -195,7 +214,7 @@ export const HoyPage = () => {
           />
           <MetricCard
             label="Eventos de hoy"
-            value={eventsToday}
+            value={eventsToday.length}
             icon={CalendarDays}
           />
           <MetricCard
@@ -209,6 +228,34 @@ export const HoyPage = () => {
             icon={TriangleAlert}
             className={groups.overdueTotal ? 'border-amber-300' : ''}
           />
+        </div>
+
+        <div className="pt-5">
+          {eventsToday.length > 0 ? (
+            <Button
+              as={Link}
+              to={`/evento/${eventsToday[0].id}`}
+              variant="primary"
+            >
+              Asignar gestión
+            </Button>
+          ) : events.length > 0 ? (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => setIsCalendarOpen(true)}
+            >
+              Ver calendario
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => navigate('/crear')}
+            >
+              Crear Evento
+            </Button>
+          )}
         </div>
       </Card>
 
@@ -247,6 +294,12 @@ export const HoyPage = () => {
         tasks={groups.upcomingTasks}
         total={groups.upcomingTotal}
         getDateLabel={(task) => formatRelativeDate(task.date, today)}
+      />
+
+      <CalendarModal
+        open={isCalendarOpen}
+        onClose={() => setIsCalendarOpen(false)}
+        tasksByDate={tasksByDate}
       />
     </div>
   );

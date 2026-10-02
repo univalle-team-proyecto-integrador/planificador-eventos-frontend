@@ -10,9 +10,15 @@
     'Segoe UI',
     sans-serif;
   color: #111827;
-  background: #f9fafb;
+  background: #f7f6ed;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+@theme {
+  --color-brand: #4eb0d1;
+  --color-accent: #8581d9;
+  --color-canvas: #f7f6ed;
 }
 
 html,

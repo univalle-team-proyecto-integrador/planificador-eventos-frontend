@@ -16,7 +16,7 @@ export function ProgressBar({ value = 0, label = 'Progreso', accentColor }) {
         aria-valuenow={safeValue}
       >
         <div
-          className="h-full rounded-full bg-blue-600 transition-all"
+          className="h-full rounded-full bg-brand transition-all"
           style={{
             width: `${safeValue}%`,
             ...(accentColor ? { backgroundColor: accentColor } : {}),
