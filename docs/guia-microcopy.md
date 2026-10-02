@@ -23,9 +23,29 @@ Qué ocurrió + cómo corregirlo.
 ### Ejemplos aprobados
 
 - “Dejaste el nombre vacío. Ingresa un título para identificar el evento.”
+- “Faltan las horas estimadas. Ingresa un valor mayor a 0.”
 - “Ingresaste 0 o menos. Asigna al menos 1 hora de esfuerzo.”
-- “La fecha ya pasó. Selecciona hoy o una fecha futura para el evento.”
+- “Ingresaste una fracción de hora. Ingresa un número entero de horas.”
+- “La fecha del evento ya pasó. Selecciona hoy o una fecha futura.”
+- “La fecha objetivo ya pasó. Selecciona hoy o una fecha futura.”
 - “No pudimos conectar con el servidor. Revisa tu red e inténtalo de nuevo.”
+
+## Felicitaciones por campo válido
+
+Cuando un campo ya es válido (tras tocarlo y sin errores) se muestra un mensaje breve de éxito, antecedido por un check. La felicitación es corta y confirma en qué campo se logró el acierto; el error nunca convive con la felicitación del mismo campo.
+
+### Mensajes de éxito por campo
+
+| Campo                  | Mensaje                            |
+| ---------------------- | ---------------------------------- |
+| Nombre del evento      | “¡Listo! Nombre válido.”           |
+| Tipo de evento         | “Bien, tipo seleccionado.”         |
+| Cliente                | “¡Listo! Cliente registrado.”      |
+| Fecha del evento       | “Bien, fecha válida.”              |
+| Lugar                  | “¡Listo! Lugar correcto.”          |
+| Gestión                | “¡Listo! Nombre de la gestión válido.” |
+| Horas estimadas        | “Bien, horas válidas.”             |
+| Fecha objetivo         | “¡Listo! Fecha límite válida.”     |
 
 ## Estados vacíos
 
@@ -49,10 +69,14 @@ Ejemplo: “¿Aún no hay gestiones logísticas? Divide el evento en tareas pequ
 | Contexto              | Texto                                                                          |
 | --------------------- | ------------------------------------------------------------------------------ |
 | Crear evento          | “Crear nuevo evento”                                                           |
+| Volver desde detalle  | “Volver a eventos”                                                            |
+| Abrir evento         | “Ver evento”                                                                   |
 | Guardar formulario    | “Guardar evento”                                                               |
 | Crear primera gestión | “Añadir gestión”                                                               |
-| Cargar                | “Cargando evento...”                                                           |
-| Cargar panel de hoy   | “Cargando gestiones de hoy...”                                                |
+| Tareas atrasadas      | “Vencida hace 2 días”                                                         |
+| Tarea próxima         | “Mañana”                                                                      |
+| Cargar                | “Cargando información...”                                                     |
+| Cargar panel de hoy   | “Cargando el panel de hoy...”                                                |
 | Error de red          | “No pudimos conectar con el servidor. Revisa tu red e inténtalo de nuevo.”     |
 | Eliminar gestión      | “¿Seguro que quieres eliminar esta gestión? Esta acción no se puede deshacer.” |
 | Eliminar evento       | “Esta acción borrará el evento y su logística asociada. No se puede deshacer.” |

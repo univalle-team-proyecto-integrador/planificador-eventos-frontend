@@ -81,7 +81,8 @@ Responsabilidades:
 
 - `App.jsx` monta el enrutador.
 - `AppRoutes.jsx` registra rutas, redirecciones y carga inicial.
-- `Layout.jsx` mantiene Header, navegación y `Outlet`.
+- `Layout.jsx` mantiene la barra lateral, la navegación responsive y `Outlet`.
+- `Card.jsx` y `Badge.jsx` concentran la superficie y los estados visuales reutilizables de las tarjetas.
 - `api.js` centraliza URL, cabeceras, errores y mapeo de fechas.
 - `EventDetailView.jsx` coordina lectura, edición, subtareas, progreso y eliminación.
 

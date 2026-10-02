@@ -1,5 +1,8 @@
-const API_BASE_URL = (
-  import.meta.env.VITE_API_URL || 'http://localhost:8080'
+import { getStoredToken, notifySessionExpired } from './tokenStorage';
+
+export const API_BASE_URL = (
+  import.meta.env.VITE_API_URL ||
+  'https://planificador-eventos-backend-1.onrender.com'
 ).replace(/\/$/, '');
 
 export class ApiError extends Error {
@@ -26,24 +29,71 @@ const getServerMessage = (payload, fallback) => {
   return fallback;
 };
 
-const request = async (path, options = {}) => {
+const REQUEST_TIMEOUT_MS = 15000;
+
+// Rutas donde un 401 es la respuesta esperada y no una sesión caducada:
+// /api/users/login devuelve 401 si la contraseña no coincide.
+const RUTAS_SIN_SESION = ['/api/users/login', '/api/users/register'];
+
+// Punto único de autenticación: todas las llamadas de la API quedan
+// autenticadas sin tocar las vistas. El token vive en tokenStorage para no
+// crear un ciclo de importación con authService.
+const getAuthToken = () => getStoredToken();
+
+export const request = async (path, options = {}) => {
   const headers = new Headers(options.headers);
 
   if (options.body !== undefined && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
 
+  const token = getAuthToken();
+
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
+  const method = (options.method || 'GET').toUpperCase();
+
+  const fetchOnce = async () => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      return await fetch(buildUrl(path), {
+        ...options,
+        headers,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  const connectError = (timedOut) =>
+    new ApiError(
+      timedOut
+        ? 'El servidor tardó demasiado en responder. Inténtalo de nuevo.'
+        : 'No pudimos conectar con el servidor. Revisa tu red e inténtalo de nuevo.'
+    );
+
   let response;
 
   try {
-    response = await fetch(buildUrl(path), {
-      ...options,
-      headers,
-    });
-  } catch {
-    throw new ApiError(
-      'No pudimos conectar con el servidor. Revisa tu red e inténtalo de nuevo.'
-    );
+    response = await fetchOnce();
+  } catch (error) {
+    const wasTimeout = error?.name === 'AbortError';
+
+    if (!wasTimeout && method === 'GET') {
+      // Cold start de Render free: reintentar una vez antes de avisar.
+      try {
+        response = await fetchOnce();
+      } catch (retryError) {
+        throw connectError(retryError?.name === 'AbortError');
+      }
+    } else {
+      throw connectError(wasTimeout);
+    }
   }
 
   const rawBody = await response.text();
@@ -55,6 +105,12 @@ const request = async (path, options = {}) => {
     } catch {
       data = rawBody;
     }
+  }
+
+  if (response.status === 401 && !RUTAS_SIN_SESION.includes(path)) {
+    // Token caducado o revocado: se cierra la sesión y el provider manda a
+    // /login en lugar de dejar la vista con datos a medias.
+    notifySessionExpired();
   }
 
   if (!response.ok) {
@@ -72,11 +128,6 @@ const request = async (path, options = {}) => {
 };
 
 export const unwrapData = (payload) => payload?.data ?? payload;
-
-export const getDefaultUserId = () => {
-  const configuredId = Number(import.meta.env.VITE_USER_ID || 1);
-  return Number.isInteger(configuredId) && configuredId > 0 ? configuredId : 1;
-};
 
 export const toApiDateTime = (value) => {
   if (!value) {
@@ -98,11 +149,13 @@ export const api = {
     return request('/api/tipos-evento');
   },
 
-  listEvents(usuarioId) {
-    const query = usuarioId
-      ? `?usuarioId=${encodeURIComponent(usuarioId)}`
-      : '';
-    return request(`/api/eventos${query}`);
+  getProfile() {
+    return request('/api/users/profile');
+  },
+
+  // Sin usuarioId: el backend toma el propietario del token de sesion.
+  listEvents() {
+    return request('/api/eventos');
   },
 
   getEvent(id) {
@@ -126,8 +179,8 @@ export const api = {
     return request(`/api/eventos/${encodeURIComponent(eventId)}/subtareas`);
   },
 
-  listTodaySubtasks(usuarioId, fecha) {
-    const query = `?usuarioId=${encodeURIComponent(usuarioId)}&fecha=${encodeURIComponent(fecha)}`;
+  listTodaySubtasks(fecha) {
+    const query = `?fecha=${encodeURIComponent(fecha)}`;
     return request(`/api/subtareas/hoy${query}`);
   },
 

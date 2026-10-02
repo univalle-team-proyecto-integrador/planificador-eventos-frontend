@@ -8,12 +8,16 @@ tipo: auditoria-a11y
 
 - El documento declara `lang="es"`.
 - Existe un enlace de salto al contenido principal.
-- El Header utiliza navegación semántica y los enlaces no contienen botones anidados.
+- La barra lateral utiliza navegación semántica y los enlaces no contienen botones anidados.
 - Los botones tienen foco visible, estado `disabled` y variantes con intención visual.
 - Los campos tienen `label`, `id`, `aria-invalid` y `aria-describedby` cuando existe error.
+- Los formularios agrupan campos con `fieldset`/`legend` y enfocan el primer inválido al bloquear un envío.
+- Las fechas de evento y objetivo tienen límite local `min` y validación contextual contra fechas pasadas.
 - Los estados de carga, vacío y error usan `role="status"` o `role="alert"` y mensajes en español.
 - El modal de eliminación usa `role="dialog"`, `aria-modal`, foco inicial, cierre con `Escape` y focus trap.
 - Las barras de progreso exponen `aria-valuemin`, `aria-valuemax` y `aria-valuenow`.
+- Los resúmenes de Hoy y Progreso usan etiquetas visibles para cada métrica y no comunican valores solo mediante color.
+- Las listas de tareas usan `aria-labelledby`, enlaces accesibles al evento y badges de estado.
 - Los iconos decorativos están ocultos con `aria-hidden`.
 - Los mensajes de red no se comunican solo mediante color.
 
@@ -27,4 +31,4 @@ tipo: auditoria-a11y
 
 ## Alcance
 
-Esta auditoría cubre el frontend actual. La automatización depende del entorno de despliegue y no forma parte de los scripts del proyecto, que no incluyen un framework de tests.
+Esta auditoría cubre el frontend actual. Las pruebas automatizadas del cliente cubren el cliente API con Vitest; la validación end-to-end y las auditorías visuales dependen del entorno de despliegue.

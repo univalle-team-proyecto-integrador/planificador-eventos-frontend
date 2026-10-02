@@ -1,29 +1,32 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { CalendarDays, Clock3, ListChecks, TriangleAlert } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
-import { Button } from '../components/ui/Button';
-import { CalendarModal } from '../components/ui/CalendarModal';
-import { api, getDefaultUserId, unwrapData } from '../services/api';
-
-const getToday = () => {
-  const now = new Date();
-  const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-  return localDate.toISOString().slice(0, 10);
-};
+import { Card } from '../components/ui/Card';
+import { MetricCard } from '../components/ui/MetricCard';
+import { TaskCard } from '../components/ui/TaskCard';
+import { api, unwrapData } from '../services/api';
+import { getToday } from '../utils/dateValidation';
+import {
+  classifyTasksByDate,
+  formatHours,
+  formatOverdueLabel,
+  formatRelativeDate,
+  isEventToday,
+  normalizeEvent,
+  normalizeSubtask,
+  sumHours,
+} from '../utils/taskMetrics';
 
 const formatDate = (value) => {
   if (!value) {
     return 'Sin fecha';
   }
 
-  const stringValue = String(value);
-  const date = /^\d{4}-\d{2}-\d{2}$/.test(stringValue)
-    ? new Date(`${stringValue}T00:00:00`)
-    : new Date(value);
-
+  const date = new Date(`${value}T00:00:00`);
   if (Number.isNaN(date.getTime())) {
-    return stringValue;
+    return String(value);
   }
 
   return date.toLocaleDateString('es-CO', {
@@ -34,36 +37,57 @@ const formatDate = (value) => {
   });
 };
 
-const normalizeTask = (payload) => ({
-  id: payload?.id ?? payload?.idSubtarea,
-  eventId: payload?.idEvento,
-  title: payload?.nombreGestion ?? payload?.title ?? payload?.name ?? '',
-  hours: payload?.horasEstimadas ?? payload?.hours ?? '',
-  date: payload?.fechaObjetivo ?? payload?.date ?? '',
-  state: payload?.estado ?? payload?.state ?? 'pendiente',
-});
-
-const getStateLabel = (state) => {
-  const labels = {
-    pendiente: 'Pendiente',
-    ejecutada: 'Completada',
-    pospuesta: 'Pospuesta',
-  };
-
-  return labels[state] || 'Pendiente';
-};
-
 const getErrorMessage = (error) =>
   error?.message ||
   'No pudimos cargar las gestiones de hoy. Inténtalo de nuevo.';
 
+function TaskSection({
+  id,
+  title,
+  description,
+  tasks,
+  total,
+  getDateLabel,
+  isOverdue = false,
+}) {
+  if (total === 0) {
+    return null;
+  }
+
+  return (
+    <section aria-labelledby={id} className="space-y-3">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 id={id} className="text-lg font-semibold text-gray-900">
+            {title}
+          </h2>
+          <p className="mt-1 text-sm text-gray-600">{description}</p>
+        </div>
+        {total > tasks.length && (
+          <p className="text-xs font-medium text-gray-500">
+            Mostrando {tasks.length} de {total}
+          </p>
+        )}
+      </div>
+      <ul className="space-y-3" aria-live="polite">
+        {tasks.map((task) => (
+          <TaskCard
+            key={task.id}
+            task={task}
+            dateLabel={getDateLabel(task)}
+            isOverdue={isOverdue}
+          />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export const HoyPage = () => {
   const navigate = useNavigate();
   const [today] = useState(getToday);
-  const [tasks, setTasks] = useState([]);
   const [events, setEvents] = useState([]);
-  const [tasksByDate, setTasksByDate] = useState(new Map());
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -72,80 +96,50 @@ export const HoyPage = () => {
     setError('');
 
     try {
-      const userId = getDefaultUserId();
-      const [tasksResponse, eventsResponse] = await Promise.all([
-        api.listTodaySubtasks(userId, today),
-        api.listEvents(userId),
-      ]);
-      const rawTasks = unwrapData(tasksResponse);
-      const rawEvents = unwrapData(eventsResponse);
-      const eventNames = new Map(
-        (Array.isArray(rawEvents) ? rawEvents : []).map((event) => [
-          String(event?.id ?? event?.idEvento),
-          event?.nombre ?? event?.name ?? 'Evento sin nombre',
-        ])
-      );
+      const eventsResponse = unwrapData(await api.listEvents());
+      const normalizedEvents = (
+        Array.isArray(eventsResponse) ? eventsResponse : []
+      )
+        .map(normalizeEvent)
+        .filter((event) => event.id);
 
-      setTasks(
-        (Array.isArray(rawTasks) ? rawTasks : [])
-          .map(normalizeTask)
-          .filter((task) => task.id && task.eventId)
-          .map((task) => ({
-            ...task,
-            eventName:
-              eventNames.get(String(task.eventId)) ?? `Evento #${task.eventId}`,
-          }))
-      );
-
-      const eventList = Array.isArray(rawEvents) ? rawEvents : [];
-      setEvents(eventList);
-
-      const subtasksByEvent = await Promise.all(
-        eventList.map(async (event) => {
-          const eventId = event?.id ?? event?.idEvento;
-
-          if (eventId === undefined || eventId === null) {
-            return [];
-          }
-
-          try {
-            const response = unwrapData(await api.getSubtasks(eventId));
-            return (Array.isArray(response) ? response : []).map((subtask) => ({
-              ...normalizeTask(subtask),
-              eventId,
-              eventName:
-                eventNames.get(String(eventId)) ?? `Evento #${eventId}`,
-            }));
-          } catch {
-            return [];
-          }
+      const taskGroups = await Promise.all(
+        normalizedEvents.map(async (event) => {
+          const response = unwrapData(await api.getSubtasks(event.id));
+          return (Array.isArray(response) ? response : [])
+            .map(normalizeSubtask)
+            .filter((task) => task.id)
+            .map((task) => ({ ...task, eventName: event.name }));
         })
       );
-      const grouped = new Map();
 
-      subtasksByEvent.flat().forEach((subtask) => {
-        if (!subtask.date) {
-          return;
-        }
-
-        const key = String(subtask.date).slice(0, 10);
-        const current = grouped.get(key) ?? [];
-        current.push(subtask);
-        grouped.set(key, current);
-      });
-      setTasksByDate(grouped);
+      setEvents(normalizedEvents);
+      setTasks(taskGroups.flat());
     } catch (loadError) {
       setError(getErrorMessage(loadError));
     } finally {
       setIsLoading(false);
     }
-  }, [today]);
+  }, []);
 
   useEffect(() => {
-    // La vista consulta las gestiones cuya fecha objetivo corresponde a hoy.
+    // El panel de hoy se construye con los eventos y sus subtareas del organizador.
     // oxlint-disable-next-line react/set-state-in-effect
     void loadToday();
   }, [loadToday]);
+
+  const groups = useMemo(
+    () => classifyTasksByDate(tasks, today),
+    [tasks, today]
+  );
+  const eventsToday = useMemo(
+    () => events.filter((event) => isEventToday(event, today)).length,
+    [events, today]
+  );
+  const hoursToday = useMemo(
+    () => sumHours(groups.todayTasks),
+    [groups.todayTasks]
+  );
 
   if (isLoading) {
     return (
@@ -155,7 +149,7 @@ export const HoyPage = () => {
         aria-live="polite"
         aria-busy="true"
       >
-        Cargando gestiones de hoy...
+        Cargando el panel de hoy...
       </div>
     );
   }
@@ -174,68 +168,51 @@ export const HoyPage = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-accent">
-          Panel del día
-        </p>
-        <h2 id="today-title" className="text-3xl font-bold text-gray-900">
-          Gestiones de hoy
-        </h2>
-        <p className="mt-2 max-w-2xl text-gray-600">
-          <time dateTime={today}>{formatDate(today)}</time>
-        </p>
-        <p className="mt-1 max-w-2xl text-sm text-gray-600">
-          Revisa las tareas pendientes y pospuestas que tienen como fecha
-          objetivo hoy.
-        </p>
-        <div className="mt-4">
-          {(() => {
-            const eventToday = events.find(
-              (event) =>
-                String(event?.fechaEvento ?? event?.date ?? '').slice(0, 10) ===
-                today
-            );
-
-            if (eventToday) {
-              const id = eventToday.id ?? eventToday.idEvento;
-              return (
-                <Button
-                  as={Link}
-                  to={`/evento/${id}`}
-                  variant="primary"
-                  aria-label="Asignar gestión al evento de hoy"
-                >
-                  Asignar gestión
-                </Button>
-              );
-            }
-
-            if (events.length > 0) {
-              return (
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => setIsCalendarOpen(true)}
-                >
-                  Ver calendario
-                </Button>
-              );
-            }
-
-            return (
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => navigate('/crear')}
-              >
-                Crear Evento
-              </Button>
-            );
-          })()}
+      <Card aria-labelledby="today-title" className="p-6">
+        <div className="border-b border-gray-200 pb-5">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
+            Panel del día
+          </p>
+          <h2
+            id="today-title"
+            className="mt-2 text-2xl font-semibold text-gray-900"
+          >
+            Hoy
+          </h2>
+          <time
+            dateTime={today}
+            className="mt-1 block text-sm capitalize text-gray-500"
+          >
+            {formatDate(today)}
+          </time>
         </div>
-      </div>
 
-      {tasks.length === 0 ? (
+        <div className="grid grid-cols-2 gap-3 pt-5 sm:grid-cols-4">
+          <MetricCard
+            label="Tareas de hoy"
+            value={groups.todayTotal}
+            icon={ListChecks}
+          />
+          <MetricCard
+            label="Eventos de hoy"
+            value={eventsToday}
+            icon={CalendarDays}
+          />
+          <MetricCard
+            label="Carga de hoy"
+            value={formatHours(hoursToday)}
+            icon={Clock3}
+          />
+          <MetricCard
+            label="Atrasadas"
+            value={groups.overdueTotal}
+            icon={TriangleAlert}
+            className={groups.overdueTotal ? 'border-amber-300' : ''}
+          />
+        </div>
+      </Card>
+
+      {groups.todayTasks.length === 0 ? (
         <EmptyState
           title="Aún no hay gestiones para hoy"
           description="Cuando agregues una gestión con la fecha de hoy, aparecerá aquí para que puedas seguirla."
@@ -243,55 +220,36 @@ export const HoyPage = () => {
           onAction={() => navigate('/crear')}
         />
       ) : (
-        <ul
-          className="space-y-3"
-          aria-live="polite"
-          aria-label="Gestiones de hoy"
-        >
-          {tasks.map((task) => (
-            <li
-              key={task.id}
-              className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-accent">
-                  {task.eventName}
-                </p>
-                <h3 className="mt-1 text-lg font-semibold text-gray-900">
-                  {task.title}
-                </h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  Fecha objetivo:{' '}
-                  <time dateTime={task.date}>{formatDate(task.date)}</time>
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-700">
-                  {task.hours ?? '—'} hrs
-                </span>
-                <span className="rounded bg-accent/10 px-2 py-1 text-xs font-semibold text-accent">
-                  {getStateLabel(task.state)}
-                </span>
-                <Button
-                  as={Link}
-                  to={`/evento/${task.eventId}`}
-                  variant="neutral"
-                  aria-label={`Ver evento ${task.eventName}`}
-                >
-                  Ver evento
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <TaskSection
+          id="today-tasks-title"
+          title="Tareas de hoy"
+          description="Atiende primero las tareas con fecha objetivo de hoy."
+          tasks={groups.todayTasks}
+          total={groups.todayTotal}
+          getDateLabel={() => 'Hoy'}
+        />
       )}
 
-      <CalendarModal
-        open={isCalendarOpen}
-        onClose={() => setIsCalendarOpen(false)}
-        tasksByDate={tasksByDate}
+      <TaskSection
+        id="overdue-tasks-title"
+        title="Tareas atrasadas"
+        description="Tareas pendientes que necesitan una nueva fecha."
+        tasks={groups.overdueTasks}
+        total={groups.overdueTotal}
+        getDateLabel={(task) => formatOverdueLabel(task.date, today)}
+        isOverdue
+      />
+
+      <TaskSection
+        id="upcoming-tasks-title"
+        title="Tareas próximas"
+        description="Lo que viene en los próximos siete días."
+        tasks={groups.upcomingTasks}
+        total={groups.upcomingTotal}
+        getDateLabel={(task) => formatRelativeDate(task.date, today)}
       />
     </div>
   );
 };
+
+export default HoyPage;
