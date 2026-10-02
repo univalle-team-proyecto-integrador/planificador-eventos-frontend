@@ -1,40 +1,40 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Planificador de eventos para organizadores independientes"
-    />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Organizador de Eventos</title>
-    <script>
-      // Se aplica el tema antes del primer pintado para que alguien que elige
-      // el modo oscuro no vea un destello claro. Va inline y de forma síncrona a
-      // propósito: si se espera a cargar el bundle, el destello ya ocurrió.
-      // Debe mantenerse en sincronía con src/utils/theme.js.
-      (function () {
-        try {
-          var stored = window.localStorage.getItem('eventflow.tema');
-          if (stored === 'light' || stored === 'dark') {
-            document.documentElement.dataset.theme = stored;
-            return;
-          }
-          document.documentElement.dataset.theme = window.matchMedia(
-            '(prefers-color-scheme: dark)'
-          ).matches
-            ? 'dark'
-            : 'light';
-        } catch (error) {
-          // Almacenamiento bloqueado: se usa el tema claro por defecto.
-          document.documentElement.dataset.theme = 'light';
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Planificador de eventos para organizadores independientes" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>Organizador de Eventos</title>
+  <script>
+    // Se aplica el tema antes del primer pintado para que alguien que elige
+    // el modo oscuro no vea un destello claro. Va inline y de forma síncrona a
+    // propósito: si se espera a cargar el bundle, el destello ya ocurrió.
+    // Debe mantenerse en sincronía con src/utils/theme.js.
+    (function () {
+      try {
+        var stored = window.localStorage.getItem('eventflow.tema');
+        if (stored === 'light' || stored === 'dark') {
+          document.documentElement.dataset.theme = stored;
+          return;
         }
-      })();
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+        document.documentElement.dataset.theme = window.matchMedia(
+          '(prefers-color-scheme: dark)'
+        ).matches
+          ? 'dark'
+          : 'light';
+      } catch (error) {
+        // Almacenamiento bloqueado: se usa el tema claro por defecto.
+        document.documentElement.dataset.theme = 'light';
+      }
+    })();
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>
