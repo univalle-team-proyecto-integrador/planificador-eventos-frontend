@@ -50,7 +50,7 @@ export function WorkloadSummary({
         label={progressLabel}
         accentColor={accentColor}
       />
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-muted-text">
         {formatHours(hoursCompleted)} completadas ·{' '}
         {formatHours(hoursRemaining)} restantes · {formatHours(hoursTotal)}{' '}
         estimadas

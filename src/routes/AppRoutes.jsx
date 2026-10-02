@@ -9,6 +9,7 @@ const DetallePage = lazy(() => import('../pages/DetallePage'));
 const ProgresoPage = lazy(() => import('../pages/ProgresoPage'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage'));
+const ConfiguracionPage = lazy(() => import('../pages/ConfiguracionPage'));
 
 const RouteLoader = () => (
   <div
@@ -81,6 +82,7 @@ export const AppRoutes = () => (
           <Route path="/crear" element={<CrearPage />} />
           <Route path="/evento/:id" element={<DetallePage />} />
           <Route path="/progreso" element={<ProgresoPage />} />
+          <Route path="/configuracion" element={<ConfiguracionPage />} />
           <Route path="*" element={<Navigate to="/hoy" replace />} />
         </Route>
       </Routes>

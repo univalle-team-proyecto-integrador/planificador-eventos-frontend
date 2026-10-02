@@ -52,11 +52,11 @@ export function EventCard({ event }) {
           >
             Evento #{id}
           </span>
-          <h3 className="mt-1 text-lg font-semibold text-gray-900">{name}</h3>
-          <p className="mt-1 text-sm text-gray-600">
+          <h3 className="mt-1 text-lg font-semibold text-primary-text">{name}</h3>
+          <p className="mt-1 text-sm text-secondary-text">
             {client} · {formatDate(event.fechaEvento ?? event.date)}
           </p>
-          <p className="mt-1 text-xs text-gray-500">{location}</p>
+          <p className="mt-1 text-xs text-muted-text">{location}</p>
         </div>
         <Button
           as={Link}
@@ -74,13 +74,13 @@ export function EventCard({ event }) {
           label="Progreso por horas"
           accentColor={accent.hex}
         />
-        <p className="mt-2 text-xs text-gray-500">
+        <p className="mt-2 text-xs text-muted-text">
           {total === 0
             ? 'Aún no hay subtareas registradas.'
             : `${completed} de ${total} tareas · ${formatHours(hoursCompleted)} completadas · ${formatHours(hoursRemaining)} restantes`}
         </p>
         {total > 0 && (
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-muted-text">
             {formatHours(hoursTotal)} estimadas en total
           </p>
         )}

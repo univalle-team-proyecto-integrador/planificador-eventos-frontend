@@ -1,5 +1,148 @@
 @import 'tailwindcss';
 
+/* ─── Tokens de color ─────────────────────────────────────────────────────
+   Los tokens viven como variables CSS en :root y en [data-theme='dark'] para
+   poder cambiar de tema en caliente. `@theme inline` publica cada una como
+   utilidad de Tailwind (bg-surface, text-muted, border-border…) resolviendo la
+   variable en tiempo de ejecución, que es lo que permite el modo oscuro sin
+   duplicar clases ni usar variantes `dark:`.
+
+   Ojo: son nombres semánticos, no colores literales. Para cambiar el tema hay
+   que editar estas variables, nunca las clases de los componentes.
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+
+  /* Altura de la barra superior en escritorio. La barra lateral se posiciona
+     respecto a este valor, así que ambos deben moverse juntos. En móvil la
+     barra superior ocupa dos filas y no se usa: ahí la lateral es un drawer. */
+  --topbar-height: 4rem;
+
+  --surface: #f9fafb;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f3f4f6;
+  --surface-overlay: rgb(17 24 39 / 0.55);
+
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --text-inverted: #ffffff;
+
+  /* Morado de marca. Es el mismo que ya usaban login y registro (#3323CC), así
+     que el token no introduce un color nuevo en el producto. */
+  --primary: #3323cc;
+  --primary-hover: #26189e;
+  --primary-soft: #eef0ff;
+  --primary-contrast: #ffffff;
+  --primary-text: #3323cc;
+
+  --success: #047857;
+  --success-soft: #ecfdf5;
+  --success-text: #065f46;
+
+  --warning: #b45309;
+  --warning-soft: #fffbeb;
+  --warning-text: #92400e;
+
+  --danger: #b91c1c;
+  --danger-soft: #fef2f2;
+  --danger-text: #991b1b;
+
+  --info: #1d4ed8;
+  --info-soft: #eff6ff;
+  --info-text: #1e40af;
+
+  --focus-ring: #3323cc;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --surface: #0b0f19;
+  --surface-raised: #141a2a;
+  --surface-sunken: #1b2233;
+  --surface-overlay: rgb(2 6 16 / 0.7);
+
+  --border: #2a3142;
+  --border-strong: #3a4356;
+
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-inverted: #0b0f19;
+
+  /* El morado se aclara en oscuro para mantener el contraste sobre superficie
+     oscura; el tono claro se usaría como texto y el de marca como fondo. */
+  --primary: #7c6bf0;
+  --primary-hover: #8e80f4;
+  --primary-soft: #1e1b4b;
+
+  /* El morado de fondo aclara en oscuro, asi que el texto sobre el relleno pasa a
+     oscuro: blanco sobre #7c6bf0 se queda en 4.03:1 y no alcanza AA. */
+  --primary-contrast: #0b0f19;
+  --primary-text: #a99df5;
+
+  --success: #34d399;
+  --success-soft: #052e23;
+  --success-text: #6ee7b7;
+
+  --warning: #fbbf24;
+  --warning-soft: #3b2606;
+  --warning-text: #fcd34d;
+
+  --danger: #f87171;
+  --danger-soft: #3f1212;
+  --danger-text: #fca5a5;
+
+  --info: #60a5fa;
+  --info-soft: #172554;
+  --info-text: #93c5fd;
+
+  --focus-ring: #a99df5;
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-primary-text: var(--text-primary);
+  --color-secondary-text: var(--text-secondary);
+  --color-muted-text: var(--text-muted);
+  --color-inverted-text: var(--text-inverted);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-contrast: var(--primary-contrast);
+  --color-brand-text: var(--primary-text);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-text: var(--success-text);
+
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-text: var(--warning-text);
+
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-text: var(--danger-text);
+
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-info-text: var(--info-text);
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────────── */
+
 :root {
   font-family:
     Inter,
@@ -9,8 +152,6 @@
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
-  color: #111827;
-  background: #f9fafb;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -26,6 +167,11 @@ body,
 
 body {
   min-width: 320px;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
 }
 
 button,
@@ -36,8 +182,14 @@ textarea {
 }
 
 :focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
+}
+
+/* El skip-link es el primer elemento enfocable: al tabular desde arriba debe
+   quedar por encima de la topbar fija. */
+.skip-link {
+  z-index: 60;
 }
 
 @keyframes toast-in {
@@ -91,6 +243,17 @@ textarea {
   }
 }
 
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .toast-enter {
   animation: toast-in 280ms ease-out both;
 }
@@ -103,6 +266,10 @@ textarea {
   animation: modal-in 180ms ease-out both;
 }
 
+.dropdown-in {
+  animation: dropdown-in 140ms ease-out both;
+}
+
 .event-card {
   transition:
     transform 240ms ease,
@@ -113,8 +280,8 @@ textarea {
 .event-card:focus-within {
   transform: scale(1.03);
   box-shadow:
-    0 18px 40px -12px var(--accent-glow, rgba(37, 99, 235, 0.4)),
-    0 2px 8px rgba(17, 24, 39, 0.08);
+    0 18px 40px -12px var(--accent-glow, rgb(51 35 204 / 0.4)),
+    0 2px 8px rgb(17 24 39 / 0.08);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -123,10 +290,11 @@ textarea {
   }
 
   .toast-leave {
-    animation: fade-out 150ms ease-in both;
+    animation: fade-out 150ms ease-out both;
   }
 
-  .modal-in {
+  .modal-in,
+  .dropdown-in {
     animation: fade-in 120ms ease-out both;
   }
 

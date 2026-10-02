@@ -1,13 +1,19 @@
 import { AppRoutes } from './routes/AppRoutes';
 import { NotificationsProvider } from './providers/NotificationsProvider';
 import { SessionProvider } from './providers/SessionProvider';
+import { ThemeProvider } from './providers/ThemeProvider';
+import { SearchProvider } from './providers/SearchProvider';
 
 export function App() {
   return (
     <NotificationsProvider>
-      <SessionProvider>
-        <AppRoutes />
-      </SessionProvider>
+      <ThemeProvider>
+        <SessionProvider>
+          <SearchProvider>
+            <AppRoutes />
+          </SearchProvider>
+        </SessionProvider>
+      </ThemeProvider>
     </NotificationsProvider>
   );
 }

@@ -29,6 +29,7 @@ import {
 } from '../utils/dateValidation';
 import { focusFirstInvalidField } from '../utils/formFocus';
 import { useNotifications } from '../providers/notifications-context';
+import { useTaskSearch } from '../providers/search-context';
 import { api, toApiDateTime, unwrapData } from '../services/api';
 
 const initialSubtaskData = {
@@ -295,6 +296,7 @@ const getStateLabel = (state) => {
 export function EventDetailView() {
   const { id } = useParams();
   const { notifySuccess, notifyError } = useNotifications();
+  const { invalidate: invalidateSearchIndex } = useTaskSearch();
   const navigate = useNavigate();
   const goToProgress = () => navigate('/progreso', { replace: true });
   const [event, setEvent] = useState(null);
@@ -391,6 +393,16 @@ export function EventDetailView() {
     // oxlint-disable-next-line react/set-state-in-effect
     void loadData();
   }, [loadData]);
+
+  // El buscador global guarda su propia copia de las tareas. Cada mutación de
+  // esta vista (crear, editar, cambiar estado o borrar una gestión, y también
+  // renombrar o borrar el evento) pasa por setEvent o setSubtasks, así que un
+  // solo punto de invalidación basta para que la próxima búsqueda ya use datos
+  // frescos. Al montar también se invalida, lo cual es inocuo porque el índice
+  // todavía no se ha cargado.
+  useEffect(() => {
+    invalidateSearchIndex();
+  }, [event, subtasks, invalidateSearchIndex]);
 
   const workload = useMemo(() => getTaskMetrics(subtasks), [subtasks]);
 

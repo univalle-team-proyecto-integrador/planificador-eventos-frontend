@@ -16,19 +16,19 @@ export const EmptyState = ({
   return (
     <section
       aria-labelledby={titleId}
-      className="flex flex-col items-center justify-center p-10 text-center bg-gray-50 border border-dashed border-gray-300 rounded-lg"
+      className="flex flex-col items-center justify-center p-10 text-center bg-surface-sunken border border-dashed border-border rounded-lg"
     >
       <Icon
         aria-hidden="true"
-        className="mb-4 size-12 text-gray-400"
+        className="mb-4 size-12 text-muted-text"
         strokeWidth={1.5}
       />
 
-      <h2 id={titleId} className="text-lg font-semibold text-gray-900 mb-2">
+      <h2 id={titleId} className="text-lg font-semibold text-primary-text mb-2">
         {title}
       </h2>
       {description && (
-        <p id={descriptionId} className="mb-5 max-w-md text-sm text-gray-600">
+        <p id={descriptionId} className="mb-5 max-w-md text-sm text-secondary-text">
           {description}
         </p>
       )}

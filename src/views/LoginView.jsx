@@ -34,10 +34,10 @@ const getSubmitErrorMessage = (error) =>
 // de cualquier capa y, en CSS, lo no estratificado gana a @layer utilities.
 
 const inputClass = (hasError) =>
-  `w-full rounded-2xl border bg-[#EEF0FF] py-3.5 pl-12 pr-4 text-[15px] text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none! focus-visible:ring-2 focus-visible:ring-[#3323CC] focus-visible:ring-offset-2 ${
+  `w-full rounded-2xl border bg-primary-soft py-3.5 pl-12 pr-4 text-[15px] text-primary-text placeholder:text-muted-text focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 ${
     hasError
       ? 'border-red-500 focus-visible:ring-red-500'
-      : 'border-transparent focus-visible:border-[#3323CC]'
+      : 'border-transparent focus-visible:border-primary'
   }`;
 
 const FieldError = ({ id, children }) =>
@@ -74,7 +74,9 @@ export function LoginView() {
     setPassword(value);
 
     if (passwordError) {
-      setPasswordError(isValidPassword(value) ? '' : getPasswordErrorMessage(value));
+      setPasswordError(
+        isValidPassword(value) ? '' : getPasswordErrorMessage(value)
+      );
     }
 
     setSubmitError('');
@@ -86,7 +88,11 @@ export function LoginView() {
 
   const handlePasswordBlur = () => {
     setPasswordError(
-      password ? (isValidPassword(password) ? '' : getPasswordErrorMessage(password)) : ''
+      password
+        ? isValidPassword(password)
+          ? ''
+          : getPasswordErrorMessage(password)
+        : ''
     );
   };
 
@@ -98,7 +104,9 @@ export function LoginView() {
     }
 
     const emailError = isValidEmail(email) ? '' : getEmailErrorMessage(email);
-    const passError = isValidPassword(password) ? '' : getPasswordErrorMessage(password);
+    const passError = isValidPassword(password)
+      ? ''
+      : getPasswordErrorMessage(password);
     setError(emailError);
     setPasswordError(passError);
 
@@ -134,29 +142,29 @@ export function LoginView() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#FAFAFF] px-4 py-10 text-[#111827] sm:px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-surface px-4 py-10 text-primary-text sm:px-6">
       <div className="w-full max-w-[420px]">
         <div className="mb-8 flex flex-col items-center text-center">
-          <span className="flex size-14 items-center justify-center rounded-2xl bg-[#3323CC] shadow-[0_10px_24px_-8px_rgba(51,35,204,0.55)]">
+          <span className="flex size-14 items-center justify-center rounded-2xl bg-primary shadow-[0_10px_24px_-8px_rgba(51,35,204,0.55)]">
             <CalendarCheck
               aria-hidden="true"
-              className="size-7 text-white"
+              className="size-7 text-primary-contrast"
               strokeWidth={2.2}
             />
           </span>
-          <p className="mt-4 text-2xl font-extrabold tracking-tight text-[#111827]">
-            EventFlow<span className="text-[#3323CC]">.</span>
+          <p className="mt-4 text-2xl font-extrabold tracking-tight text-primary-text">
+            EventFlow<span className="text-primary-text">.</span>
           </p>
-          <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#6B7280]">
+          <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-text">
             Workspace Orchestration
           </p>
         </div>
 
         <div className="rounded-3xl bg-white p-7 shadow-[0_18px_40px_-20px_rgba(17,24,39,0.25)] sm:p-9">
-          <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-[#111827]">
+          <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-primary-text">
             Bienvenido de nuevo
           </h1>
-          <p className="mt-2 text-sm text-[#6B7280]">
+          <p className="mt-2 text-sm text-muted-text">
             Ingresa tus datos para conectarte a tu cuenta
           </p>
 
@@ -178,14 +186,14 @@ export function LoginView() {
           >
             <label
               htmlFor="login-email"
-              className="mb-2 block text-sm font-semibold text-[#111827]"
+              className="mb-2 block text-sm font-semibold text-primary-text"
             >
               Correo electrónico
             </label>
             <div className="relative">
               <Mail
                 aria-hidden="true"
-                className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-[#9CA3AF]"
+                className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-text"
                 strokeWidth={1.8}
               />
               <input
@@ -196,7 +204,9 @@ export function LoginView() {
                 placeholder="ejemplo@correo.com"
                 className={inputClass(Boolean(error))}
                 value={email}
-                onChange={(changeEvent) => updateEmail(changeEvent.target.value)}
+                onChange={(changeEvent) =>
+                  updateEmail(changeEvent.target.value)
+                }
                 onBlur={handleBlur}
                 disabled={isSubmitting}
                 required
@@ -206,14 +216,14 @@ export function LoginView() {
 
             <label
               htmlFor="login-password"
-              className="mt-5 mb-2 block text-sm font-semibold text-[#111827]"
+              className="mt-5 mb-2 block text-sm font-semibold text-primary-text"
             >
               Contraseña
             </label>
             <div className="relative">
               <Lock
                 aria-hidden="true"
-                className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-[#9CA3AF]"
+                className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-text"
                 strokeWidth={1.8}
               />
               <input
@@ -238,28 +248,36 @@ export function LoginView() {
                   showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
                 }
                 aria-pressed={showPassword}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-[#9CA3AF] transition-colors hover:text-[#3323CC] focus:outline-none! focus-visible:ring-2 focus-visible:ring-[#3323CC]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted-text transition-colors hover:text-primary-text focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
                 {showPassword ? (
-                  <EyeOff aria-hidden="true" className="size-5" strokeWidth={1.8} />
+                  <EyeOff
+                    aria-hidden="true"
+                    className="size-5"
+                    strokeWidth={1.8}
+                  />
                 ) : (
-                  <Eye aria-hidden="true" className="size-5" strokeWidth={1.8} />
+                  <Eye
+                    aria-hidden="true"
+                    className="size-5"
+                    strokeWidth={1.8}
+                  />
                 )}
               </button>
             </div>
             <FieldError id="login-password-error">{passwordError}</FieldError>
 
-            <div className="mt-5 flex items-start gap-2.5 rounded-2xl bg-[#EEF0FF] p-4">
+            <div className="mt-5 flex items-start gap-2.5 rounded-2xl bg-primary-soft p-4">
               <Info
                 aria-hidden="true"
-                className="mt-0.5 size-4 shrink-0 text-[#3323CC]"
+                className="mt-0.5 size-4 shrink-0 text-primary-text"
                 strokeWidth={2}
               />
-              <p className="text-[13px] leading-relaxed text-[#4B5563]">
+              <p className="text-[13px] leading-relaxed text-secondary-text">
                 Si aún no tienes cuenta,{' '}
                 <Link
                   to="/registro"
-                  className="font-semibold text-[#3323CC] underline hover:no-underline"
+                  className="font-semibold text-primary-text underline hover:no-underline"
                 >
                   regístrate aquí
                 </Link>{' '}
@@ -271,7 +289,7 @@ export function LoginView() {
               type="submit"
               disabled={isSubmitting}
               aria-busy={isSubmitting}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#3323CC] px-5 py-3.5 text-[15px] font-semibold text-white shadow-[0_10px_20px_-10px_rgba(51,35,204,0.7)] transition-colors hover:bg-[#26189E] focus:outline-none! focus-visible:ring-2 focus-visible:ring-[#3323CC] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3.5 text-[15px] font-semibold text-primary-contrast shadow-[0_10px_20px_-10px_rgba(51,35,204,0.7)] transition-colors hover:bg-primary-hover focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSubmitting ? (
                 <>
@@ -303,14 +321,14 @@ export function LoginView() {
             {DEMO_AVATARS.map((avatar) => (
               <span
                 key={avatar.initials}
-                className="flex size-8 items-center justify-center rounded-full text-[11px] font-bold ring-2 ring-[#FAFAFF]"
+                className="flex size-8 items-center justify-center rounded-full text-[11px] font-bold ring-2 ring-[var(--surface)]"
                 style={{ backgroundColor: avatar.bg, color: avatar.fg }}
               >
                 {avatar.initials}
               </span>
             ))}
           </div>
-          <span className="text-[13px] text-[#6B7280]">
+          <span className="text-[13px] text-muted-text">
             +3.2k coordinadores activos hoy
           </span>
         </div>
@@ -318,7 +336,7 @@ export function LoginView() {
         <div className="mt-7 text-center">
           <a
             href="mailto:soporte@eventflow.co?subject=Ayuda%20para%20iniciar%20sesi%C3%B3n"
-            className="inline-flex items-center gap-2 rounded-md text-sm font-semibold text-[#3323CC] hover:underline focus:outline-none! focus-visible:ring-2 focus-visible:ring-[#3323CC] focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 rounded-md text-sm font-semibold text-primary-text hover:underline focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2"
           >
             <LifeBuoy aria-hidden="true" className="size-4" strokeWidth={2} />
             ¿Necesitas ayuda para iniciar sesión?
@@ -326,11 +344,11 @@ export function LoginView() {
         </div>
 
         <div className="mt-9 flex flex-col items-center gap-2.5 text-center">
-          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9CA3AF]">
+          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-text">
             <Lock aria-hidden="true" className="size-3" strokeWidth={2.2} />
             Cifrado de extremo a extremo
           </p>
-          <p className="max-w-sm text-[11px] leading-relaxed text-[#9CA3AF]">
+          <p className="max-w-sm text-[11px] leading-relaxed text-muted-text">
             Al continuar, aceptas la protección de datos y condiciones de
             servicio corporativo de EventFlow.
           </p>

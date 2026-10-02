@@ -1,15 +1,19 @@
+// Los colores salen de los tokens de src/index.css: `primary` es el morado de
+// marca y `neutral` usa la superficie del tema, así que ambos funcionan igual en
+// modo claro y oscuro. Si agregas un color nuevo, agrégalo como token allí, no
+// como clase de Tailwind: una clase literal no cambia con el tema.
 const baseStyle =
   'px-3.5 py-1.5 rounded-md font-semibold text-sm transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
 const variants = {
   primary:
-    'bg-blue-700 text-white hover:bg-blue-800 focus-visible:ring-blue-500 border border-transparent',
+    'bg-primary text-primary-contrast hover:bg-primary-hover focus-visible:ring-brand-text border border-transparent',
   danger:
-    'bg-red-700 text-white hover:bg-red-800 focus-visible:ring-red-500 border border-transparent',
+    'bg-danger text-primary-contrast hover:bg-danger-text focus-visible:ring-danger border border-transparent',
   success:
-    'bg-emerald-700 text-white hover:bg-emerald-800 focus-visible:ring-emerald-500 border border-transparent',
+    'bg-success text-primary-contrast hover:bg-success-text focus-visible:ring-success border border-transparent',
   neutral:
-    'bg-white text-gray-800 hover:bg-gray-100 focus-visible:ring-gray-400 border border-gray-300 shadow-sm',
+    'bg-surface-raised text-secondary-text hover:bg-surface-sunken focus-visible:ring-border-strong border border-border shadow-sm',
 };
 
 const getButtonClassName = ({ variant = 'neutral', className = '' } = {}) =>

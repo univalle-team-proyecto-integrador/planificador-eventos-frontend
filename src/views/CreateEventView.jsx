@@ -4,6 +4,7 @@ import { ErrorState } from '../components/states/ErrorState';
 import { Button } from '../components/ui/Button';
 import { FieldSuccess } from '../components/ui/FieldSuccess';
 import { useNotifications } from '../providers/notifications-context';
+import { useTaskSearch } from '../providers/search-context';
 import { api, toApiDateTime, unwrapData } from '../services/api';
 import { focusFirstInvalidField } from '../utils/formFocus';
 import {
@@ -43,6 +44,7 @@ const normalizeEventType = (payload) => ({
 export function CreateEventView() {
   const navigate = useNavigate();
   const { notifySuccess, notifyError } = useNotifications();
+  const { invalidate: invalidateSearchIndex } = useTaskSearch();
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -231,6 +233,10 @@ export function CreateEventView() {
         icon: 'check',
         message: 'Evento creado correctamente.',
       });
+      // El buscador global mantiene su propia copia de eventos y tareas: sin
+      // invalidarla, buscaría el nombre de un evento recién creado sin
+      // encontrarlo.
+      invalidateSearchIndex();
       navigate(`/evento/${eventId}`);
     } catch (error) {
       notifyError({

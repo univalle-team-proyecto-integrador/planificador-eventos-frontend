@@ -4,11 +4,11 @@ export function ProgressBar({ value = 0, label = 'Progreso', accentColor }) {
   return (
     <div>
       <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-        <span className="font-medium text-gray-700">{label}</span>
-        <span className="font-semibold text-gray-900">{safeValue}%</span>
+        <span className="font-medium text-secondary-text">{label}</span>
+        <span className="font-semibold text-primary-text">{safeValue}%</span>
       </div>
       <div
-        className="h-2 w-full overflow-hidden rounded-full bg-gray-200"
+        className="h-2 w-full overflow-hidden rounded-full bg-surface-sunken"
         role="progressbar"
         aria-label={label}
         aria-valuemin={0}
@@ -16,7 +16,7 @@ export function ProgressBar({ value = 0, label = 'Progreso', accentColor }) {
         aria-valuenow={safeValue}
       >
         <div
-          className="h-full rounded-full bg-blue-600 transition-all"
+          className="h-full rounded-full bg-primary transition-all"
           style={{
             width: `${safeValue}%`,
             ...(accentColor ? { backgroundColor: accentColor } : {}),
