@@ -9,6 +9,8 @@ export const EmptyState = ({
   actionLabel = 'Agregar',
   actionIcon: ActionIcon,
   onAction,
+  secondaryActionLabel,
+  onSecondaryAction,
 }) => {
   const titleId = useId();
   const descriptionId = useId();
@@ -33,16 +35,23 @@ export const EmptyState = ({
         </p>
       )}
       {onAction && (
-        <Button type="button" variant="primary" onClick={onAction}>
-          {ActionIcon && (
-            <ActionIcon
-              aria-hidden="true"
-              className="mr-1 inline size-4"
-              strokeWidth={2}
-            />
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <Button type="button" variant="primary" onClick={onAction}>
+            {ActionIcon && (
+              <ActionIcon
+                aria-hidden="true"
+                className="mr-1 inline size-4"
+                strokeWidth={2}
+              />
+            )}
+            {actionLabel}
+          </Button>
+          {secondaryActionLabel && onSecondaryAction && (
+            <Button type="button" variant="neutral" onClick={onSecondaryAction}>
+              {secondaryActionLabel}
+            </Button>
           )}
-          {actionLabel}
-        </Button>
+        </div>
       )}
     </section>
   );

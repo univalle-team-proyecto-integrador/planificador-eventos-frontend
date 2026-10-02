@@ -19,9 +19,9 @@
      barra superior ocupa dos filas y no se usa: ahí la lateral es un drawer. */
   --topbar-height: 4rem;
 
-  --surface: #f7f6ed;
+  --surface: #ffffff;
   --surface-raised: #ffffff;
-  --surface-sunken: #efede1;
+  --surface-sunken: #f4f4f2;
   --surface-overlay: rgb(17 24 39 / 0.55);
 
   --border: #e5e7eb;
@@ -36,7 +36,7 @@
      del morado porque el de los rellenos no llega a AA con blanco, así que
      solo sirve como fondo, no como color de texto ni de anillo de foco. */
   --primary: #8581d9;
-  --primary-hover: #6f6ac4;
+  --primary-hover: #6e6bb5;
   --primary-soft: #e9e7f8;
   --primary-contrast: #1b1830;
   --primary-text: #514ea4;
@@ -81,7 +81,7 @@
      superficie oscura. `--primary-contrast` vuelve a ser texto oscuro porque
      un relleno aclarado ya no admite blanco encima. */
   --primary: #a49ef0;
-  --primary-hover: #c6c3f8;
+  --primary-hover: #6e6bb5;
   --primary-soft: #26224a;
   --primary-contrast: #14122b;
   --primary-text: #b8b5f5;

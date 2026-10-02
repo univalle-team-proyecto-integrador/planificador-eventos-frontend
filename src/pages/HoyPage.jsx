@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CalendarDays, Clock3, ListChecks, TriangleAlert } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { CalendarModal } from '../components/ui/CalendarModal';
 import { EmptyState } from '../components/states/EmptyState';
@@ -231,41 +231,45 @@ export const HoyPage = () => {
         </div>
 
         <div className="pt-5">
-          {eventsToday.length > 0 ? (
-            <Button
-              as={Link}
-              to={`/evento/${eventsToday[0].id}`}
-              variant="primary"
-            >
-              Asignar gestión
-            </Button>
-          ) : events.length > 0 ? (
-            <Button
-              type="button"
-              variant="primary"
-              onClick={() => setIsCalendarOpen(true)}
-            >
-              Ver calendario
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              variant="primary"
-              onClick={() => navigate('/crear')}
-            >
-              Crear Evento
-            </Button>
-          )}
+          <Button
+            type="button"
+            variant="neutral"
+            onClick={() => setIsCalendarOpen(true)}
+          >
+            Ver calendario
+          </Button>
         </div>
       </Card>
 
       {groups.todayTasks.length === 0 ? (
-        <EmptyState
-          title="Aún no hay gestiones para hoy"
-          description="Cuando agregues una gestión con la fecha de hoy, aparecerá aquí para que puedas seguirla."
-          actionLabel="Crear tu primer evento"
-          onAction={() => navigate('/crear')}
-        />
+        tasks.length > 0 ? (
+          <EmptyState
+            title="No hay gestiones para hoy"
+            description="No tienes gestiones con fecha objetivo de hoy, pero sí gestiones programadas para otros días. Consulta las próximas para planear tu jornada."
+            actionLabel="Consultar próximas gestiones"
+            onAction={() =>
+              document
+                .getElementById('upcoming-tasks-title')
+                ?.scrollIntoView({ behavior: 'smooth' })
+            }
+            secondaryActionLabel="Asignar gestión"
+            onSecondaryAction={() => navigate('/progreso')}
+          />
+        ) : events.length > 0 ? (
+          <EmptyState
+            title="No hay gestiones programadas"
+            description="Tus eventos aún no tienen gestiones registradas. Asigna la primera gestión a uno de tus eventos para comenzar."
+            actionLabel="Asignar gestión"
+            onAction={() => navigate('/progreso')}
+          />
+        ) : (
+          <EmptyState
+            title="No hay gestiones programadas"
+            description="Crea tu primer evento y añade gestiones con fechas para verlas aquí."
+            actionLabel="Crear evento"
+            onAction={() => navigate('/crear')}
+          />
+        )
       ) : (
         <TaskSection
           id="today-tasks-title"

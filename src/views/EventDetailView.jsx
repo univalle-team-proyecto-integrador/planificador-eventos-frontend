@@ -1597,7 +1597,6 @@ export function EventDetailView() {
                     <Button
                       type="button"
                       variant="primary"
-                      className="px-2 py-1 text-xs"
                       onClick={() => startEditingSubtask(subtask)}
                       disabled={
                         updatingSubtaskId === subtask.id ||
@@ -1615,9 +1614,8 @@ export function EventDetailView() {
                     <Button
                       type="button"
                       variant={
-                        subtask.state === 'ejecutada' ? 'neutral' : 'success'
+                        subtask.state === 'ejecutada' ? 'neutral' : 'primary'
                       }
-                      className="px-2 py-1 text-xs"
                       onClick={() => void handleToggleSubtask(subtask)}
                       disabled={
                         updatingSubtaskId === subtask.id ||
@@ -1651,7 +1649,6 @@ export function EventDetailView() {
                     <Button
                       type="button"
                       variant="danger"
-                      className="px-2 py-1 text-xs"
                       onClick={() => {
                         setDeleteError('');
                         setDeleteTarget(subtask);
