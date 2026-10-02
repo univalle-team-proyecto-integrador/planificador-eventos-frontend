@@ -19,9 +19,13 @@
      barra superior ocupa dos filas y no se usa: ahí la lateral es un drawer. */
   --topbar-height: 4rem;
 
-  --surface: #ffffff;
+  /* Canvas crema y superficies encima de él. La diferencia importa: `--surface`
+     es el fondo de la página y `--surface-raised` es el de las tarjetas, así
+     que las tarjetas se recortan sobre el canvas. Igualar ambos a blanco
+     aplana toda la pantalla y las tarjetas pierden sus bordes y su sombra. */
+  --surface: #f7f6ed;
   --surface-raised: #ffffff;
-  --surface-sunken: #f4f4f2;
+  --surface-sunken: #efede1;
   --surface-overlay: rgb(17 24 39 / 0.55);
 
   --border: #e5e7eb;
@@ -64,6 +68,14 @@
   --info-text: #1e40af;
 
   --focus-ring: #514ea4;
+
+  /* Sombras de las tarjetas de evento. La capa del hover usa `--accent-glow`,
+     que cada tarjeta define en su propio estilo para teñir la sombra con el
+     color del evento. */
+  --shadow-card: 0 4px 6px rgb(0 0 0 / 0.05);
+  --shadow-card-hover:
+    0 18px 40px -12px var(--accent-glow, rgb(51 35 204 / 0.4)),
+    0 2px 8px rgb(0 0 0 / 0.08);
 }
 
 [data-theme='dark'] {
@@ -111,6 +123,13 @@
   --info-text: #93c5fd;
 
   --focus-ring: #b8b5f5;
+
+  /* Sobre superficie oscura la sombra tiene que ser más profunda para seguir
+     separando la tarjeta del fondo; si no, la tarjeta se ve plana. */
+  --shadow-card: 0 4px 6px rgb(0 0 0 / 0.45);
+  --shadow-card-hover:
+    0 18px 40px -12px var(--accent-glow, rgb(51 35 204 / 0.4)),
+    0 2px 8px rgb(0 0 0 / 0.55);
 }
 
 @theme inline {
@@ -287,7 +306,16 @@ textarea {
   animation: dropdown-in 140ms ease-out both;
 }
 
+/* La tarjeta de evento se decora aquí además de en `Card`, para que la clase
+   sea autosuficiente y para que el hover con acento por evento siga siendo un
+   solo bloque. Los valores coinciden con la variante por defecto de `Card`;
+   si algún día se separan, esta regla manda porque aparece después en la hoja
+   de estilos. */
 .event-card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background-color: var(--surface-raised);
+  box-shadow: var(--shadow-card);
   transition:
     transform 240ms ease,
     box-shadow 240ms ease;
@@ -296,9 +324,7 @@ textarea {
 .event-card:hover,
 .event-card:focus-within {
   transform: scale(1.03);
-  box-shadow:
-    0 18px 40px -12px var(--accent-glow, rgb(51 35 204 / 0.4)),
-    0 2px 8px rgb(17 24 39 / 0.08);
+  box-shadow: var(--shadow-card-hover);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -37,7 +37,7 @@ export function EventCard({ event }) {
   return (
     <Card
       as="article"
-      className="rounded-xl border border-border bg-surface-raised shadow-[0_4px_6px_rgba(0,0,0,0.05)] p-5"
+      className="event-card p-5"
       style={{
         '--accent': accent.hex,
         '--accent-soft': accent.soft,
@@ -46,7 +46,9 @@ export function EventCard({ event }) {
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h3 className="mt-1 text-lg font-semibold text-primary-text">{name}</h3>
+          <h3 className="mt-1 text-lg font-semibold text-primary-text">
+            {name}
+          </h3>
           <p className="mt-1 text-sm text-secondary-text">
             {client} · {formatDate(event.fechaEvento ?? event.date)}
           </p>
