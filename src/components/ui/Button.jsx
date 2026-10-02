@@ -10,7 +10,7 @@
 // `motion-reduce` desactiva el desplazamiento para quien tenga el movimiento
 // reducido activado en el sistema.
 const baseStyle =
-  'inline-flex h-10 cursor-pointer items-center justify-center gap-2 px-4 py-2 whitespace-nowrap rounded-md font-semibold text-sm transition-[color,background-color,border-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.98] active:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 motion-reduce:transform-none motion-reduce:transition-none disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed';
+  'inline-flex h-10 cursor-pointer items-center justify-center gap-2 px-4 py-2 whitespace-nowrap rounded-md font-normal text-sm transition-[color,background-color,border-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.98] active:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 motion-reduce:transform-none motion-reduce:transition-none disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed';
 
 const variants = {
   primary:
