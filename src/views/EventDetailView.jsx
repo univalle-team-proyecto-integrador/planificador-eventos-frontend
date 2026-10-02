@@ -798,12 +798,6 @@ export function EventDetailView() {
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <span
-                className="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold uppercase"
-                style={{ backgroundColor: accent.soft, color: accent.hex }}
-              >
-                Evento #{event.id}
-              </span>
               <h2 className="mt-2 text-2xl font-bold text-gray-900">
                 {event.nombre}
               </h2>
@@ -1596,6 +1590,26 @@ export function EventDetailView() {
                     </Badge>
                     <Button
                       type="button"
+                      variant="danger"
+                      onClick={() => {
+                        setDeleteError('');
+                        setDeleteTarget(subtask);
+                      }}
+                      disabled={
+                        updatingSubtaskId === subtask.id ||
+                        isSavingSubtaskEdit ||
+                        editingSubtaskId === subtask.id
+                      }
+                      aria-label={`Eliminar ${subtask.title}`}
+                    >
+                      <Trash2
+                        aria-hidden="true"
+                        className="mr-1 inline size-3.5"
+                      />
+                      Eliminar
+                    </Button>
+                    <Button
+                      type="button"
                       variant="primary"
                       onClick={() => startEditingSubtask(subtask)}
                       disabled={
@@ -1645,26 +1659,6 @@ export function EventDetailView() {
                           Completar
                         </>
                       )}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="danger"
-                      onClick={() => {
-                        setDeleteError('');
-                        setDeleteTarget(subtask);
-                      }}
-                      disabled={
-                        updatingSubtaskId === subtask.id ||
-                        isSavingSubtaskEdit ||
-                        editingSubtaskId === subtask.id
-                      }
-                      aria-label={`Eliminar ${subtask.title}`}
-                    >
-                      <Trash2
-                        aria-hidden="true"
-                        className="mr-1 inline size-3.5"
-                      />
-                      Eliminar
                     </Button>
                   </div>
                 </div>

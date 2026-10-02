@@ -46,12 +46,6 @@ export function EventCard({ event }) {
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <span
-            className="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold uppercase"
-            style={{ backgroundColor: accent.soft, color: accent.hex }}
-          >
-            Evento #{id}
-          </span>
           <h3 className="mt-1 text-lg font-semibold text-primary-text">{name}</h3>
           <p className="mt-1 text-sm text-secondary-text">
             {client} · {formatDate(event.fechaEvento ?? event.date)}
