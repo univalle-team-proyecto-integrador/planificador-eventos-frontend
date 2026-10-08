@@ -18,6 +18,7 @@ const initialFormData = {
   tipoEvento: '',
   cliente: '',
   fecha: '',
+  horasEstimadas: '',
   lugar: '',
 };
 
@@ -26,8 +27,14 @@ const SUCCESS_MESSAGES = {
   tipoEvento: 'Bien, tipo seleccionado.',
   cliente: '¡Listo! Cliente registrado.',
   fecha: 'Bien, fecha válida.',
+  horasEstimadas: '¡Listo! Horas estimadas registradas.',
   lugar: '¡Listo! Lugar correcto.',
 };
+
+// El backend exige horasEstimadas > 0, así que el 1 es el piso real y no una
+// decisión de diseño. El texto explica que es una estimación del evento
+// completo, porque la carga por día la controla el límite diario aparte.
+const MIN_HORAS_ESTIMADAS = 1;
 
 const getErrorMessage = (error) =>
   error?.message || 'No pudimos guardar el evento. Inténtalo de nuevo.';
@@ -58,6 +65,27 @@ export function CreateEventView() {
   const getDateError = (value) =>
     isDateInPast(value) ? getPastDateMessage('La fecha del evento') : '';
 
+  /**
+   * El campo es texto libre, no number: en un input numérico el usuario puede
+   * escribir "e" o "1e" y el navegador lo entrega vacío, lo que produce un error
+   * de validación en vez del mensaje de "no has escrito nada".
+   */
+  const getHorasEstimadasError = (value) => {
+    if (value === '' || value === null || value === undefined) {
+      return 'Faltan las horas estimadas. Indica cuánto trabajo llevará el evento en total.';
+    }
+
+    const horas = Number(value);
+    if (!Number.isInteger(horas)) {
+      return 'Las horas deben ser un número entero, sin decimales.';
+    }
+    if (horas < MIN_HORAS_ESTIMADAS) {
+      return `Las horas estimadas deben ser al menos ${MIN_HORAS_ESTIMADAS}.`;
+    }
+
+    return '';
+  };
+
   const getFieldError = (field, data) => {
     switch (field) {
       case 'nombre':
@@ -77,6 +105,8 @@ export function CreateEventView() {
           return 'La fecha está vacía. Selecciona el día en que se realizará el evento.';
         }
         return getDateError(data.fecha);
+      case 'horasEstimadas':
+        return getHorasEstimadasError(data.horasEstimadas);
       case 'lugar':
         return data.lugar.trim()
           ? ''
@@ -144,6 +174,10 @@ export function CreateEventView() {
     if (!formData.lugar.trim()) {
       newErrors.lugar =
         'El lugar está vacío. Indica la ubicación donde se llevará a cabo.';
+    }
+    const errorHoras = getHorasEstimadasError(formData.horasEstimadas);
+    if (errorHoras) {
+      newErrors.horasEstimadas = errorHoras;
     }
 
     return newErrors;
@@ -218,6 +252,7 @@ export function CreateEventView() {
           nombre: formData.nombre.trim(),
           cliente: formData.cliente.trim(),
           fechaEvento: toApiDateTime(formData.fecha),
+          horasEstimadas: Number(formData.horasEstimadas),
           lugar: formData.lugar.trim(),
         })
       );
@@ -499,30 +534,74 @@ export function CreateEventView() {
             >
               Lugar del evento *
             </label>
-<input
-                {...fieldProps('lugar')}
-                type="text"
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass('lugar')}`}
-                placeholder="Ej: Salón Campestre, Yumbo"
-                value={formData.lugar}
-                onChange={(event) => updateField('lugar', event.target.value)}
-                onBlur={() => markTouched('lugar')}
-                autoComplete="street-address"
-                required
-              />
-              {errors.lugar ? (
-                <p
-                  id="event-lugar-error"
-                  role="alert"
-                  className="mt-1 text-xs text-muted-text"
-                >
-                  {errors.lugar}
-                </p>
-              ) : isFieldSuccess('lugar') ? (
-                <FieldSuccess id="event-lugar-success">
-                  {SUCCESS_MESSAGES.lugar}
-                </FieldSuccess>
-              ) : null}
+            <input
+              {...fieldProps('lugar')}
+              type="text"
+              className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass('lugar')}`}
+              placeholder="Ej: Salón Campestre, Yumbo"
+              value={formData.lugar}
+              onChange={(event) => updateField('lugar', event.target.value)}
+              onBlur={() => markTouched('lugar')}
+              autoComplete="street-address"
+              required
+            />
+            {errors.lugar ? (
+              <p
+                id="event-lugar-error"
+                role="alert"
+                className="mt-1 text-xs text-muted-text"
+              >
+                {errors.lugar}
+              </p>
+            ) : isFieldSuccess('lugar') ? (
+              <FieldSuccess id="event-lugar-success">
+                {SUCCESS_MESSAGES.lugar}
+              </FieldSuccess>
+            ) : null}
+          </div>
+
+          <div>
+            <label
+              htmlFor="event-horas-estimadas"
+              className="mb-1 block text-sm font-medium text-secondary-text"
+            >
+              Horas estimadas *
+            </label>
+            <input
+              {...fieldProps('horasEstimadas')}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass('horasEstimadas')}`}
+              placeholder="Ej: 20"
+              value={formData.horasEstimadas}
+              onChange={(event) =>
+                updateField('horasEstimadas', event.target.value)
+              }
+              onBlur={() => markTouched('horasEstimadas')}
+              required
+            />
+            {errors.horasEstimadas ? (
+              <p
+                id="event-horas-estimadas-error"
+                role="alert"
+                className="mt-1 text-xs text-muted-text"
+              >
+                {errors.horasEstimadas}
+              </p>
+            ) : isFieldSuccess('horasEstimadas') ? (
+              <FieldSuccess id="event-horas-estimadas-success">
+                {SUCCESS_MESSAGES.horasEstimadas}
+              </FieldSuccess>
+            ) : (
+              <p
+                id="event-horas-estimadas-help"
+                className="mt-1 text-xs text-muted-text"
+              >
+                Total de trabajo del evento. El límite de horas por día se
+                ajusta aparte, en tu perfil.
+              </p>
+            )}
           </div>
         </fieldset>
 

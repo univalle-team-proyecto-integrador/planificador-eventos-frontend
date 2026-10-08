@@ -98,6 +98,9 @@ export const normalizeEvent = (payload) => ({
   name: payload?.name ?? payload?.nombre ?? 'Evento sin nombre',
   date: payload?.date ?? payload?.fechaEvento ?? '',
   idTipoEvento: payload?.idTipoEvento ?? payload?.typeId ?? null,
+  // Estimación declarada al crear el evento. Es informativa: el total real que
+  // usan las pantallas de carga sigue siendo la suma de las subtareas.
+  estimatedHours: payload?.horasEstimadas ?? payload?.estimatedHours ?? 0,
 });
 
 export const sumHours = (tasks) =>
