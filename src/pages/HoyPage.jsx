@@ -9,12 +9,14 @@ import { Card } from '../components/ui/Card';
 import { TaskCard } from '../components/ui/TaskCard';
 import { api, unwrapData } from '../services/api';
 import { getToday } from '../utils/dateValidation';
+import { persistRange, readStoredRange } from '../utils/rangoPreximas';
 import {
   classifyTasksByDate,
   formatOverdueLabel,
   formatRelativeDate,
   normalizeEvent,
   normalizeSubtask,
+  UPCOMING_RANGES,
 } from '../utils/taskMetrics';
 
 const formatDate = (value) => {
@@ -90,6 +92,7 @@ export const HoyPage = () => {
   const [error, setError] = useState('');
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isRuleOpen, setIsRuleOpen] = useState(false);
+  const [rangoProximas, setRangoProximas] = useState(readStoredRange);
   const [filters, setFilters] = useState({
     estado: 'todas',
     evento: 'todos',
@@ -228,9 +231,15 @@ export const HoyPage = () => {
     navigate(`/evento/${eventoParaGestionar.id}?nueva=1`);
   }, [eventoParaGestionar, navigate]);
 
+  // El rango elegido se pasa tal cual: days decide cuántas fechas son "próximas"
+  // y limit cuántas de esas se pintan, así no pueden desincronizarse.
+  const cambiarRango = useCallback((days) => {
+    setRangoProximas(persistRange(days));
+  }, []);
+
   const groups = useMemo(
-    () => classifyTasksByDate(filteredTasks, today),
-    [filteredTasks, today]
+    () => classifyTasksByDate(filteredTasks, today, rangoProximas),
+    [filteredTasks, today, rangoProximas]
   );
   const tasksByDate = useMemo(() => {
     const grouped = new Map();
@@ -279,9 +288,10 @@ export const HoyPage = () => {
         <p className="mt-3 text-sm text-secondary-text">
           Las gestiones se agrupan en <strong>Vencidas</strong>,{' '}
           <strong>Para hoy</strong> y <strong>Próximas</strong> según su fecha
-          objetivo. Dentro de cada grupo se ordenan por fecha (más
-          antigua/cercana primero). En caso de empate, se muestra primero la de
-          menor esfuerzo estimado.
+          objetivo. Para <strong>Próximas</strong> se considera el rango que
+          elijas en <strong>Mostrar próximos</strong>. Dentro de cada grupo se
+          ordenan por fecha (más antigua/cercana primero). En caso de empate, se
+          muestra primero la de menor esfuerzo estimado.
         </p>
         <div className="mt-5 flex justify-end">
           <Button type="button" variant="primary" onClick={cerrarRegla}>
@@ -385,6 +395,23 @@ export const HoyPage = () => {
           >
             Ver calendario
           </Button>
+          <label className="inline-flex items-center gap-2 text-sm">
+            <span className="font-medium text-secondary-text">
+              Mostrar próximos
+            </span>
+            <select
+              value={rangoProximas.days}
+              onChange={(event) => cambiarRango(event.target.value)}
+              aria-label="Días hacia adelante que se consideran próximos"
+              className="h-10 rounded-md border border-border bg-surface-raised px-2 text-sm"
+            >
+              {UPCOMING_RANGES.map((rango) => (
+                <option key={rango.days} value={rango.days}>
+                  {rango.days} días
+                </option>
+              ))}
+            </select>
+          </label>
           <FiltersDropdown
             label="Filtros"
             activeCount={activeFilterCount}
@@ -481,7 +508,7 @@ export const HoyPage = () => {
           <TaskSection
             id="upcoming-tasks-title"
             title="Próximas"
-            description="Lo que viene en los próximos siete días."
+            description={`Lo que viene en los próximos ${rangoProximas.days} días.`}
             tasks={groups.upcomingTasks}
             total={groups.upcomingTotal}
             getDateLabel={(task) => formatRelativeDate(task.date, today)}

@@ -1,6 +1,31 @@
 const COMPLETED_STATE = 'ejecutada';
-const DEFAULT_UPCOMING_DAYS = 7;
-const DEFAULT_TASK_LIMIT = 5;
+
+/**
+ * Rango de días que el panel Hoy ofrece para el grupo "Próximas".
+ *
+ * El tope de cada sección acompaña al rango en vez de ser fijo: con 7 días un
+ * tope de 5 quita ruido, pero con 30 escondería casi todo lo que el usuario
+ * pidió ver al ampliar. Para agregar un rango (60 días, por ejemplo) basta con
+ * otra entrada aquí.
+ */
+export const UPCOMING_RANGES = [
+  { days: 7, limit: 5 },
+  { days: 14, limit: 8 },
+  { days: 30, limit: 15 },
+];
+
+export const DEFAULT_UPCOMING_RANGE = UPCOMING_RANGES[0];
+export const DEFAULT_UPCOMING_DAYS = DEFAULT_UPCOMING_RANGE.days;
+export const DEFAULT_TASK_LIMIT = DEFAULT_UPCOMING_RANGE.limit;
+
+/**
+ * Busca la opción de rango correspondiente a un número de días. Si el valor no
+ * existe (un `localStorage` viejo, un valor escrito a mano, un `null` corrupto)
+ * devuelve la primera opción en lugar de propagar un dato inválido a la vista.
+ */
+export const rangoDeDias = (days) =>
+  UPCOMING_RANGES.find((rango) => rango.days === Number(days)) ??
+  DEFAULT_UPCOMING_RANGE;
 
 const pad = (value) => String(value).padStart(2, '0');
 
@@ -102,13 +127,20 @@ export const getTaskMetrics = (tasks) => {
   };
 };
 
+/**
+ * Separa las gestiones en vencidas, para hoy y próximas.
+ *
+ * `rango` acepta la forma de UPCOMING_RANGES (`{ days, limit }`), así que
+ * quien llama puede pasar la opción elegida tal cual. Omitirlo usa el
+ * predeterminado de 7 días con tope de 5.
+ */
 export const classifyTasksByDate = (
   tasks,
   today,
-  { upcomingDays = DEFAULT_UPCOMING_DAYS, limit = DEFAULT_TASK_LIMIT } = {}
+  { days = DEFAULT_UPCOMING_DAYS, limit = DEFAULT_TASK_LIMIT } = {}
 ) => {
   const taskList = Array.isArray(tasks) ? tasks : [];
-  const upcomingLimit = addDays(today, upcomingDays);
+  const upcomingLimit = addDays(today, days);
   const isOpen = (task) => !isTaskCompleted(task) && getTaskDate(task);
 
   // Regla de prioridad (US-04): primero la fecha objetivo más antigua y, en
