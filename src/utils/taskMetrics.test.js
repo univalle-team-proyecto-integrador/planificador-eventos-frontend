@@ -7,6 +7,7 @@ import {
   formatRelativeDate,
   getTaskMetrics,
   isEventToday,
+  normalizeEvent,
   rangoDeDias,
   UPCOMING_RANGES,
 } from './taskMetrics';
@@ -21,6 +22,34 @@ const task = (overrides = {}) => ({
 });
 
 describe('taskMetrics', () => {
+  it('normaliza las horas estimadas del evento', () => {
+    expect(
+      normalizeEvent({
+        idEvento: 7,
+        nombre: 'Boda',
+        fechaEvento: '2026-12-01T15:00:00',
+        horasEstimadas: 24,
+      })
+    ).toMatchObject({ id: 7, name: 'Boda', estimatedHours: 24 });
+  });
+
+  it('deja las horas estimadas en 0 cuando el evento no las trae', () => {
+    // Evento anterior a la columna: la pantalla debe seguir funcionando.
+    expect(normalizeEvent({ idEvento: 7, nombre: 'Boda' }).estimatedHours).toBe(
+      0
+    );
+  });
+
+  it('las horas estimadas del evento no alteran el total real', () => {
+    // El total por horas sale de las subtareas. El estimado es informativo.
+    const metrics = getTaskMetrics([
+      task({ hours: 3 }),
+      task({ id: 2, hours: 2 }),
+    ]);
+
+    expect(metrics.hoursTotal).toBe(5);
+  });
+
   it('calcula el progreso principal usando horas estimadas', () => {
     const metrics = getTaskMetrics([
       task({ hours: 1, state: 'ejecutada' }),

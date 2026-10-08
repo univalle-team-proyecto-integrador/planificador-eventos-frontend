@@ -29,7 +29,9 @@ describe('helpers', () => {
   });
 
   it('ApiError expone estado y detalle del fallo', () => {
-    const error = new ApiError('No encontrado', 404, { title: 'Recurso no encontrado' });
+    const error = new ApiError('No encontrado', 404, {
+      title: 'Recurso no encontrado',
+    });
     expect(error).toBeInstanceOf(Error);
     expect(error.name).toBe('ApiError');
     expect(error.status).toBe(404);
@@ -69,7 +71,11 @@ describe('request', () => {
   });
 
   it('createEvent publica POST con Content-Type JSON y cuerpo serializado', async () => {
-    const payload = { nombre: 'Boda', cliente: 'María' };
+    const payload = {
+      nombre: 'Boda',
+      cliente: 'María',
+      horasEstimadas: 20,
+    };
     fetch.mockResolvedValue(jsonResponse(201, { ...payload, idEvento: 9 }));
 
     const resultado = await api.createEvent(payload);
@@ -80,6 +86,7 @@ describe('request', () => {
     expect(options.headers.get('Content-Type')).toBe('application/json');
     expect(JSON.parse(options.body)).toEqual(payload);
     expect(resultado.idEvento).toBe(9);
+    expect(resultado.horasEstimadas).toBe(20);
   });
 
   it('responde null en respuestas sin cuerpo (204)', async () => {
@@ -92,14 +99,20 @@ describe('request', () => {
 
   it('mapea errores ProblemDetail a ApiError con mensaje del detalle', async () => {
     fetch.mockResolvedValue(
-      jsonResponse(400, { title: 'Datos inválidos', detail: 'El nombre es obligatorio', errors: { nombre: 'No vacío' } })
+      jsonResponse(400, {
+        title: 'Datos inválidos',
+        detail: 'El nombre es obligatorio',
+        errors: { nombre: 'No vacío' },
+      })
     );
 
-    const error = await api.createSubtask(4, {
-      nombreGestion: 'Tarea',
-      horasEstimadas: 2,
-      fechaObjetivo: '2026-11-10',
-    }).catch((e) => e);
+    const error = await api
+      .createSubtask(4, {
+        nombreGestion: 'Tarea',
+        horasEstimadas: 2,
+        fechaObjetivo: '2026-11-10',
+      })
+      .catch((e) => e);
 
     expect(error).toBeInstanceOf(ApiError);
     expect(error.status).toBe(400);
@@ -180,7 +193,9 @@ describe('autenticación (US-11)', () => {
 
   it('adjunta Authorization: Bearer cuando hay token guardado', async () => {
     saveSession({ token: 'token-vigente', nombre: 'Santiago' });
-    fetch.mockResolvedValue(jsonResponse(200, [{ idEvento: 1, nombre: 'Boda' }]));
+    fetch.mockResolvedValue(
+      jsonResponse(200, [{ idEvento: 1, nombre: 'Boda' }])
+    );
 
     await api.listEvents(null);
 
@@ -200,7 +215,9 @@ describe('autenticación (US-11)', () => {
 
   it('getProfile llama a /api/users/profile con el token', async () => {
     saveSession({ token: 'token-vigente', nombre: 'Santiago' });
-    fetch.mockResolvedValue(jsonResponse(200, { idUsuario: 1, nombre: 'Santiago' }));
+    fetch.mockResolvedValue(
+      jsonResponse(200, { idUsuario: 1, nombre: 'Santiago' })
+    );
 
     const perfil = await api.getProfile();
 
@@ -226,11 +243,16 @@ describe('autenticación (US-11)', () => {
 
   it('un 401 en /api/users/login no cierra la sesión de forma especial', async () => {
     saveSession({ token: 'token-vigente', nombre: 'Santiago' });
-    fetch.mockResolvedValue(jsonResponse(401, { title: 'Credenciales inválidas' }));
+    fetch.mockResolvedValue(
+      jsonResponse(401, { title: 'Credenciales inválidas' })
+    );
     const alExpirar = vi.fn();
     const quitar = onSessionExpired(alExpirar);
 
-    await request({ method: 'POST', body: JSON.stringify({}) }, '/api/users/login').catch(() => {});
+    await request(
+      { method: 'POST', body: JSON.stringify({}) },
+      '/api/users/login'
+    ).catch(() => {});
 
     expect(alExpirar).not.toHaveBeenCalled();
     expect(getStoredToken()).toBe('token-vigente');
