@@ -32,7 +32,9 @@
 		{"id":"m015","type":"file","file":"mejoras/2026-09-25-015-paneles-hoy-y-progreso.md","x":200,"y":2980,"width":300,"height":140},
 		{"id":"p015","type":"text","text":"Mejora 015\nPaneles Hoy y Progreso\n2026-09-25","x":-240,"y":2980,"width":260,"height":120,"color":"1"},
 		{"id":"m016","type":"file","file":"mejoras/2026-09-25-016-microcopy-ver-evento.md","x":200,"y":3180,"width":300,"height":140},
-		{"id":"p016","type":"text","text":"Mejora 016\nMicrocopy Ver evento\n2026-09-25","x":-240,"y":3180,"width":260,"height":120,"color":"1"}
+		{"id":"p016","type":"text","text":"Mejora 016\nMicrocopy Ver evento\n2026-09-25","x":-240,"y":3180,"width":260,"height":120,"color":"1"},
+		{"id":"m017","type":"file","file":"mejoras/2026-10-08-017-selector-rango-proximas.md","x":200,"y":3360,"width":300,"height":140},
+		{"id":"p017","type":"text","text":"Mejora 017\nSelector de rango Próximas\n2026-10-08","x":-240,"y":3360,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -66,6 +68,8 @@
 		{"id":"e31","fromNode":"indice","fromSide":"bottom","toNode":"m015","toSide":"top"},
 		{"id":"e32","fromNode":"p015","fromSide":"right","toNode":"m015","toSide":"left"},
 		{"id":"e33","fromNode":"indice","fromSide":"bottom","toNode":"m016","toSide":"top"},
-		{"id":"e34","fromNode":"p016","fromSide":"right","toNode":"m016","toSide":"left"}
+		{"id":"e34","fromNode":"p016","fromSide":"right","toNode":"m016","toSide":"left"},
+		{"id":"e35","fromNode":"indice","fromSide":"bottom","toNode":"m017","toSide":"top"},
+		{"id":"e36","fromNode":"p017","fromSide":"right","toNode":"m017","toSide":"left"}
 	]
 }
