@@ -107,13 +107,13 @@
     --btn-focus: var(--success);
   }
 
-  /* En reposo el rojo vive en el borde y el texto (sobre la superficie del
-     tema). Al pasar el mouse el botón se rellena de rojo fuerte (`--danger-fill`)
-     con texto negro (`--danger-contrast`), que es un par con contraste AA en los
-     dos temas. No se usa `--danger-text` como relleno porque es un rojo oscuro
-     que no admite negro encima. */
+  /* En reposo el botón no tiene relleno: solo borde y texto rojos. Al pasar el
+     mouse se rellena de rojo fuerte (`--danger-fill`) con texto negro
+     (`--danger-contrast`), un par con contraste AA en los dos temas. No se usa
+     `--danger-text` como relleno porque es un rojo oscuro que no admite negro
+     encima. */
   .btn--danger {
-    --btn-bg: var(--danger);
+    --btn-bg: transparent;
     --btn-color: var(--danger-text);
     --btn-border: var(--danger-text);
     --btn-hover-bg: var(--danger-fill);
