@@ -25,7 +25,10 @@ import { WorkloadSummary } from '../components/ui/WorkloadSummary';
 import { getEventAccent } from '../utils/eventAccent';
 import { getEventTypeIcon } from '../utils/eventTypeIcons';
 import { getTaskMetrics, toDateKey } from '../utils/taskMetrics';
-import { esConflicto } from '../utils/reprogramacion';
+import {
+  esConflicto,
+  getMensajeConflictoPersistente,
+} from '../utils/reprogramacion';
 import {
   getPastDateMessage,
   getToday,
@@ -725,17 +728,47 @@ export function EventDetailView() {
         )
       );
       cancelEditingSubtask();
+
+      // `resuelto` solo viene tras una edición. Si el día sigue pasándose, se
+      // guardó igual (reducir no bloquea) pero el conflicto sigue vivo.
+      if (response?.resuelto === false) {
+        notifySuccess({
+          icon: 'check',
+          message: getMensajeConflictoPersistente(),
+        });
+        return;
+      }
+
       notifySuccess({
         icon: 'edit',
         message: 'Gestión actualizada correctamente.',
       });
     } catch (error) {
+      // El backend responde 409 cuando la edición empeora un día que ya estaba
+      // sobrecargado. Se explica con las cifras en vez de un error seco.
+      if (esConflicto(error)) {
+        setConflicto({ respuesta: error, subtask: currentSubtask ?? null });
+        return;
+      }
+
       notifyError({
         title: 'No pudimos guardar los cambios',
         message: getErrorMessage(error),
       });
     } finally {
       setIsSavingSubtaskEdit(false);
+    }
+  };
+
+  // US-07: cerrar el aviso devuelve al formulario con la selección intacta, en
+  // vez de perderla. Si el conflicto venía de editar otra subtarea, solo se
+  // cierra el aviso.
+  const cerrarConflicto = () => {
+    const target = conflicto?.subtask ?? null;
+    setConflicto(null);
+    if (target) {
+      setReprogramError('');
+      setReprogramTarget(target);
     }
   };
 
@@ -769,14 +802,15 @@ export function EventDetailView() {
       invalidateSearchIndex();
       notifySuccess({
         icon: 'check',
-        message: 'Gestión reprogramada correctamente.',
+        message: 'Fecha actualizada',
       });
     } catch (error) {
       // 409: no cabe en el límite diario. El backend no guardó nada y manda el
       // detalle del conflicto, así que se explica en vez de mostrar un error seco.
       if (esConflicto(error)) {
+        // No se cierra el modal de reprogramar: la selección se conserva para
+        // que ajustar y volver no pierda lo elegido (US-07).
         setConflicto({ respuesta: error, subtask: reprogramTarget });
-        setReprogramTarget(null);
         return;
       }
 
@@ -795,6 +829,9 @@ export function EventDetailView() {
   };
 
   // Desde el conflicto: se reabre el modal con la misma gestión para ajustar.
+  // La selección sobrevive al salto entre modales (US-06/US-07: el aviso no
+  // borra lo que el usuario ya eligió), así que cerrar el conflicto devuelve al
+  // formulario con la fecha y las horas intactas.
   const ajustarHoras = () => {
     const target = conflicto?.subtask ?? null;
     setConflicto(null);
@@ -1918,7 +1955,9 @@ export function EventDetailView() {
           conflicto={conflicto.respuesta}
           subtareaTitle={conflicto.subtask?.title}
           onAdjust={ajustarHoras}
-          onCancel={() => setConflicto(null)}
+          // US-07: cancelar el aviso no borra la selección. Devuelve al modal
+          // de reprogramar con lo que el usuario ya había elegido.
+          onCancel={cerrarConflicto}
           isSaving={isReprogramming}
         />
       )}

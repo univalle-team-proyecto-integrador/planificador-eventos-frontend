@@ -1,0 +1,201 @@
+{
+  "main": {
+    "id": "7522a97c7dab0e73",
+    "type": "split",
+    "children": [
+      {
+        "id": "1ab02dbe2ff67c9e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0d0ecdbfb5fb94e6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "mejoras/2026-09-24-002-spa-ux-estados.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "2026-09-24-002-spa-ux-estados"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "4d9bb4a61f047f54",
+    "type": "split",
+    "children": [
+      {
+        "id": "f24e155e14682a04",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a177000aa08a3bf7",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorador de archivos"
+            }
+          },
+          {
+            "id": "7be323cf91885c36",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Buscar"
+            }
+          },
+          {
+            "id": "ac2275bc4ce2ff76",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Marcadores"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "8fc1c167c448c46d",
+    "type": "split",
+    "children": [
+      {
+        "id": "24579db445d2f86d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ddeb945cc63210dd",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "mejoras/2026-09-24-002-spa-ux-estados.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Enlaces entrantes"
+            }
+          },
+          {
+            "id": "715db9438a35237c",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "mejoras/2026-09-24-002-spa-ux-estados.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Enlaces salientes"
+            }
+          },
+          {
+            "id": "d1fe88fb009caec4",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Etiquetas"
+            }
+          },
+          {
+            "id": "aebd4ef1afc7cdaa",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Todas las propiedades"
+            }
+          },
+          {
+            "id": "5cfa958886c0f86a",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "mejoras/2026-09-24-002-spa-ux-estados.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Esquema"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Abrir selector rápido": false,
+      "graph:Abrir vista gráfica": false,
+      "canvas:Crear nuevo lienzo": false,
+      "daily-notes:Abrir la nota de hoy": false,
+      "templates:Insertar plantilla": false,
+      "command-palette:Abrir paleta de comandos": false,
+      "bases:Crear nueva base": false
+    }
+  },
+  "active": "0d0ecdbfb5fb94e6",
+  "lastOpenFiles": [
+    "mejoras/2026-09-24-001-boveda-frontend.md",
+    "2026-09-24.md",
+    "lienzo-maestro.canvas",
+    "mejoras/README.md",
+    "mejoras/plantilla-mejora.md",
+    "mejoras/2026-09-24-003-alineacion-cliente-api.md",
+    "mejoras/2026-09-24-002-spa-ux-estados.md"
+  ]
+}

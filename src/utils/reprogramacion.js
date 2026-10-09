@@ -88,6 +88,13 @@ export const getExceso = (entrada) => {
  * tampoco, a una regla general. Nunca se inventan cantidades: mostrar "0 h"
  * cuando el servidor sí mandó los números es peor que no mostrarlos.
  */
+/**
+ * Aviso de que el guardado ocurrió pero el día sigue pasándose (US-08).
+ * El backend solo devuelve `resuelto: false` en ese caso.
+ */
+export const getMensajeConflictoPersistente = () =>
+  'Horas actualizadas, pero ese día sigue por encima de tu límite. Reduce más o mueve la gestión a otro día.';
+
 export const getMensajeConflicto = (entrada) => {
   const total = getHorasTotales(entrada);
   const limite = getLimiteDiario(entrada);

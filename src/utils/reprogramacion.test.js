@@ -6,6 +6,7 @@ import {
   getHorasTotales,
   getLimiteDiario,
   getMensajeConflicto,
+  getMensajeConflictoPersistente,
   normalizarConflicto409,
   validarReprogramacion,
 } from './reprogramacion';
@@ -182,6 +183,14 @@ describe('reprogramacion', () => {
   it('redacta el conflicto genérico cuando no hay cantidades', () => {
     expect(getMensajeConflicto(normalizarConflicto409({}))).toBe(
       'La reprogramación supera el límite diario de horas asignado.'
+    );
+  });
+
+  it('avisa que el conflicto persiste tras reducir sin alcanzar (US-08)', () => {
+    // El guardado ocurrió pero `resuelto` vino en false: el día sigue pasándose
+    // y el texto tiene que decirlo, sin fingir que se resolvió.
+    expect(getMensajeConflictoPersistente()).toBe(
+      'Horas actualizadas, pero ese día sigue por encima de tu límite. Reduce más o mueve la gestión a otro día.'
     );
   });
 
