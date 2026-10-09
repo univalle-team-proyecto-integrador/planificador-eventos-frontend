@@ -1,0 +1,82 @@
+/* Sistema de botones con CSS puro.
+   Base que solo lee variables; las variantes únicamente redefinen
+   --btn-color. Claro/oscuro se resuelven con data-theme en <html>.
+   Sin !important y sin duplicar por tema dentro de las variantes. */
+
+.btn {
+  --btn-color: var(--btn-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--btn-color);
+  border-radius: 0.5rem;
+  background-color: var(--btn-bg);
+  color: var(--btn-color);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+.btn:hover,
+.btn:focus-visible {
+  background-color: var(--btn-color);
+  border-color: var(--btn-color);
+  color: var(--btn-text-hover);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--focus-ring, var(--btn-color));
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+  background-color: var(--btn-bg);
+  border-color: var(--btn-color);
+  color: var(--btn-color);
+}
+
+/* Variantes: SOLO redefinen --btn-color */
+.btn--danger {
+  --btn-color: var(--btn-danger);
+}
+
+.btn--success {
+  --btn-color: var(--btn-success);
+}
+
+.btn--primary {
+  --btn-color: var(--btn-primary);
+}
+
+/* Temas */
+:root[data-theme='light'] {
+  --btn-bg: #f6f8fa;
+  --btn-danger: #cf222e;
+  --btn-success: #1a7f37;
+  --btn-primary: #0969da;
+  --btn-text-hover: #ffffff;
+}
+
+:root[data-theme='dark'] {
+  --btn-bg: #21262d;
+  --btn-danger: #f85149;
+  --btn-success: #3fb950;
+  --btn-primary: #58a6ff;
+  /* Sobre estos rellenos aclarados el blanco queda en 2.5–3.4:1; el texto
+     oscuro sube a 5.6–7.5:1. */
+  --btn-text-hover: #0d1117;
+}
