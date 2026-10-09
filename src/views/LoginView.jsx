@@ -29,8 +29,7 @@ const DEMO_AVATARS = [
 ];
 
 const getSubmitErrorMessage = (error) =>
-  error?.message ||
-  'No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.';
+  error?.message || 'No fue posible conectar con el servidor.';
 
 // El `focus:outline-none!` de los campos enfoca en índigo según el diseño.
 // El `!` es necesario: index.css define un `:focus-visible` global azul fuera
@@ -156,9 +155,9 @@ export function LoginView() {
               control del sitio, no de la cuenta. Aquí no hay shell ni menú de
               perfil, así que sin él no habría forma de elegir tema sin iniciar
               sesión.
-              Va en `absolute` para no entrar en el flujo: con `justify-between`
-              empujaba el logo hacia un lado y rompía el centrado de la marca. */}
-          <div className="absolute right-0 top-0">
+              Va en `fixed` para anclarlo al borde derecho de la pantalla sin
+              entrar en el flujo: así no empuja el logo ni rompe el centrado. */}
+          <div className="fixed right-4 top-4 z-20 sm:right-6 sm:top-6">
             <ThemeToggle />
           </div>
 
@@ -179,11 +178,11 @@ export function LoginView() {
         </div>
 
         <div className="rounded-3xl bg-surface-raised p-7 shadow-[0_18px_40px_-20px_rgba(17,24,39,0.25)] sm:p-9">
-          <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-primary-text">
+          <h1 className="text-center text-[26px] font-extrabold leading-tight tracking-tight text-primary-text">
             Bienvenido de nuevo
           </h1>
-          <p className="mt-2 text-sm text-muted-text">
-            Ingresa tus datos para conectarte a tu cuenta
+          <p className="mt-2 text-center text-sm text-muted-text">
+            Acceso a la cuenta
           </p>
 
           {submitError && (
@@ -248,7 +247,7 @@ export function LoginView() {
                 {...passwordFieldProps}
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
-                placeholder="Tu contraseña"
+                placeholder="Contraseña"
                 className={`${inputClass(Boolean(passwordError))} pr-12`}
                 value={password}
                 onChange={(changeEvent) =>
@@ -285,21 +284,20 @@ export function LoginView() {
             </div>
             <FieldError id="login-password-error">{passwordError}</FieldError>
 
-            <div className="mt-5 flex items-start gap-2.5 rounded-2xl bg-primary-soft p-4">
+            <div className="mt-5 flex items-start gap-2.5">
               <Info
                 aria-hidden="true"
                 className="mt-0.5 size-4 shrink-0 text-primary-text"
                 strokeWidth={2}
               />
               <p className="text-[13px] leading-relaxed text-secondary-text">
-                Si aún no tienes cuenta,{' '}
+                ¿Aún sin cuenta?{' '}
                 <Link
                   to="/registro"
                   className="font-semibold text-primary-text underline hover:no-underline"
                 >
-                  regístrate aquí
-                </Link>{' '}
-                y podrás organizar tus eventos desde el primer día.
+                  Crear una cuenta
+                </Link>
               </p>
             </div>
 
@@ -357,7 +355,7 @@ export function LoginView() {
             className="inline-flex items-center gap-2 rounded-md text-sm font-semibold text-primary-text hover:underline focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2"
           >
             <LifeBuoy aria-hidden="true" className="size-4" strokeWidth={2} />
-            ¿Necesitas ayuda para iniciar sesión?
+            Ayuda para iniciar sesión
           </a>
         </div>
 
@@ -367,8 +365,7 @@ export function LoginView() {
             Cifrado de extremo a extremo
           </p>
           <p className="max-w-sm text-[11px] leading-relaxed text-muted-text">
-            Al continuar, aceptas la protección de datos y condiciones de
-            servicio corporativo de BACO.
+            Al continuar se aceptan las condiciones de servicio de BACO.
           </p>
         </div>
       </div>
