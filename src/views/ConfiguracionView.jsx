@@ -13,15 +13,14 @@ import {
 import {
   getProfile,
   updateProfileLimit,
-  usingMocks,
 } from '../services/reprogramacionService';
 
 /**
  * Vista de Configuración.
  *
  * Incluye el límite de horas diarias del organizador (contrato en
- * docs/contrato-reprogramacion.md). Mientras el backend no exponga
- * PATCH /api/users/profile, con VITE_USE_MOCKS=true se edita contra el mock.
+ * docs/contrato-reprogramacion.md). La edición va al endpoint real
+ * PUT /api/users/capacity; con VITE_USE_MOCKS=true se edita contra el mock.
  */
 export const ConfiguracionView = () => {
   const { notifySuccess, notifyError } = useNotifications();
@@ -138,7 +137,7 @@ export const ConfiguracionView = () => {
               onRetry={reintentar}
             />
           </div>
-        ) : usingMocks ? (
+        ) : (
           <form className="mt-4 max-w-xs" onSubmit={handleSubmit} noValidate>
             <label
               htmlFor="limite-horas"
@@ -200,23 +199,7 @@ export const ConfiguracionView = () => {
                 {isSaving ? 'Guardando...' : 'Guardar límite'}
               </Button>
             </div>
-
-            <p className="mt-3 text-xs text-muted-text">
-              Modo demo: el límite se guarda en memoria hasta que el backend
-              exponga el endpoint.
-            </p>
           </form>
-        ) : (
-          <div className="mt-4 max-w-xs">
-            <p className="text-sm text-secondary-text">Tu límite actual</p>
-            <p className="mt-1 text-2xl font-semibold text-primary-text">
-              {limiteGuardado} h por día
-            </p>
-            <p className="mt-2 text-xs text-muted-text">
-              La edición estará disponible cuando el backend exponga el endpoint
-              para cambiar el límite.
-            </p>
-          </div>
         )}
       </Card>
 

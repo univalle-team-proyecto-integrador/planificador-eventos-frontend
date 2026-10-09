@@ -153,10 +153,11 @@ export const api = {
     return request('/api/users/profile');
   },
 
-  // Pendiente de backend: por ahora solo lo cubre el mock (VITE_USE_MOCKS).
+  // PUT /api/users/capacity espera LimiteHorasDTO y responde CapacidadDTO con
+  // límiteHorasDiarias (ver docs/contrato-reprogramacion.md).
   updateProfileLimit(payload) {
-    return request('/api/users/profile', {
-      method: 'PATCH',
+    return request('/api/users/capacity', {
+      method: 'PUT',
       body: JSON.stringify({
         limiteHorasDiarias: Number(payload.limiteHorasDiarias),
       }),
@@ -217,8 +218,9 @@ export const api = {
     });
   },
 
-  // Devuelve 200 con { conflicto, limiteDiario, horasTotalesCalculadas, ... }
-  // tanto en éxito como en conflicto (ver docs/contrato-reprogramacion.md).
+  // Devuelve 200 con la SubtareaDTO actualizada o 409 cuando supera el límite;
+  // el 409 lo normaliza reprogramacionService a la forma de conflicto de la UI
+  // (ver docs/contrato-reprogramacion.md).
   reprogramarSubtask(id, payload) {
     return request(`/api/subtareas/${encodeURIComponent(id)}/reprogramar`, {
       method: 'PATCH',
