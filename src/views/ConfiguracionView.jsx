@@ -1,5 +1,8 @@
 import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/states/EmptyState';
+// Sistema de botones con CSS puro (src/styles/buttons.css). Se importa con el
+// nombre Button porque su API es <Button variant="...">.
+import { Button } from '../components/ui/ButtonCss';
 
 /**
  * Marcador de posición de Configuración.
@@ -19,6 +22,24 @@ export const ConfiguracionView = () => (
         Aquí podrás ajustar las preferencias de tu cuenta y del planificador.
       </p>
     </div>
+
+    <Card className="p-6">
+      <h3 className="text-lg font-semibold text-primary-text">
+        Sistema de botones
+      </h3>
+      <p className="mt-1 max-w-2xl text-sm text-secondary-text">
+        Vista previa del sistema de botones con CSS puro y variables por tema.
+        Cambia el tema para ver cómo se adaptan los colores.
+      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <Button variant="primary">Primario</Button>
+        <Button variant="success">Éxito</Button>
+        <Button variant="danger">Peligro</Button>
+        <Button variant="primary" disabled>
+          Deshabilitado
+        </Button>
+      </div>
+    </Card>
 
     <Card className="p-6">
       <EmptyState
