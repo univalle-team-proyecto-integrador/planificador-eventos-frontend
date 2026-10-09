@@ -4,13 +4,79 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistema de botones — ejemplo</title>
+    <!--
+      Ejemplo autocontenido: buttons.css lee los tokens semánticos de
+      src/index.css, que no se puede abrir solo en el navegador (usa
+      @import "tailwindcss"). Aquí se copia el subconjunto de tokens que usan
+      los botones para que el ejemplo se vea sin build. Si cambias un token en
+      src/index.css, actualízalo también aquí.
+    -->
+    <style>
+      :root[data-theme='light'] {
+        color-scheme: light;
+        --surface-raised: #ffffff;
+        --surface-sunken: #efede1;
+        --border: #e5e7eb;
+        --border-strong: #d1d5db;
+        --text-primary: #111827;
+        --text-secondary: #4b5563;
+        --text-muted: #676f7b;
+        --primary: #8581d9;
+        --primary-hover: #6966ab;
+        --primary-contrast: #1b1830;
+        --primary-contrast-hover: #ffffff;
+        --primary-text: #514ea4;
+        --success: #047857;
+        --success-text: #065f46;
+        --success-contrast: #ffffff;
+        --danger: #ffffff;
+        --danger-soft: #fdecec;
+        --danger-text: #ab0100;
+        --focus-ring: #514ea4;
+      }
+
+      :root[data-theme='dark'] {
+        color-scheme: dark;
+        --surface-raised: #12191f;
+        --surface-sunken: #1a232a;
+        --border: #2a3142;
+        --border-strong: #3a4356;
+        --text-primary: #f3f4f6;
+        --text-secondary: #d1d5db;
+        --text-muted: #9ca3af;
+        --primary: #a49ef0;
+        --primary-hover: #6e6bb5;
+        --primary-contrast: #14122b;
+        --primary-contrast-hover: #ffffff;
+        --primary-text: #b8b5f5;
+        --success: #34d399;
+        --success-text: #6ee7b7;
+        --success-contrast: #04181f;
+        --danger: #c48383;
+        --danger-soft: #3a2020;
+        --danger-text: #f0b8b8;
+        --focus-ring: #b8b5f5;
+      }
+
+      body {
+        background-color: var(--surface-raised);
+        color: var(--text-primary);
+        font-family: system-ui, sans-serif;
+      }
+    </style>
     <link rel="stylesheet" href="../src/styles/buttons.css" />
   </head>
   <body style="padding: 2rem; display: flex; gap: 0.75rem; flex-wrap: wrap">
     <button class="btn btn--primary">Primary</button>
     <button class="btn btn--success">Success</button>
     <button class="btn btn--danger">Danger</button>
-    <button class="btn btn--danger" disabled>Deshabilitado</button>
+    <button class="btn btn--neutral">Neutral</button>
+
+    <button class="btn btn--success-outline">Success contorno</button>
+    <button class="btn btn--danger-outline">Danger contorno</button>
+    <button class="btn btn--neutral-outline">Neutral contorno</button>
+
+    <button class="btn btn--primary" disabled>Deshabilitado</button>
 
     <button id="toggle-tema" class="btn btn--primary">Cambiar tema</button>
 
