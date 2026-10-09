@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-// Sistema de botones con CSS puro (src/styles/buttons.css). Se importa con
-// otro nombre porque su API es <ButtonCss variant="...">.
-import { Button as ButtonCss } from '../components/ui/ButtonCss';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { FieldSuccess } from '../components/ui/FieldSuccess';
@@ -228,16 +225,23 @@ export const ConfiguracionView = () => {
           Sistema de botones
         </h3>
         <p className="mt-1 max-w-2xl text-sm text-secondary-text">
-          Vista previa del sistema de botones con CSS puro y variables por tema.
-          Cambia el tema para ver cómo se adaptan los colores.
+          Vista previa del sistema de botones con CSS puro
+          (`src/styles/buttons.css`) y variables por tema. Cambia el tema para
+          ver cómo se adaptan los colores.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <ButtonCss variant="primary">Primario</ButtonCss>
-          <ButtonCss variant="success">Éxito</ButtonCss>
-          <ButtonCss variant="danger">Peligro</ButtonCss>
-          <ButtonCss variant="primary" disabled>
+          <Button variant="primary">Primario</Button>
+          <Button variant="success">Éxito</Button>
+          <Button variant="danger">Peligro</Button>
+          <Button variant="neutral">Neutro</Button>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <Button variant="success-outline">Éxito contorno</Button>
+          <Button variant="danger-outline">Peligro contorno</Button>
+          <Button variant="neutral-outline">Neutro contorno</Button>
+          <Button variant="primary" disabled>
             Deshabilitado
-          </ButtonCss>
+          </Button>
         </div>
       </Card>
 
