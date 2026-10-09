@@ -22,8 +22,7 @@ import {
 } from '../utils/passwordValidation';
 
 const getSubmitErrorMessage = (error) =>
-  error?.message ||
-  'No pudimos crear la cuenta. Revisa tu conexión e inténtalo de nuevo.';
+  error?.message || 'No fue posible crear la cuenta.';
 
 const inputClass = (hasError) =>
   `w-full rounded-2xl border bg-primary-soft py-3.5 pl-12 pr-4 text-[15px] text-primary-text placeholder:text-muted-text focus:outline-none! focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 ${
@@ -62,7 +61,7 @@ export function RegisterView() {
 
   const getNameError = (value) => {
     if (!String(value ?? '').trim()) {
-      return 'Escribe tu nombre para completar el registro.';
+      return 'El nombre es obligatorio.';
     }
 
     if (String(value).trim().length > 100) {
@@ -114,8 +113,9 @@ export function RegisterView() {
       <div className="w-full max-w-[420px]">
         <div className="relative mb-8 flex flex-col items-center text-center">
           {/* Igual que en /login: control del sitio, no de la cuenta. Va en
-              `absolute` para no entrar en el flujo y no descentrar la marca. */}
-          <div className="absolute right-0 top-0">
+              `fixed` para anclarlo al borde derecho de la pantalla sin entrar en
+              el flujo ni descentrar la marca. */}
+          <div className="fixed right-4 top-4 z-20 sm:right-6 sm:top-6">
             <ThemeToggle />
           </div>
 
@@ -134,11 +134,11 @@ export function RegisterView() {
         </div>
 
         <div className="rounded-3xl bg-surface-raised p-7 shadow-[0_18px_40px_-20px_rgba(17,24,39,0.25)] sm:p-9">
-          <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-primary-text">
-            Crea tu cuenta
+          <h1 className="text-center text-[26px] font-extrabold leading-tight tracking-tight text-primary-text">
+            Crear cuenta
           </h1>
-          <p className="mt-2 text-sm text-muted-text">
-            Organiza tus eventos y tu carga diaria en un solo lugar
+          <p className="mt-2 text-center text-sm text-muted-text">
+            Eventos y carga diaria en un solo lugar
           </p>
 
           {submitError && (
@@ -290,7 +290,7 @@ export function RegisterView() {
             </FieldError>
 
             <p className="mt-3 text-[12px] leading-relaxed text-muted-text">
-              Usa al menos 8 caracteres, combinando letras y números.
+              Mínimo 8 caracteres, con letras y números.
             </p>
 
             <button
@@ -322,12 +322,12 @@ export function RegisterView() {
         </div>
 
         <p className="mt-7 text-center text-sm text-muted-text">
-          ¿Ya tienes cuenta?{' '}
+          ¿Ya con cuenta?{' '}
           <Link
             to="/login"
             className="font-semibold text-primary-text underline hover:no-underline"
           >
-            Inicia sesión
+            Iniciar sesión
           </Link>
         </p>
       </div>
