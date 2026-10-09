@@ -66,6 +66,12 @@ Cada evento recibe un acento de la paleta (`getEventAccent`) que se repite en la
 
 **Regla:** el acento es decorativo; el texto sigue cumpliendo el contraste AA y nunca es el único indicador de estado.
 
+### D-011 — Reprogramación con límite diario
+
+Reprogramar una gestión abre un modal con la nueva fecha y las horas; el envío no se aplica de forma optimista (coherente con D-007). El backend responde siempre `200` con un indicador de conflicto cuando la suma del día supera el límite diario. Ante el conflicto, un segundo modal explica cuántas horas quedarían, cuál es el límite y cuánto sobra, y ofrece dos salidas: **“Ajustar horas”** (reabre el modal con la misma gestión) o **“Elegir otro día”** (cierra sin cambios). La gestión no se modifica hasta que la respuesta no traiga conflicto.
+
+**Consecuencias:** el conflicto es un estado más del flujo, no un error fatal: se comunica como advertencia y siempre ofrece una acción para continuar. El contrato exacto vive en `docs/contrato-reprogramacion.md`.
+
 ## Revisión
 
 Este documento debe actualizarse cuando cambien las rutas, los estados globales o el contrato de la API.
@@ -74,18 +80,19 @@ Este documento debe actualizarse cuando cambien las rutas, los estados globales 
 
 Las decisiones anteriores se justifican bajo las 10 heurísticas de usabilidad de Jakob Nielsen. Mapa de decisión → heurística:
 
-| Decisión | Heurística de Nielsen |
-| --- | --- |
-| D-003 — Estados visuales explícitos | 1. Visibilidad del estado del sistema |
-| D-002 — Botón multivariante | 4. Consistencia y estándares |
-| D-005 — Acciones reversibles y destructivas | 5. Prevención de errores; 3. Control y libertad del usuario |
-| D-004 — Feedback de formularios | 9. Ayuda a reconocer, diagnosticar y recuperarse de los errores |
-| D-001 — Layout persistente | 6. Reconocimiento antes que recuerdo |
-| D-006 / D-007 — Contrato API y actualizaciones confirmadas | 4. Consistencia y estándares; 10. Ayuda y documentación |
-| D-008 — Paneles de acción y seguimiento | 1. Visibilidad del estado; 6. Reconocimiento antes que recuerdo |
-| D-009 — Felicitaciones por campo válido | 9. Ayuda a reconocer, diagnosticar y recuperarse de los errores |
-| D-010 — Identidad de color por evento | 6. Reconocimiento antes que recuerdo; 8. Estética y diseño minimalista |
-| Toasts y `ErrorModal` (DESIGN_SYSTEM §5.8 y §5.9) | 1. Visibilidad del estado del sistema; 9. Reconocer y recuperarse de errores |
+| Decisión                                                   | Heurística de Nielsen                                                                              |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| D-003 — Estados visuales explícitos                        | 1. Visibilidad del estado del sistema                                                              |
+| D-002 — Botón multivariante                                | 4. Consistencia y estándares                                                                       |
+| D-005 — Acciones reversibles y destructivas                | 5. Prevención de errores; 3. Control y libertad del usuario                                        |
+| D-004 — Feedback de formularios                            | 9. Ayuda a reconocer, diagnosticar y recuperarse de los errores                                    |
+| D-001 — Layout persistente                                 | 6. Reconocimiento antes que recuerdo                                                               |
+| D-006 / D-007 — Contrato API y actualizaciones confirmadas | 4. Consistencia y estándares; 10. Ayuda y documentación                                            |
+| D-008 — Paneles de acción y seguimiento                    | 1. Visibilidad del estado; 6. Reconocimiento antes que recuerdo                                    |
+| D-009 — Felicitaciones por campo válido                    | 9. Ayuda a reconocer, diagnosticar y recuperarse de los errores                                    |
+| D-010 — Identidad de color por evento                      | 6. Reconocimiento antes que recuerdo; 8. Estética y diseño minimalista                             |
+| D-011 — Reprogramación con límite diario                   | 3. Control y libertad del usuario; 5. Prevención de errores; 9. Reconocer y recuperarse de errores |
+| Toasts y `ErrorModal` (DESIGN_SYSTEM §5.8 y §5.9)          | 1. Visibilidad del estado del sistema; 9. Reconocer y recuperarse de errores                       |
 
 Detalle por heurística:
 

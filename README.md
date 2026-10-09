@@ -83,11 +83,14 @@ cp .env.example .env
 
 Variables disponibles para Vite:
 
-| Variable       | Uso                                                                          |
-| -------------- | ---------------------------------------------------------------------------- |
-| `VITE_API_URL` | URL base del backend Spring Boot.                                            |
+| Variable         | Uso                                                                             |
+| ---------------- | ------------------------------------------------------------------------------- |
+| `VITE_API_URL`   | URL base del backend Spring Boot.                                               |
+| `VITE_USE_MOCKS` | `true` para usar el mock local de reprogramación sin backend (solo desarrollo). |
 
 El frontend espera el contrato de eventos, tipos y subtareas definido por el backend. La fecha del evento se convierte a `LocalDateTime`; la fecha objetivo de una subtarea se envía como `LocalDate`. La vista `/hoy` consulta `GET /api/subtareas/hoy` con la fecha local; el propietario lo determina el token de sesión. Las mutaciones, incluida la eliminación de eventos, solo actualizan la vista después de recibir una respuesta persistida del servidor.
+
+La reprogramación, el conflicto de límite diario y la reducción de horas siguen `docs/contrato-reprogramacion.md`. `src/services/reprogramacionService.js` es la puerta única: con `VITE_USE_MOCKS=true` responde un mock en memoria (`src/services/mocks/reprogramacion.js`), pensado solo para desarrollo.
 
 ## Despliegue
 

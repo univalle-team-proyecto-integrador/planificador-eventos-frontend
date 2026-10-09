@@ -153,6 +153,16 @@ export const api = {
     return request('/api/users/profile');
   },
 
+  // Pendiente de backend: por ahora solo lo cubre el mock (VITE_USE_MOCKS).
+  updateProfileLimit(payload) {
+    return request('/api/users/profile', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        limiteHorasDiarias: Number(payload.limiteHorasDiarias),
+      }),
+    });
+  },
+
   // Sin usuarioId: el backend toma el propietario del token de sesion.
   listEvents() {
     return request('/api/eventos');
@@ -203,6 +213,18 @@ export const api = {
         nombreGestion: payload.nombreGestion,
         horasEstimadas: Number(payload.horasEstimadas),
         fechaObjetivo: payload.fechaObjetivo,
+      }),
+    });
+  },
+
+  // Devuelve 200 con { conflicto, limiteDiario, horasTotalesCalculadas, ... }
+  // tanto en éxito como en conflicto (ver docs/contrato-reprogramacion.md).
+  reprogramarSubtask(id, payload) {
+    return request(`/api/subtareas/${encodeURIComponent(id)}/reprogramar`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        nuevaFecha: payload.nuevaFecha,
+        nuevasHoras: Number(payload.nuevasHoras),
       }),
     });
   },

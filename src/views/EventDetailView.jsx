@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
+  CalendarClock,
   CalendarDays,
   Check,
   MapPin,
@@ -12,6 +13,8 @@ import {
 } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
+import { ConflictoModal } from '../components/ui/ConflictoModal';
+import { ReprogramarModal } from '../components/ui/ReprogramarModal';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { Badge } from '../components/ui/Badge';
@@ -22,6 +25,7 @@ import { WorkloadSummary } from '../components/ui/WorkloadSummary';
 import { getEventAccent } from '../utils/eventAccent';
 import { getEventTypeIcon } from '../utils/eventTypeIcons';
 import { getTaskMetrics, toDateKey } from '../utils/taskMetrics';
+import { esConflicto } from '../utils/reprogramacion';
 import {
   getPastDateMessage,
   getToday,
@@ -31,6 +35,7 @@ import { focusFirstInvalidField } from '../utils/formFocus';
 import { useNotifications } from '../providers/notifications-context';
 import { useTaskSearch } from '../providers/search-context';
 import { api, toApiDateTime, unwrapData } from '../services/api';
+import { reprogramarSubtask } from '../services/reprogramacionService';
 
 const initialSubtaskData = {
   title: '',
@@ -404,6 +409,13 @@ export function EventDetailView() {
   const [editingErrors, setEditingErrors] = useState({});
   const [editingTouched, setEditingTouched] = useState({});
   const [isSavingSubtaskEdit, setIsSavingSubtaskEdit] = useState(false);
+
+  // Flujo de reprogramación: el modal abierto, su envío y el conflicto de
+  // límite diario que devuelve el backend (docs/contrato-reprogramacion.md).
+  const [reprogramTarget, setReprogramTarget] = useState(null);
+  const [isReprogramming, setIsReprogramming] = useState(false);
+  const [reprogramError, setReprogramError] = useState('');
+  const [conflicto, setConflicto] = useState(null);
   const eventFormRef = useRef(null);
   const subtaskFormRef = useRef(null);
   const editingSubtaskFormRef = useRef(null);
@@ -724,6 +736,67 @@ export function EventDetailView() {
       });
     } finally {
       setIsSavingSubtaskEdit(false);
+    }
+  };
+
+  const handleReprogramar = async ({ nuevaFecha, nuevasHoras }) => {
+    if (!reprogramTarget || isReprogramming) {
+      return;
+    }
+
+    setIsReprogramming(true);
+    setReprogramError('');
+
+    try {
+      const respuesta = await reprogramarSubtask(reprogramTarget.id, {
+        nuevaFecha,
+        nuevasHoras,
+      });
+
+      // El backend responde 200 también en conflicto: se ramifica por el campo.
+      if (esConflicto(respuesta)) {
+        setConflicto({ respuesta, subtask: reprogramTarget });
+        setReprogramTarget(null);
+        return;
+      }
+
+      const actualizada = requireSubtaskResponse(
+        respuesta?.subtarea,
+        reprogramTarget
+      );
+      setSubtasks((current) =>
+        current.map((item) =>
+          item.id === reprogramTarget.id ? actualizada : item
+        )
+      );
+      setReprogramTarget(null);
+      invalidateSearchIndex();
+      notifySuccess({
+        icon: 'check',
+        message: 'Gestión reprogramada correctamente.',
+      });
+    } catch (error) {
+      setReprogramError(getErrorMessage(error));
+    } finally {
+      setIsReprogramming(false);
+    }
+  };
+
+  const cerrarReprogramar = () => {
+    if (isReprogramming) {
+      return;
+    }
+    setReprogramTarget(null);
+    setReprogramError('');
+  };
+
+  // Desde el conflicto: se reabre el modal con la misma gestión para ajustar.
+  const ajustarHoras = () => {
+    const target = conflicto?.subtask ?? null;
+    setConflicto(null);
+    setReprogramError('');
+    if (target) {
+      setReprogramTarget(target);
     }
   };
 
@@ -1683,6 +1756,27 @@ export function EventDetailView() {
                     </Badge>
                     <Button
                       type="button"
+                      variant="neutral-outline"
+                      className={TASK_ACTION_CLASS}
+                      onClick={() => {
+                        setReprogramError('');
+                        setReprogramTarget(subtask);
+                      }}
+                      disabled={
+                        updatingSubtaskId === subtask.id ||
+                        isSavingSubtaskEdit ||
+                        editingSubtaskId === subtask.id
+                      }
+                      aria-label={`Reprogramar ${subtask.title}`}
+                    >
+                      <CalendarClock
+                        aria-hidden="true"
+                        className="mr-1 inline size-3.5"
+                      />
+                      Reprogramar
+                    </Button>
+                    <Button
+                      type="button"
                       variant="danger-outline"
                       className={TASK_ACTION_CLASS}
                       onClick={() => {
@@ -1801,6 +1895,29 @@ export function EventDetailView() {
         isConfirming={isDeletingEvent}
         error={eventDeleteError}
       />
+
+      {reprogramTarget && (
+        <ReprogramarModal
+          key={reprogramTarget.id}
+          open
+          subtarea={reprogramTarget}
+          onCancel={cerrarReprogramar}
+          onSubmit={handleReprogramar}
+          isSaving={isReprogramming}
+          serverError={reprogramError}
+        />
+      )}
+
+      {conflicto && (
+        <ConflictoModal
+          open
+          conflicto={conflicto.respuesta}
+          subtareaTitle={conflicto.subtask?.title}
+          onAdjust={ajustarHoras}
+          onCancel={() => setConflicto(null)}
+          isSaving={isReprogramming}
+        />
+      )}
     </div>
   );
 }

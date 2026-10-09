@@ -36,16 +36,16 @@ Cuando un campo ya es válido (tras tocarlo y sin errores) se muestra un mensaje
 
 ### Mensajes de éxito por campo
 
-| Campo                  | Mensaje                            |
-| ---------------------- | ---------------------------------- |
-| Nombre del evento      | “¡Listo! Nombre válido.”           |
-| Tipo de evento         | “Bien, tipo seleccionado.”         |
-| Cliente                | “¡Listo! Cliente registrado.”      |
-| Fecha del evento       | “Bien, fecha válida.”              |
-| Lugar                  | “¡Listo! Lugar correcto.”          |
-| Gestión                | “¡Listo! Nombre de la gestión válido.” |
-| Horas estimadas        | “Bien, horas válidas.”             |
-| Fecha objetivo         | “¡Listo! Fecha límite válida.”     |
+| Campo             | Mensaje                                |
+| ----------------- | -------------------------------------- |
+| Nombre del evento | “¡Listo! Nombre válido.”               |
+| Tipo de evento    | “Bien, tipo seleccionado.”             |
+| Cliente           | “¡Listo! Cliente registrado.”          |
+| Fecha del evento  | “Bien, fecha válida.”                  |
+| Lugar             | “¡Listo! Lugar correcto.”              |
+| Gestión           | “¡Listo! Nombre de la gestión válido.” |
+| Horas estimadas   | “Bien, horas válidas.”                 |
+| Fecha objetivo    | “¡Listo! Fecha límite válida.”         |
 
 ## Estados vacíos
 
@@ -64,19 +64,35 @@ Ejemplo: “¿Aún no hay gestiones logísticas? Divide el evento en tareas pequ
 - Usar “Eliminar” solo en acciones destructivas.
 - Mantener el texto del botón corto; el contexto de la tarjeta explica la consecuencia.
 
+## Reprogramación y límite diario
+
+El conflicto de límite no es un error del sistema: decir qué pasó y ofrecer la salida.
+
+- Título del conflicto: “Ese día queda sin espacio”.
+- Cuerpo: “Ese día quedaría con 9 h y tu límite diario es 6 h. Reduce las horas o mueve la gestión a otro día.”
+- Botón para corregir: “Ajustar horas”.
+- Botón para desistir: “Elegir otro día”.
+- Éxito: “Gestión reprogramada correctamente.”
+- Validación de fecha: “Falta la nueva fecha. Elige el día al que quieres moverla.”
+- Validación de horas: reutiliza las ya aprobadas (“Faltan las horas…”, “Ingresaste una fracción de hora…”).
+
 ## Microcopy de la aplicación
 
-| Contexto              | Texto                                                                          |
-| --------------------- | ------------------------------------------------------------------------------ |
-| Crear evento          | “Crear nuevo evento”                                                           |
-| Volver desde detalle  | “Volver a eventos”                                                            |
-| Abrir evento         | “Ver evento”                                                                   |
-| Guardar formulario    | “Guardar evento”                                                               |
-| Crear primera gestión | “Añadir gestión”                                                               |
-| Tareas atrasadas      | “Vencida hace 2 días”                                                         |
-| Tarea próxima         | “Mañana”                                                                      |
-| Cargar                | “Cargando información...”                                                     |
-| Cargar panel de hoy   | “Cargando el panel de hoy...”                                                |
-| Error de red          | “No pudimos conectar con el servidor. Revisa tu red e inténtalo de nuevo.”     |
-| Eliminar gestión      | “¿Seguro que quieres eliminar esta gestión? Esta acción no se puede deshacer.” |
-| Eliminar evento       | “Esta acción borrará el evento y su logística asociada. No se puede deshacer.” |
+| Contexto              | Texto                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------- |
+| Crear evento          | “Crear nuevo evento”                                                                  |
+| Volver desde detalle  | “Volver a eventos”                                                                    |
+| Abrir evento          | “Ver evento”                                                                          |
+| Guardar formulario    | “Guardar evento”                                                                      |
+| Crear primera gestión | “Añadir gestión”                                                                      |
+| Tareas atrasadas      | “Vencida hace 2 días”                                                                 |
+| Tarea próxima         | “Mañana”                                                                              |
+| Cargar                | “Cargando información...”                                                             |
+| Cargar panel de hoy   | “Cargando el panel de hoy...”                                                         |
+| Error de red          | “No pudimos conectar con el servidor. Revisa tu red e inténtalo de nuevo.”            |
+| Eliminar gestión      | “¿Seguro que quieres eliminar esta gestión? Esta acción no se puede deshacer.”        |
+| Eliminar evento       | “Esta acción borrará el evento y su logística asociada. No se puede deshacer.”        |
+| Reprogramar gestión   | “Reprogramar”                                                                         |
+| Guardar límite diario | “Guardar límite”                                                                      |
+| Límite diario         | “Es la cantidad de horas que puedes asignar como máximo a un mismo día.”              |
+| Modo demo             | “Modo demo: el límite se guarda en memoria hasta que el backend exponga el endpoint.” |
