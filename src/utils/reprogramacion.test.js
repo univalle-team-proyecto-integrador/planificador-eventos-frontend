@@ -52,6 +52,30 @@ describe('reprogramacion', () => {
     expect(getExceso(resultado)).toBe(3);
   });
 
+  it('normaliza el 409 real del backend (ProblemDetail con excedente)', () => {
+    const resultado = normalizarConflicto409({
+      type: 'about:blank',
+      title: 'Límite diario excedido',
+      status: 409,
+      detail: 'La reprogramación supera el límite diario de 6 horas',
+      idSubtarea: 1,
+      fecha: '2026-11-15',
+      limiteDiario: 6,
+      horasAsignadasPreviamente: 5,
+      horasSolicitadas: 3,
+      horasPlanificadasTotales: 9,
+      excedente: 3,
+    });
+
+    expect(resultado).toEqual({
+      conflicto: true,
+      limiteDiario: 6,
+      horasTotalesCalculadas: 9,
+      mensaje: 'La reprogramación supera el límite diario de 6 horas',
+    });
+    expect(getExceso(resultado)).toBe(3);
+  });
+
   it('normaliza un 409 en formato capacidad sumando las nuevas horas', () => {
     const resultado = normalizarConflicto409(
       { capacidad: { limiteHorasDiarias: 6 }, horasPlanificadas: 7 },

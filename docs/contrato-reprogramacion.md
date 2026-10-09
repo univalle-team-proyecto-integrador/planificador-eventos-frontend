@@ -106,13 +106,30 @@ Respuestas:
 Errores: `400` si `nuevaFecha`/`nuevasHoras` no son válidas o el límite es
 inválido; `404` si la subtarea no existe o es de otro usuario; `401` sin token.
 
-> **Forma del `409`.** El backend no documenta un schema propio para el body del
-> conflicto (el Swagger lo deja sin shape). `normalizarConflicto409` es tolerante
-> y prueba variantes (`limiteDiario`/`horasTotalesCalculadas`, `horasALiberar`
-> contra el límite, shape `capacidad` con `horasPlanificadas` + `nuevasHoras`,
-> mensajes en `detail`/`mensaje`/`message`). Si el body no trae la aritmética, la
-> UI cae a un mensaje genérico. **Pendiente**: confirmar los nombres reales de
-> los campos con una prueba sobre Render y fijarlos aquí.
+> **Forma del `409`.** El cuerpo es un `ProblemDetail` (RFC 7807) de Spring.
+> Confirmado contra el código del backend (`CapacidadExcedidaException` +
+> `GlobalExceptionHandler.handleCapacidadExcedida`):
+>
+> ```json
+> {
+>   "type": "about:blank",
+>   "title": "Límite diario excedido",
+>   "status": 409,
+>   "detail": "La reprogramación supera el límite diario de 6 horas",
+>   "idSubtarea": 1,
+>   "fecha": "2026-11-15",
+>   "limiteDiario": 6,
+>   "horasAsignadasPreviamente": 5,
+>   "horasSolicitadas": 3,
+>   "horasPlanificadasTotales": 9,
+>   "excedente": 3
+> }
+> ```
+>
+> `normalizarConflicto409` lee `limiteDiario` y `horasPlanificadasTotales`
+> (con `excedente` como respaldo), y el `detail` como mensaje; mantiene
+> variantes antiguas por compatibilidad. Si el body no trae la aritmética, la UI
+> cae a un mensaje genérico.
 
 ### Reducir horas (misma fecha, menos horas)
 
@@ -160,6 +177,5 @@ queda sin definir y el frontend habla con los endpoints reales
    (`GET /api/users/capacity` o `GET /api/users/profile`).
 3. Reprogramar dentro del límite: la subtarea cambia de fecha y horas (`200`).
 4. Reprogramar por encima del límite: aparece el conflicto (`409`) y la
-   subtarea **no** se modifica; aprovechar la prueba para confirmar los campos
-   del body del `409` y fijarlos en este documento.
+   subtarea **no** se modifica.
 5. Reducir horas y comprobar `subtarea.horasEstimadas`.

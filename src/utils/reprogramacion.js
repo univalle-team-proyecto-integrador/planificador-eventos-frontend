@@ -42,12 +42,12 @@ const numberLike = (value) => {
   const numero = Number(value);
   return Number.isFinite(numero) && numero > 0 ? numero : undefined;
 };
-
 /**
  * Normaliza el 409 del backend (docs/contrato-reprogramacion.md) a la forma de
- * conflicto que consume la UI. El body del 409 no define nombres de campo fijos,
- * así que la extracción es tolerante: se prueban variantes y, si falta la
- * aritmética, se cae a un mensaje genérico.
+ * conflicto que consume la UI. El body real es un `ProblemDetail` que trae
+ * `limiteDiario`, `horasPlanificadasTotales` y `excedente`; se prueban también
+ * variantes antiguas por compatibilidad y, si falta la aritmética, se cae a un
+ * mensaje genérico.
  */
 export const normalizarConflicto409 = (details, nuevasHoras = 0) => {
   const source =
@@ -59,17 +59,21 @@ export const normalizarConflicto409 = (details, nuevasHoras = 0) => {
     numberLike(source.capacidad?.limiteHorasDiarias);
 
   const horasALiberar = numberLike(source.horasALiberar);
+  const excedente = numberLike(source.excedente);
 
   const horasPlanificadas = numberLike(source.horasPlanificadas);
   const nuevas = Number.isFinite(Number(nuevasHoras)) ? Number(nuevasHoras) : 0;
 
   const total =
+    numberLike(source.horasPlanificadasTotales) ??
     numberLike(source.horasTotalesCalculadas) ??
     (limite !== undefined && horasALiberar !== undefined
       ? limite + horasALiberar
       : undefined) ??
+    (limite !== undefined && excedente !== undefined
+      ? limite + excedente
+      : undefined) ??
     (horasPlanificadas !== undefined ? horasPlanificadas + nuevas : undefined);
-
   const mensaje =
     (typeof source.mensaje === 'string' && source.mensaje.trim()) ||
     (typeof source.detail === 'string' && source.detail.trim()) ||
