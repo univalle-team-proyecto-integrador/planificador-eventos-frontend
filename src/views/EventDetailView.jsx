@@ -526,6 +526,27 @@ export function EventDetailView() {
     setEditingTouched({});
   };
 
+  /**
+   * Vuelve al formulario de edición con la gestión y los valores que el usuario
+   * tenía escritos.
+   *
+   * <p>Se guarda un borrador al empezar a editar, no al guardar: si la
+   * edición choca con el límite y se abre el ConflictoModal, "Ajustar horas"
+   * tiene que devolver al formulario con lo que ya había escrito. Sin esto,
+   * volver desde el aviso mostraría el formulario recién inicializado y el
+   * usuario perdería sus cambios (US-08 esc. 2).
+   */
+  const reopenEditingSubtask = (subtask, borrador) => {
+    setEditingSubtaskId(subtask.id);
+    setEditingSubtaskData({
+      title: borrador?.title ?? subtask.title,
+      hours: borrador?.hours ?? String(subtask.hours ?? ''),
+      date: borrador?.date ?? toDateInputValue(subtask.date),
+    });
+    setEditingErrors({});
+    setEditingTouched({});
+  };
+
   const cancelEditingSubtask = () => {
     setEditingSubtaskId(null);
     setEditingSubtaskData({ title: '', hours: '', date: '' });
@@ -709,6 +730,13 @@ export function EventDetailView() {
     setEditingErrors({});
     setIsSavingSubtaskEdit(true);
 
+    // Se resuelve ANTES del try: el catch también lo necesita para abrir el
+    // ConflictoModal. Declarado dentro del try, un 409 salteaba la declaración
+    // y la línea del catch lanzaba ReferenceError, con lo que el modal nunca
+    // abría y el error se perdía en silencio.
+    const currentSubtask =
+      subtasks.find((subtask) => subtask.id === editingSubtaskId) ?? null;
+
     try {
       const response = unwrapData(
         await api.updateSubtaskDetails(editingSubtaskId, {
@@ -716,9 +744,6 @@ export function EventDetailView() {
           horasEstimadas: Number(editingSubtaskData.hours),
           fechaObjetivo: editingSubtaskData.date,
         })
-      );
-      const currentSubtask = subtasks.find(
-        (subtask) => subtask.id === editingSubtaskId
       );
       const updatedSubtask = requireSubtaskResponse(response, currentSubtask);
 
@@ -732,8 +757,11 @@ export function EventDetailView() {
       // `resuelto` solo viene tras una edición. Si el día sigue pasándose, se
       // guardó igual (reducir no bloquea) pero el conflicto sigue vivo.
       if (response?.resuelto === false) {
-        notifySuccess({
-          icon: 'check',
+        // Alerta, no éxito: el guardado ocurrió pero el día sigue pasándose. Un
+        // check verde contradiría el texto y el usuario cerraría creyendo que
+        // el conflicto quedó resuelto.
+        notifyError({
+          title: 'El conflicto sigue',
           message: getMensajeConflictoPersistente(),
         });
         return;
@@ -747,7 +775,13 @@ export function EventDetailView() {
       // El backend responde 409 cuando la edición empeora un día que ya estaba
       // sobrecargado. Se explica con las cifras en vez de un error seco.
       if (esConflicto(error)) {
-        setConflicto({ respuesta: error, subtask: currentSubtask ?? null });
+        // El borrador viaja con el conflicto para que "Ajustar horas" devuelva
+        // al formulario con lo que el usuario ya había escrito.
+        setConflicto({
+          respuesta: error,
+          subtask: currentSubtask,
+          borrador: editingSubtaskData,
+        });
         return;
       }
 
@@ -765,11 +799,20 @@ export function EventDetailView() {
   // cierra el aviso.
   const cerrarConflicto = () => {
     const target = conflicto?.subtask ?? null;
+    const borrador = conflicto?.borrador ?? null;
     setConflicto(null);
-    if (target) {
-      setReprogramError('');
-      setReprogramTarget(target);
+
+    if (!target) {
+      return;
     }
+
+    if (borrador) {
+      reopenEditingSubtask(target, borrador);
+      return;
+    }
+
+    setReprogramError('');
+    setReprogramTarget(target);
   };
 
   const handleReprogramar = async ({ nuevaFecha, nuevasHoras }) => {
@@ -834,11 +877,22 @@ export function EventDetailView() {
   // formulario con la fecha y las horas intactas.
   const ajustarHoras = () => {
     const target = conflicto?.subtask ?? null;
+    const borrador = conflicto?.borrador ?? null;
     setConflicto(null);
     setReprogramError('');
-    if (target) {
-      setReprogramTarget(target);
+
+    if (!target) {
+      return;
     }
+
+    // El conflicto puede venir de una edición (US-08 esc. 2) o de una
+    // reprogramación (US-07). Cada una vuelve a su propio formulario.
+    if (borrador) {
+      reopenEditingSubtask(target, borrador);
+      return;
+    }
+
+    setReprogramTarget(target);
   };
 
   const handleDeleteSubtask = async () => {
