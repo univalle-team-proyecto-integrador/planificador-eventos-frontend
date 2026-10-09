@@ -227,6 +227,27 @@ describe('autenticación (US-11)', () => {
     expect(perfil.nombre).toBe('Santiago');
   });
 
+  it('updateProfileLimit hace PUT /api/users/capacity con LimiteHorasDTO', async () => {
+    saveSession({ token: 'token-vigente', nombre: 'Santiago' });
+    fetch.mockResolvedValue(
+      jsonResponse(200, {
+        usuarioId: 1,
+        limiteHorasDiarias: 8,
+        fecha: '2026-11-20',
+        horasPlanificadas: 5,
+        horasDisponibles: 3,
+      })
+    );
+
+    const resultado = await api.updateProfileLimit({ limiteHorasDiarias: 8 });
+
+    const [url, options] = fetch.mock.calls[0];
+    expect(url).toBe(`${BASE}/api/users/capacity`);
+    expect(options.method).toBe('PUT');
+    expect(JSON.parse(options.body)).toEqual({ limiteHorasDiarias: 8 });
+    expect(resultado.limiteHorasDiarias).toBe(8);
+  });
+
   it('un 401 fuera del login cierra la sesión', async () => {
     saveSession({ token: 'token-caducado', nombre: 'Santiago' });
     fetch.mockResolvedValue(jsonResponse(401, { title: 'No autorizado' }));

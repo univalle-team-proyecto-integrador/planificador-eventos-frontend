@@ -753,7 +753,8 @@ export function EventDetailView() {
         nuevasHoras,
       });
 
-      // El backend responde 200 también en conflicto: se ramifica por el campo.
+      // El conflicto llega como 409 normalizado por el servicio; el éxito es la
+      // SubtareaDTO o un objeto con `subtarea`. Se ramifica por `conflicto`.
       if (esConflicto(respuesta)) {
         setConflicto({ respuesta, subtask: reprogramTarget });
         setReprogramTarget(null);
@@ -761,7 +762,7 @@ export function EventDetailView() {
       }
 
       const actualizada = requireSubtaskResponse(
-        respuesta?.subtarea,
+        respuesta?.subtarea ?? respuesta,
         reprogramTarget
       );
       setSubtasks((current) =>
