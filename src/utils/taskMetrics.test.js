@@ -5,9 +5,11 @@ import {
   formatHours,
   formatOverdueLabel,
   formatRelativeDate,
+  getDesfase,
   getTaskMetrics,
   isEventToday,
   normalizeEvent,
+  normalizeSubtask,
   rangoDeDias,
   UPCOMING_RANGES,
 } from './taskMetrics';
@@ -195,5 +197,54 @@ describe('taskMetrics', () => {
   it('formatea horas decimales sin perder precisión', () => {
     expect(formatHours(1.5)).toBe('1.5 h');
     expect(formatHours(4)).toBe('4 h');
+  });
+
+  describe('desfase de la reprogramación', () => {
+    it('normaliza la línea base que envía el backend', () => {
+      expect(
+        normalizeSubtask({
+          idSubtarea: 1,
+          nombreGestion: 'Gestión',
+          fechaObjetivo: '2026-11-20',
+          fechaObjetivoOriginal: '2026-11-10',
+          horasEstimadas: 2,
+        }).originalDate
+      ).toBe('2026-11-10');
+    });
+
+    it('deja la línea base en null si nunca se movió', () => {
+      expect(normalizeSubtask({ idSubtarea: 1 }).originalDate).toBeNull();
+    });
+
+    it('marca como postergada cuando la fecha se movió más adelante', () => {
+      expect(
+        getDesfase({ date: '2026-11-20', originalDate: '2026-11-10' })
+      ).toEqual({ tipo: 'postergada', dias: 10 });
+    });
+
+    it('marca como adelantada cuando la fecha se movió antes', () => {
+      expect(
+        getDesfase({ date: '2026-11-08', originalDate: '2026-11-10' })
+      ).toEqual({ tipo: 'adelantada', dias: 2 });
+    });
+
+    it('no marca nada si la fecha no cambió', () => {
+      expect(getDesfase({ date: '2026-11-10', originalDate: '2026-11-10' })).toBeNull();
+    });
+
+    it('no marca nada sin línea base con la que comparar', () => {
+      expect(getDesfase({ date: '2026-11-20' })).toBeNull();
+      expect(getDesfase({ originalDate: '2026-11-10' })).toBeNull();
+      expect(getDesfase(null)).toBeNull();
+    });
+
+    it('cuenta el desfase entre meses y años', () => {
+      expect(
+        getDesfase({ date: '2026-12-31', originalDate: '2026-12-30' })
+      ).toEqual({ tipo: 'postergada', dias: 1 });
+      expect(
+        getDesfase({ date: '2027-01-05', originalDate: '2026-12-20' })
+      ).toEqual({ tipo: 'postergada', dias: 16 });
+    });
   });
 });

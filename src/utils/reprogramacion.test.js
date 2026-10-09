@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { ApiError } from '../services/api';
 import {
   esConflicto,
   getExceso,
@@ -9,30 +10,96 @@ import {
   validarReprogramacion,
 } from './reprogramacion';
 
-describe('reprogramacion', () => {
-  const conflicto = {
-    conflicto: true,
-    limiteDiario: 6,
-    horasTotalesCalculadas: 9,
-    mensaje: 'La reprogramación supera el límite diario de horas asignado',
-  };
+// Cuerpo real del 409, tal como lo arma GlobalExceptionHandler: las propiedades
+// del ProblemDetail quedan aplanadas en la raíz, no bajo `properties`.
+const detalleConflicto = {
+  title: 'Límite diario excedido',
+  status: 409,
+  detail: 'La reprogramación supera el límite diario de 6 horas',
+  limiteDiario: 6,
+  horasAsignadasPreviamente: 5,
+  horasSolicitadas: 4,
+  horasPlanificadasTotales: 9,
+  excedente: 3,
+  fecha: '2026-11-15',
+  idSubtarea: 1,
+};
 
-  it('detecta el conflicto y lee sus cantidades', () => {
+describe('reprogramacion', () => {
+  // Es la forma en que la vista recibe el conflicto: el ApiError que lanza
+  // `services/api.js`, con el cuerpo en `details`.
+  const conflicto = new ApiError(
+    detalleConflicto.detail,
+    409,
+    detalleConflicto
+  );
+
+  it('detecta el conflicto por el 409, no por un campo conflicto', () => {
     expect(esConflicto(conflicto)).toBe(true);
+    expect(esConflicto(detalleConflicto)).toBe(true);
+    expect(esConflicto({ status: 200, idSubtarea: 1 })).toBe(false);
+    expect(esConflicto(null)).toBe(false);
+    // También acepta la forma ya normalizada, que es la que ve el mock.
+    expect(esConflicto({ conflicto: true })).toBe(true);
     expect(esConflicto({ conflicto: false })).toBe(false);
+  });
+
+  it('lee las cantidades de la raíz y no de properties', () => {
     expect(getLimiteDiario(conflicto)).toBe(6);
     expect(getHorasTotales(conflicto)).toBe(9);
     expect(getExceso(conflicto)).toBe(3);
   });
 
+  it('usa el excedente que envía el servidor', () => {
+    expect(getExceso(new ApiError('x', 409, { ...detalleConflicto, excedente: 7 }))).toBe(7);
+  });
+
+  it('recalcula el exceso solo si el servidor no lo mandó', () => {
+    const sinExcedente = { limiteDiario: 6, horasPlanificadasTotales: 9 };
+    expect(getExceso(sinExcedente)).toBe(3);
+  });
+
   it('no reporta exceso cuando entra en el límite', () => {
-    expect(getExceso({ limiteDiario: 6, horasTotalesCalculadas: 5 })).toBe(0);
+    expect(getExceso({ limiteDiario: 6, horasPlanificadasTotales: 5 })).toBe(0);
   });
 
   it('redacta el conflicto con qué pasó y cómo corregirlo', () => {
     expect(getMensajeConflicto(conflicto)).toBe(
       'Ese día quedaría con 9 h y tu límite diario es 6 h. Reduce las horas o mueve la gestión a otro día.'
     );
+  });
+
+  it('normaliza el 409 real del backend, con sus nombres de campo', () => {
+    // Cuerpo capturado del backend, no inventado: son las claves que devuelve
+    // GlobalExceptionHandler con las propiedades aplanadas en la raíz.
+    const resultado = normalizarConflicto409({
+      detail: 'La reprogramación supera el límite diario de 6 horas',
+      excedente: 3,
+      fecha: '2026-11-15',
+      horasAsignadasPreviamente: 5,
+      horasPlanificadasTotales: 9,
+      horasSolicitadas: 4,
+      idSubtarea: 1,
+      limiteDiario: 6,
+      status: 409,
+      title: 'Límite diario excedido',
+    });
+
+    expect(resultado).toEqual({
+      conflicto: true,
+      limiteDiario: 6,
+      horasTotalesCalculadas: 9,
+      mensaje: 'La reprogramación supera el límite diario de 6 horas',
+    });
+    expect(esConflicto(resultado)).toBe(true);
+    expect(getExceso(resultado)).toBe(3);
+  });
+
+  it('deduce el total sumando el límite y el excedente del 409', () => {
+    // Cuando el backend omite el total, la aritmética sigue siendo exacta.
+    const resultado = normalizarConflicto409({ limiteDiario: 2, excedente: 14 });
+
+    expect(resultado.horasTotalesCalculadas).toBe(16);
   });
 
   it('normaliza un 409 con aritmética a la forma de conflicto de la UI', () => {
@@ -90,7 +157,7 @@ describe('reprogramacion', () => {
   it('normaliza un 409 con horas a liberar contra el límite', () => {
     const resultado = normalizarConflicto409({
       limiteDiario: 6,
-      horasALiberar: 3,
+      excedente: 3,
     });
 
     expect(resultado.limiteDiario).toBe(6);

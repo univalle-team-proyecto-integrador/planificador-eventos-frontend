@@ -18,3 +18,4 @@
 | 2026-09-25 | 015 | Paneles de Hoy y Progreso                 | [2026-09-25-015-paneles-hoy-y-progreso](2026-09-25-015-paneles-hoy-y-progreso.md) |
 | 2026-09-25 | 016 | Microcopy de acceso al evento               | [2026-09-25-016-microcopy-ver-evento](2026-09-25-016-microcopy-ver-evento.md) |
 | 2026-10-08 | 017 | Selector de rango de Próximas en Hoy          | [2026-10-08-017-selector-rango-proximas](2026-10-08-017-selector-rango-proximas.md) |
+| 2026-10-09 | 018 | Arregla la reprogramación y añade la marca de desfase | [2026-10-09-018-arregla-reprogramar-y-desfase](2026-10-09-018-arregla-reprogramar-y-desfase.md) |

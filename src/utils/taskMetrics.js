@@ -91,7 +91,56 @@ export const normalizeSubtask = (payload) => ({
   hours: payload?.hours ?? payload?.horasEstimadas ?? 0,
   date: getTaskDate(payload),
   state: getTaskState(payload),
+  // Fecha con la que se planificó la gestión. El backend la fija la primera vez
+  // que la fecha cambia y es null en las que nunca se movieron, en cuyo caso no
+  // hay nada que marcar.
+  originalDate:
+    payload?.originalDate ?? payload?.fechaObjetivoOriginal ?? null,
 });
+
+/** Dias que se movió la gestión respecto a su fecha de planificación. */
+export const DESFASE_POSTERGADA = 'postergada';
+export const DESFASE_ADELANTADA = 'adelantada';
+export const DESFASE_REPROGRAMADA = 'reprogramada';
+
+const MS_POR_DIA = 86400000;
+
+const diasEntre = (desde, hasta) => {
+  const a = Date.parse(`${desde}T00:00:00`);
+  const b = Date.parse(`${hasta}T00:00:00`);
+
+  if (Number.isNaN(a) || Number.isNaN(b)) {
+    return null;
+  }
+
+  return Math.round((b - a) / MS_POR_DIA);
+};
+
+/**
+ * Deriva el desfase comparando la fecha actual con la línea base, en vez de
+ * guardar un estado más en el servidor. Devuelve `null` cuando la gestión nunca
+ * se movió o no hay línea base con la que compararla.
+ *
+ * @returns {{ tipo: string, dias: number } | null}
+ */
+export const getDesfase = (task) => {
+  const original = task?.originalDate;
+
+  if (!original || !task?.date) {
+    return null;
+  }
+
+  const dias = diasEntre(original, task.date);
+
+  if (dias === null || dias === 0) {
+    return null;
+  }
+
+  return {
+    tipo: dias > 0 ? DESFASE_POSTERGADA : DESFASE_ADELANTADA,
+    dias: Math.abs(dias),
+  };
+};
 
 export const normalizeEvent = (payload) => ({
   id: payload?.id ?? payload?.idEvento,

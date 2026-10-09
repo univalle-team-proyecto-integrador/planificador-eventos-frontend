@@ -154,7 +154,8 @@ export const api = {
   },
 
   // PUT /api/users/capacity espera LimiteHorasDTO y responde CapacidadDTO con
-  // límiteHorasDiarias (ver docs/contrato-reprogramacion.md).
+  // límiteHorasDiarias (ver docs/contrato-reprogramacion.md). Ojo: /profile es de
+  // solo lectura y no acepta PATCH; el límite no se ajusta ahí.
   updateProfileLimit(payload) {
     return request('/api/users/capacity', {
       method: 'PUT',
@@ -162,6 +163,11 @@ export const api = {
         limiteHorasDiarias: Number(payload.limiteHorasDiarias),
       }),
     });
+  },
+
+  getCapacity(fecha) {
+    const query = fecha ? `?fecha=${encodeURIComponent(fecha)}` : '';
+    return request(`/api/users/capacity${query}`);
   },
 
   // Sin usuarioId: el backend toma el propietario del token de sesion.
@@ -218,9 +224,10 @@ export const api = {
     });
   },
 
-  // Devuelve 200 con la SubtareaDTO actualizada o 409 cuando supera el límite;
-  // el 409 lo normaliza reprogramacionService a la forma de conflicto de la UI
-  // (ver docs/contrato-reprogramacion.md).
+  // 200 con la SubtareaDTO plana cuando cabe en el límite; 409 con un
+  // ProblemDetail de campos aplanados cuando lo supera (ver
+  // docs/contrato-reprogramacion.md). El 409 llega como ApiError desde
+  // `request`, con el cuerpo en `error.details`.
   reprogramarSubtask(id, payload) {
     return request(`/api/subtareas/${encodeURIComponent(id)}/reprogramar`, {
       method: 'PATCH',

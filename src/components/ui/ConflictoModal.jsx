@@ -10,9 +10,10 @@ import {
 } from '../../utils/reprogramacion';
 
 /**
- * Modal de conflicto de límite diario. Aparece cuando el backend responde
- * `conflicto: true` (docs/contrato-reprogramacion.md): explica cuánto sobra y
- * ofrece corregir las horas o elegir otro día.
+ * Modal de conflicto de límite diario. Aparece cuando la reprogramación recibe
+ * un `ApiError` con `status === 409` (docs/contrato-reprogramacion.md): el
+ * backend no guardó nada y manda el detalle del conflicto. Explica cuánto sobra
+ * y ofrece corregir las horas o elegir otro día.
  */
 export function ConflictoModal({
   open,
