@@ -35,6 +35,7 @@ npm run build   # vite build -> dist/
 - El backend solo habilita CORS para `https://*.vercel.app` y `http://localhost:5173`. Cambiar el puerto de Vite rompe la SPA.
 - `api.js` usa timeout de 15 s y **reintenta una vez los `GET`** por el cold start del plan free de Render. No eliminarlo sin motivo.
 - Nunca poner secretos en variables `VITE_*` (van al bundle).
+- `VITE_USE_MOCKS=true` hace que `src/services/reprogramacionService.js` use el mock en memoria de `src/services/mocks/reprogramacion.js` (reprogramación y límite diario) sin tocar el backend. Es solo para desarrollo: no definirla en producción. El contrato está en `docs/contrato-reprogramacion.md`.
 
 ## Autenticación (US-11)
 
