@@ -228,9 +228,14 @@ select option {
   color: var(--text-primary);
 }
 
-:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
+/* El anillo de foco global va dentro de @layer base para que los componentes
+   (`@layer components`, como los botones) puedan sobreescribirlo con su propio
+   color. Sin capa le ganaría a cualquier regla de components. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
 }
 
 /* El skip-link es el primer elemento enfocable: al tabular desde arriba debe

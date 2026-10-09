@@ -1,12 +1,21 @@
 /* Sistema de botones: única fuente de verdad para toda la app.
-   Base `.btn` + una clase `.btn--*` por variante. Los colores salen de los
-   tokens semánticos de src/index.css (--primary, --success, --danger…) y no de
-   hex: el tema claro/oscuro se resuelve solo con `data-theme` en <html>, así que
-   aquí no se duplica ningún color por tema.
+   Base `.btn` que SOLO lee variables y variantes `.btn--*` que SOLO las
+   redefinen (sin `background-color`, `color` ni `border-color` sueltos). Los
+   valores salen de los tokens semánticos de src/index.css, así que el tema
+   claro/oscuro se resuelve con `data-theme` en <html> sin duplicar por tema.
 
-   Cada variante solo cambia fondo, texto y borde. La "reacción de agarre" (se
-   eleva al pasar el mouse, se hunde al presionar) vive en la base y hay que
-   animar transform y box-shadow además del color, o el efecto no se ve.
+   Variables de la base:
+   - `--btn-bg`         fondo en reposo
+   - `--btn-color`      color de texto (y de borde por defecto) en reposo
+   - `--btn-border`     color del borde (por defecto, el de `--btn-color`)
+   - `--btn-hover-bg`   fondo en hover/focus-visible
+   - `--btn-text-hover` color de texto en hover/focus-visible
+   - `--btn-focus`      color del anillo de `:focus-visible`
+   - `--btn-shadow-*`   sombra en reposo y en hover
+
+   La "reacción de agarre" (se eleva al pasar el mouse, se hunde al presionar)
+   vive en la base y hay que animar transform y box-shadow además del color, o
+   el efecto no se ve.
 
    Todo va dentro de @layer components para que las utilidades de Tailwind que
    llegan por `className` (por ejemplo `w-28 rounded-full text-xs`) sigan
@@ -14,6 +23,11 @@
 
 @layer components {
   .btn {
+    --btn-bg: transparent;
+    --btn-color: var(--text-secondary);
+    --btn-border: var(--btn-color);
+    --btn-hover-bg: var(--btn-color);
+    --btn-text-hover: var(--btn-color);
     --btn-focus: var(--focus-ring);
     --btn-shadow-rest: none;
     --btn-shadow-hover:
@@ -26,17 +40,18 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    border: 1px solid transparent;
+    border: 1px solid var(--btn-border);
     border-radius: 0.375rem;
-    background-color: transparent;
+    background-color: var(--btn-bg);
     box-shadow: var(--btn-shadow-rest);
+    color: var(--btn-color);
     font-size: 0.875rem;
     font-weight: 400;
     line-height: 1.25rem;
     white-space: nowrap;
     transition:
-      color 150ms ease,
       background-color 150ms ease,
+      color 150ms ease,
       border-color 150ms ease,
       box-shadow 150ms ease,
       transform 150ms ease;
@@ -47,11 +62,25 @@
     box-shadow: var(--btn-shadow-hover);
   }
 
+  /* En hover y foco por teclado el botón se llena con su color de variante. No
+     se toca el borde: cada variante ya define el suyo en reposo. */
+  .btn:hover,
+  .btn:focus-visible {
+    background-color: var(--btn-hover-bg);
+    color: var(--btn-text-hover);
+  }
+
+  .btn:focus-visible {
+    outline: 2px solid var(--btn-focus);
+    outline-offset: 2px;
+  }
+
   .btn:active {
     transform: translateY(0) scale(0.98);
     box-shadow: none;
   }
 
+  /* `pointer-events: none` corta el hover, así que disabled no tiene efecto. */
   .btn:disabled {
     pointer-events: none;
     cursor: not-allowed;
@@ -61,53 +90,44 @@
   /* ── Rellenos ─────────────────────────────────────────────────────────── */
 
   .btn--primary {
+    --btn-bg: var(--primary);
+    --btn-color: var(--primary-contrast);
+    --btn-border: transparent;
+    --btn-hover-bg: var(--primary-hover);
+    --btn-text-hover: var(--primary-contrast-hover);
     --btn-focus: var(--primary-text);
-    background-color: var(--primary);
-    color: var(--primary-contrast);
-    border-color: transparent;
-  }
-
-  .btn--primary:hover {
-    background-color: var(--primary-hover);
-    color: var(--primary-contrast-hover);
   }
 
   .btn--success {
+    --btn-bg: var(--success);
+    --btn-color: var(--primary-contrast);
+    --btn-border: transparent;
+    --btn-hover-bg: var(--success-text);
+    --btn-text-hover: var(--primary-contrast);
     --btn-focus: var(--success);
-    background-color: var(--success);
-    color: var(--primary-contrast);
-    border-color: transparent;
-  }
-
-  .btn--success:hover {
-    background-color: var(--success-text);
   }
 
   /* El rojo no se rellena de color al pasar el mouse: `--danger` es blanco en
      claro y un rojo apagado en oscuro, así que el borde y el texto llevan el
      rojo y el hover baja a `--danger-soft` para que el botón no grite. */
   .btn--danger {
+    --btn-bg: var(--danger);
+    --btn-color: var(--danger-text);
+    --btn-border: var(--danger-text);
+    --btn-hover-bg: var(--danger-soft);
+    --btn-text-hover: var(--danger-text);
     --btn-focus: var(--danger);
-    background-color: var(--danger);
-    color: var(--danger-text);
-    border-color: var(--danger-text);
-  }
-
-  .btn--danger:hover {
-    background-color: var(--danger-soft);
   }
 
   .btn--neutral {
+    --btn-bg: var(--surface-raised);
+    --btn-color: var(--text-secondary);
+    --btn-border: var(--border);
+    --btn-hover-bg: var(--surface-sunken);
+    --btn-text-hover: var(--text-secondary);
     --btn-focus: var(--border-strong);
     --btn-shadow-rest:
       0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    background-color: var(--surface-raised);
-    color: var(--text-secondary);
-    border-color: var(--border);
-  }
-
-  .btn--neutral:hover {
-    background-color: var(--surface-sunken);
   }
 
   /* ── Contornos ────────────────────────────────────────────────────────────
@@ -115,60 +135,43 @@
      al pasar el mouse el botón se llena con su tinte. */
 
   .btn--success-outline {
+    --btn-bg: var(--surface-raised);
+    --btn-color: var(--primary-text);
+    --btn-border: var(--success);
+    --btn-hover-bg: var(--success);
+    --btn-text-hover: var(--success-contrast);
     --btn-focus: var(--success);
-    background-color: var(--surface-raised);
-    color: var(--primary-text);
-    border-color: var(--success);
-  }
-
-  .btn--success-outline:hover {
-    background-color: var(--success);
-    color: var(--success-contrast);
   }
 
   .btn--danger-outline {
+    --btn-bg: var(--surface-raised);
+    --btn-color: var(--danger-text);
+    --btn-border: var(--danger-text);
+    --btn-hover-bg: var(--danger-soft);
+    --btn-text-hover: var(--danger-text);
     --btn-focus: var(--danger-text);
-    background-color: var(--surface-raised);
-    color: var(--danger-text);
-    border-color: var(--danger-text);
-  }
-
-  .btn--danger-outline:hover {
-    background-color: var(--danger-soft);
   }
 
   /* El borde neutro usa `--text-muted` y no `--border-strong`: este último se
      queda en 1.47:1 sobre la superficie, y un borde así es justo el caso que
      1.4.11 marca (el borde es lo único que identifica el control). */
   .btn--neutral-outline {
+    --btn-bg: var(--surface-raised);
+    --btn-color: var(--text-primary);
+    --btn-border: var(--text-muted);
+    --btn-hover-bg: var(--surface-sunken);
+    --btn-text-hover: var(--text-primary);
     --btn-focus: var(--border-strong);
-    background-color: var(--surface-raised);
-    color: var(--text-primary);
-    border-color: var(--text-muted);
   }
 
-  .btn--neutral-outline:hover {
-    background-color: var(--surface-sunken);
-    color: var(--text-primary);
-  }
-}
+  @media (prefers-reduced-motion: reduce) {
+    .btn {
+      transition: none;
+    }
 
-/* El foco va fuera de la capa a propósito: el `:focus-visible` global de
-   src/index.css es sin capa y, por precedencia de capas, le ganaría a cualquier
-   regla dentro de @layer components. Al quedar sin capa y con más especificidad
-   (`.btn:focus-visible`), el anillo de cada variante manda. */
-.btn:focus-visible {
-  outline: 2px solid var(--btn-focus);
-  outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .btn {
-    transition: none;
-  }
-
-  .btn:hover,
-  .btn:active {
-    transform: none;
+    .btn:hover,
+    .btn:active {
+      transform: none;
+    }
   }
 }
