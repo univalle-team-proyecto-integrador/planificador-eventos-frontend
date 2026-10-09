@@ -1,6 +1,6 @@
 import { useCallback, useId, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, LogOut } from 'lucide-react';
+import { ChevronDown, Info, LogOut } from 'lucide-react';
 import { useSession } from '../../providers/session-context';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { ThemeToggle } from './ThemeToggle';
@@ -26,6 +26,7 @@ export function ProfileMenu() {
   const { usuario, logout } = useSession();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [infoAbierta, setInfoAbierta] = useState(false);
   const containerRef = useRef(null);
   const triggerRef = useRef(null);
   const menuId = useId();
@@ -113,6 +114,32 @@ export function ProfileMenu() {
               Apariencia
             </p>
             <ThemeToggle className="w-full justify-between" />
+          </div>
+
+          {/* La información y ayuda vive aquí y no suelta en la barra superior:
+              igual que el tema, es parte de las preferencias de la cuenta. Se
+              expande dentro del propio menú. */}
+          <div className="border-b border-border">
+            <button
+              type="button"
+              role="menuitem"
+              aria-expanded={infoAbierta}
+              onClick={() => setInfoAbierta((abierta) => !abierta)}
+              className="flex w-full cursor-pointer items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-secondary-text transition-colors hover:bg-surface-sunken hover:text-primary-text"
+            >
+              <Info aria-hidden="true" className="size-4" />
+              Información y ayuda
+              <ChevronDown
+                aria-hidden="true"
+                className={`ml-auto size-4 transition-transform ${infoAbierta ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {infoAbierta && (
+              <p className="border-t border-border px-4 py-3 text-xs leading-relaxed text-secondary-text">
+                Información de tu cuenta y ayuda.
+              </p>
+            )}
           </div>
 
           <button

@@ -231,6 +231,29 @@ describe('shell de la aplicación', () => {
     expect(menu.querySelector('[role="menuitem"]')).not.toBeNull();
   });
 
+  it('la información y ayuda vive en el menú de perfil y expande su texto', async () => {
+    stubApi();
+    saveSession({ token: 'abc', nombre: 'Santiago Perez' });
+
+    await renderAt('/hoy');
+
+    // La barra superior ya no tiene el ícono de info suelto.
+    expect(container.textContent).not.toContain('Información y ayuda');
+
+    const menu = await abrirMenuPerfil(container);
+
+    const info = [...menu.querySelectorAll('[role="menuitem"]')].find((item) =>
+      item.textContent.includes('Información y ayuda')
+    );
+    expect(info).not.toBeNull();
+
+    await act(async () => {
+      info.click();
+    });
+
+    expect(menu.textContent).toContain('Información de tu cuenta y ayuda');
+  });
+
   // El calendario de gestiones viene del PR #4 y se fusionó con este shell, así
   // que este caso vigila que la combinación siga montando y cerrando.
   it('el calendario de /hoy abre como diálogo y cierra con Escape', async () => {

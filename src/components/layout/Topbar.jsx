@@ -5,15 +5,14 @@ import logoUrlDark from '../../img/Logo_h2.png';
 import { useTheme } from '../../providers/theme-context';
 import { Button } from '../ui/Button';
 import { SearchBar } from './SearchBar';
-import { InfoTip } from './InfoTip';
 import { ProfileMenu } from './ProfileMenu';
 
 /**
  * Barra superior fija.
  *
  * De izquierda a derecha: marca, buscador, y las acciones en el orden pedido —
- * crear evento, tema, información y perfil. El logo vive aquí y ya no se repite
- * en la barra lateral.
+ * crear evento y perfil. El logo vive aquí y ya no se repite en la barra
+ * lateral. La información y ayuda viven dentro del menú de perfil.
  *
  * Responsive: se usa `flex-wrap` con un solo ejemplo del buscador, así hay un
  * único input en el DOM en lugar de dos, que duplicaría estado y perdería foco
@@ -70,7 +69,6 @@ export function Topbar({ isNavOpen, onToggleNav }) {
             <span className="sm:hidden">Crear</span>
           </Button>
 
-          <InfoTip text="Información de tu cuenta y ayuda" />
           <ProfileMenu />
         </div>
       </div>
