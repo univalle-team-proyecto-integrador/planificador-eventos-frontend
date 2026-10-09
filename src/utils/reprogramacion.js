@@ -2,9 +2,11 @@ import { getPastDateMessage, isDateInPast } from './dateValidation';
 
 /**
  * Lógica pura del flujo de reprogramación (contrato en
- * docs/contrato-reprogramacion.md). El backend responde 200 con
- * `{ conflicto, limiteDiario, horasTotalesCalculadas, subtarea? }`; aquí se
- * interpreta esa forma y se validan los campos antes de enviar.
+ * docs/contrato-reprogramacion.md). El backend responde 200 con la
+ * `SubtareaDTO` actualizada o 409 cuando la reprogramación supera el límite
+ * diario; `normalizarConflicto409` traduce ese 409 a la forma
+ * `{ conflicto, limiteDiario, horasTotalesCalculadas, mensaje }` con la que
+ * trabaja la UI.
  */
 
 export const esConflicto = (respuesta) => respuesta?.conflicto === true;
@@ -26,7 +28,60 @@ export const getMensajeConflicto = (respuesta) => {
   const total = getHorasTotales(respuesta);
   const limite = getLimiteDiario(respuesta);
 
+  if (!total && !limite) {
+    return (
+      respuesta?.mensaje ||
+      'Ese día ya cubre tu límite de horas. Reduce las horas o elige otro día.'
+    );
+  }
+
   return `Ese día quedaría con ${total} h y tu límite diario es ${limite} h. Reduce las horas o mueve la gestión a otro día.`;
+};
+
+const numberLike = (value) => {
+  const numero = Number(value);
+  return Number.isFinite(numero) && numero > 0 ? numero : undefined;
+};
+
+/**
+ * Normaliza el 409 del backend (docs/contrato-reprogramacion.md) a la forma de
+ * conflicto que consume la UI. El body del 409 no define nombres de campo fijos,
+ * así que la extracción es tolerante: se prueban variantes y, si falta la
+ * aritmética, se cae a un mensaje genérico.
+ */
+export const normalizarConflicto409 = (details, nuevasHoras = 0) => {
+  const source =
+    details && typeof details === 'object' ? details : { message: details };
+
+  const limite =
+    numberLike(source.limiteDiario) ??
+    numberLike(source.limiteHorasDiarias) ??
+    numberLike(source.capacidad?.limiteHorasDiarias);
+
+  const horasALiberar = numberLike(source.horasALiberar);
+
+  const horasPlanificadas = numberLike(source.horasPlanificadas);
+  const nuevas = Number.isFinite(Number(nuevasHoras)) ? Number(nuevasHoras) : 0;
+
+  const total =
+    numberLike(source.horasTotalesCalculadas) ??
+    (limite !== undefined && horasALiberar !== undefined
+      ? limite + horasALiberar
+      : undefined) ??
+    (horasPlanificadas !== undefined ? horasPlanificadas + nuevas : undefined);
+
+  const mensaje =
+    (typeof source.mensaje === 'string' && source.mensaje.trim()) ||
+    (typeof source.detail === 'string' && source.detail.trim()) ||
+    (typeof source.message === 'string' && source.message.trim()) ||
+    'La reprogramación supera el límite diario de horas asignado.';
+
+  return {
+    conflicto: true,
+    limiteDiario: limite,
+    horasTotalesCalculadas: total,
+    mensaje,
+  };
 };
 
 /**

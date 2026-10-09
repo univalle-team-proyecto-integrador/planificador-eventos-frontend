@@ -5,6 +5,7 @@ import {
   getHorasTotales,
   getLimiteDiario,
   getMensajeConflicto,
+  normalizarConflicto409,
   validarReprogramacion,
 } from './reprogramacion';
 
@@ -31,6 +32,65 @@ describe('reprogramacion', () => {
   it('redacta el conflicto con qué pasó y cómo corregirlo', () => {
     expect(getMensajeConflicto(conflicto)).toBe(
       'Ese día quedaría con 9 h y tu límite diario es 6 h. Reduce las horas o mueve la gestión a otro día.'
+    );
+  });
+
+  it('normaliza un 409 con aritmética a la forma de conflicto de la UI', () => {
+    const resultado = normalizarConflicto409({
+      detail: 'Supera el límite',
+      limiteDiario: 6,
+      horasTotalesCalculadas: 9,
+    });
+
+    expect(resultado).toEqual({
+      conflicto: true,
+      limiteDiario: 6,
+      horasTotalesCalculadas: 9,
+      mensaje: 'Supera el límite',
+    });
+    expect(esConflicto(resultado)).toBe(true);
+    expect(getExceso(resultado)).toBe(3);
+  });
+
+  it('normaliza un 409 en formato capacidad sumando las nuevas horas', () => {
+    const resultado = normalizarConflicto409(
+      { capacidad: { limiteHorasDiarias: 6 }, horasPlanificadas: 7 },
+      3
+    );
+
+    expect(resultado.limiteDiario).toBe(6);
+    expect(resultado.horasTotalesCalculadas).toBe(10);
+    expect(getHorasTotales(resultado)).toBe(10);
+  });
+
+  it('normaliza un 409 con horas a liberar contra el límite', () => {
+    const resultado = normalizarConflicto409({
+      limiteDiario: 6,
+      horasALiberar: 3,
+    });
+
+    expect(resultado.limiteDiario).toBe(6);
+    expect(resultado.horasTotalesCalculadas).toBe(9);
+  });
+
+  it('normaliza un 409 sin aritmética a mensaje genérico', () => {
+    const resultado = normalizarConflicto409('El día está lleno');
+
+    expect(resultado.conflicto).toBe(true);
+    expect(resultado.limiteDiario).toBeUndefined();
+    expect(resultado.horasTotalesCalculadas).toBeUndefined();
+    expect(resultado.mensaje).toBe('El día está lleno');
+  });
+
+  it('usa un mensaje por defecto cuando el 409 no trae detalle', () => {
+    expect(normalizarConflicto409({}).mensaje).toBe(
+      'La reprogramación supera el límite diario de horas asignado.'
+    );
+  });
+
+  it('redacta el conflicto genérico cuando no hay cantidades', () => {
+    expect(getMensajeConflicto(normalizarConflicto409({}))).toBe(
+      'La reprogramación supera el límite diario de horas asignado.'
     );
   });
 
