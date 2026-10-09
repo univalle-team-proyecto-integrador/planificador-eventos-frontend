@@ -20,7 +20,8 @@ import {
  *
  * Incluye el límite de horas diarias del organizador (contrato en
  * docs/contrato-reprogramacion.md). La edición va al endpoint real
- * PUT /api/users/capacity; con VITE_USE_MOCKS=true se edita contra el mock.
+ * PUT /api/users/capacity, que devuelve `CapacidadDTO`; con VITE_USE_MOCKS=true
+ * se edita contra el mock.
  */
 export const ConfiguracionView = () => {
   const { notifySuccess, notifyError } = useNotifications();

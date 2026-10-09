@@ -1,7 +1,9 @@
-import { ArrowUpRight, TriangleAlert } from 'lucide-react';
+import { ArrowUpRight, CalendarClock, TriangleAlert } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
+  DESFASE_ADELANTADA,
   formatHours,
+  getDesfase,
   getStateLabel,
   getStateVariant,
   getTaskDate,
@@ -11,6 +13,13 @@ import { getEventAccent } from '../../utils/eventAccent';
 import { Badge } from './Badge';
 import { Button } from './Button';
 import { Card } from './Card';
+
+// El desfase se deriva de la fecha de planificación contra la actual, así que
+// no hace falta guardar el estado: postergar dos veces no acumula marcas.
+const DESFASE = {
+  [DESFASE_ADELANTADA]: { variant: 'success', etiqueta: 'Adelantada' },
+  postergada: { variant: 'pending', etiqueta: 'Postergada' },
+};
 
 export function TaskCard({
   task,
@@ -27,6 +36,8 @@ export function TaskCard({
   // Mismo acento por evento que la tarjeta de /progreso, para que una gestión y
   // su evento se lean como el mismo objeto aunque estén en pantallas distintas.
   const accent = getEventAccent(eventId);
+  const desfase = getDesfase(task);
+  const marcaDesfase = desfase ? DESFASE[desfase.tipo] : null;
 
   return (
     <Card
@@ -64,6 +75,13 @@ export function TaskCard({
 
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="neutral">{formatHours(getTaskHours(task))}</Badge>
+          {marcaDesfase && (
+            <Badge variant={marcaDesfase.variant}>
+              <CalendarClock aria-hidden="true" className="size-3.5" />
+              {marcaDesfase.etiqueta} · {desfase.dias}{' '}
+              {desfase.dias === 1 ? 'día' : 'días'}
+            </Badge>
+          )}
           {isOverdue && <Badge variant="pending">Atrasada</Badge>}
           {showState && (
             <Badge variant={getStateVariant(task.state)}>

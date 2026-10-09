@@ -1,5 +1,4 @@
 import { api, unwrapData } from './api';
-import { normalizarConflicto409 } from '../utils/reprogramacion';
 import * as mock from './mocks/reprogramacion';
 
 // Puerta única del frontend hacia el contrato de reprogramación
@@ -33,14 +32,8 @@ export const reprogramarSubtask = async (id, payload) => {
     return mock.reprogramarSubtask(id, payload);
   }
 
-  try {
-    return unwrapData(await api.reprogramarSubtask(id, payload));
-  } catch (error) {
-    // El backend responde 409 cuando la reprogramación supera el límite diario:
-    // se traduce a la forma de conflicto que entiende la UI.
-    if (error?.status === 409) {
-      return normalizarConflicto409(error.details, Number(payload.nuevasHoras));
-    }
-    throw error;
-  }
+  // Sin `unwrapData` y sin traducir el 409: la respuesta va cruda para que la
+  // vista distinga el 200 con la SubtareaDTO plana del ApiError 409, y lo lea con
+  // los nombres de campo que el backend manda de verdad.
+  return api.reprogramarSubtask(id, payload);
 };

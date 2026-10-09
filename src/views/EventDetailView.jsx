@@ -753,18 +753,13 @@ export function EventDetailView() {
         nuevasHoras,
       });
 
-      // El conflicto llega como 409 normalizado por el servicio; el éxito es la
-      // SubtareaDTO o un objeto con `subtarea`. Se ramifica por `conflicto`.
-      if (esConflicto(respuesta)) {
-        setConflicto({ respuesta, subtask: reprogramTarget });
-        setReprogramTarget(null);
-        return;
-      }
-
-      const actualizada = requireSubtaskResponse(
-        respuesta?.subtarea ?? respuesta,
-        reprogramTarget
-      );
+      // 200: la SubtareaDTO viene plana, sin envoltorio `subtarea`. Se combina
+      // con la subtarea que ya está en pantalla para no perder el `eventName` que
+      // solo existe en el cliente.
+      const actualizada = {
+        ...reprogramTarget,
+        ...requireSubtaskResponse(respuesta, reprogramTarget),
+      };
       setSubtasks((current) =>
         current.map((item) =>
           item.id === reprogramTarget.id ? actualizada : item
@@ -777,6 +772,14 @@ export function EventDetailView() {
         message: 'Gestión reprogramada correctamente.',
       });
     } catch (error) {
+      // 409: no cabe en el límite diario. El backend no guardó nada y manda el
+      // detalle del conflicto, así que se explica en vez de mostrar un error seco.
+      if (esConflicto(error)) {
+        setConflicto({ respuesta: error, subtask: reprogramTarget });
+        setReprogramTarget(null);
+        return;
+      }
+
       setReprogramError(getErrorMessage(error));
     } finally {
       setIsReprogramming(false);

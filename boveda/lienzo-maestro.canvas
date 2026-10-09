@@ -34,7 +34,9 @@
 		{"id":"m016","type":"file","file":"mejoras/2026-09-25-016-microcopy-ver-evento.md","x":200,"y":3180,"width":300,"height":140},
 		{"id":"p016","type":"text","text":"Mejora 016\nMicrocopy Ver evento\n2026-09-25","x":-240,"y":3180,"width":260,"height":120,"color":"1"},
 		{"id":"m017","type":"file","file":"mejoras/2026-10-08-017-selector-rango-proximas.md","x":200,"y":3360,"width":300,"height":140},
-		{"id":"p017","type":"text","text":"Mejora 017\nSelector de rango Próximas\n2026-10-08","x":-240,"y":3360,"width":260,"height":120,"color":"1"}
+		{"id":"p017","type":"text","text":"Mejora 017\nSelector de rango Próximas\n2026-10-08","x":-240,"y":3360,"width":260,"height":120,"color":"1"},
+		{"id":"m018","type":"file","file":"mejoras/2026-10-09-018-arregla-reprogramar-y-desfase.md","x":200,"y":3560,"width":300,"height":140},
+		{"id":"p018","type":"text","text":"Mejora 018\nArregla reprogramar y marca de desfase\n2026-10-09","x":-240,"y":3560,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -70,6 +72,8 @@
 		{"id":"e33","fromNode":"indice","fromSide":"bottom","toNode":"m016","toSide":"top"},
 		{"id":"e34","fromNode":"p016","fromSide":"right","toNode":"m016","toSide":"left"},
 		{"id":"e35","fromNode":"indice","fromSide":"bottom","toNode":"m017","toSide":"top"},
-		{"id":"e36","fromNode":"p017","fromSide":"right","toNode":"m017","toSide":"left"}
+		{"id":"e36","fromNode":"p017","fromSide":"right","toNode":"m017","toSide":"left"},
+		{"id":"e37","fromNode":"indice","fromSide":"bottom","toNode":"m018","toSide":"top"},
+		{"id":"e38","fromNode":"p018","fromSide":"right","toNode":"m018","toSide":"left"}
 	]
 }
