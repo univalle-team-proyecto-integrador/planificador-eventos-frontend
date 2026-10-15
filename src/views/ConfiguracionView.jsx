@@ -205,34 +205,9 @@ export const ConfiguracionView = () => {
       </Card>
 
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-primary-text">
-          Sistema de botones
-        </h3>
-        <p className="mt-1 max-w-2xl text-sm text-secondary-text">
-          Vista previa del sistema de botones con CSS puro
-          (`src/styles/buttons.css`) y variables por tema. Cambia el tema para
-          ver cómo se adaptan los colores.
-        </p>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <Button variant="primary">Primario</Button>
-          <Button variant="success">Éxito</Button>
-          <Button variant="danger">Peligro</Button>
-          <Button variant="neutral">Neutro</Button>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <Button variant="success-outline">Éxito contorno</Button>
-          <Button variant="danger-outline">Peligro contorno</Button>
-          <Button variant="neutral-outline">Neutro contorno</Button>
-          <Button variant="primary" disabled>
-            Deshabilitado
-          </Button>
-        </div>
-      </Card>
-
-      <Card className="p-6">
         <EmptyState
           title="Próximamente"
-          description="Seguimos preparando más opciones de configuración. Mientras tanto, puedes cambiar el tema con el interruptor de la barra superior y cerrar sesión desde tu menú de perfil."
+          description="Seguimos preparando más opciones de configuración. Mientras tanto, puedes cambiar el tema y cerrar sesión desde tu menú de perfil."
         />
       </Card>
     </div>
