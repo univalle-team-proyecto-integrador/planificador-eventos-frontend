@@ -94,8 +94,7 @@ export const normalizeSubtask = (payload) => ({
   // Fecha con la que se planificó la gestión. El backend la fija la primera vez
   // que la fecha cambia y es null en las que nunca se movieron, en cuyo caso no
   // hay nada que marcar.
-  originalDate:
-    payload?.originalDate ?? payload?.fechaObjetivoOriginal ?? null,
+  originalDate: payload?.originalDate ?? payload?.fechaObjetivoOriginal ?? null,
 });
 
 /** Dias que se movió la gestión respecto a su fecha de planificación. */
@@ -147,9 +146,6 @@ export const normalizeEvent = (payload) => ({
   name: payload?.name ?? payload?.nombre ?? 'Evento sin nombre',
   date: payload?.date ?? payload?.fechaEvento ?? '',
   idTipoEvento: payload?.idTipoEvento ?? payload?.typeId ?? null,
-  // Estimación declarada al crear el evento. Es informativa: el total real que
-  // usan las pantallas de carga sigue siendo la suma de las subtareas.
-  estimatedHours: payload?.horasEstimadas ?? payload?.estimatedHours ?? 0,
 });
 
 export const sumHours = (tasks) =>

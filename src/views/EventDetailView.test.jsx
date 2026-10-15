@@ -25,7 +25,6 @@ const EVENTO = {
   nombre: 'Boda de Prueba',
   cliente: 'Cliente',
   fechaEvento: '2030-05-10T18:00:00',
-  horasEstimadas: 8,
   lugar: 'Bogotá',
 };
 

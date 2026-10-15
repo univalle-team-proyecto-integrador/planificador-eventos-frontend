@@ -74,7 +74,7 @@ describe('request', () => {
     const payload = {
       nombre: 'Boda',
       cliente: 'María',
-      horasEstimadas: 20,
+      lugar: 'Cali',
     };
     fetch.mockResolvedValue(jsonResponse(201, { ...payload, idEvento: 9 }));
 
@@ -86,7 +86,7 @@ describe('request', () => {
     expect(options.headers.get('Content-Type')).toBe('application/json');
     expect(JSON.parse(options.body)).toEqual(payload);
     expect(resultado.idEvento).toBe(9);
-    expect(resultado.horasEstimadas).toBe(20);
+    expect(resultado.lugar).toBe('Cali');
   });
 
   it('responde null en respuestas sin cuerpo (204)', async () => {
