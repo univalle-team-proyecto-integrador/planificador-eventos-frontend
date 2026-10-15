@@ -659,6 +659,10 @@ export function EventDetailView() {
         message: 'Gestión añadida correctamente.',
       });
     } catch (error) {
+      if (esConflicto(error)) {
+        setConflicto({ respuesta: error, subtask: null, origen: 'create' });
+        return;
+      }
       notifyError({
         title: 'No pudimos añadir la gestión',
         message: getErrorMessage(error),
@@ -2008,6 +2012,9 @@ export function EventDetailView() {
           open
           conflicto={conflicto.respuesta}
           subtareaTitle={conflicto.subtask?.title}
+          origen={
+            conflicto.origen ?? (conflicto.borrador ? 'edit' : 'reprogram')
+          }
           onAdjust={ajustarHoras}
           // US-07: cancelar el aviso no borra la selección. Devuelve al modal
           // de reprogramar con lo que el usuario ya había elegido.

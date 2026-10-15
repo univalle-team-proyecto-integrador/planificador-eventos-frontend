@@ -158,7 +158,9 @@ describe('guardado de una gestión editada', () => {
    * el nombre agarra el equivocado.
    */
   const guardar = async () => {
-    const form = container.querySelector('#edit-subtask-title')?.closest('form');
+    const form = container
+      .querySelector('#edit-subtask-title')
+      ?.closest('form');
     expect(form).toBeTruthy();
 
     await act(async () => {
@@ -214,7 +216,9 @@ describe('guardado de una gestión editada', () => {
   });
 
   it('confirma con éxito cuando resuelto es true', async () => {
-    stubApi({ put: respuestaJson({ ...SUBTAREA, horasEstimadas: 1, resuelto: true }) });
+    stubApi({
+      put: respuestaJson({ ...SUBTAREA, horasEstimadas: 1, resuelto: true }),
+    });
 
     await renderDetalle();
     await pulsarEditar();

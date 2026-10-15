@@ -21,7 +21,7 @@ npm run build   # vite build -> dist/
 ## Tests
 
 - `vite.config.js` **sí** tiene bloque `test`, con `environment: 'jsdom'` (la sesión vive en `localStorage`, así que `window` tiene que existir). **`jsdom` está instalado**; `@testing-library` y `happy-dom` no.
-- Cobertura actual: **10 archivos, 86 tests** — `api`, `authService`, `tokenStorage`, `dateValidation`, `emailValidation`, `passwordValidation`, `taskMetrics`, `taskSearch`, `theme` y `components/layout/shell.test.jsx`.
+- Cobertura actual: **16 archivos, 148 tests** — `api`, `authService`, `tokenStorage`, `dateValidation`, `emailValidation`, `passwordValidation`, `taskMetrics`, `taskSearch`, `theme` y `components/layout/shell.test.jsx`.
 - Dos patrones conviven:
   - **Lógica pura** en `src/utils/` y `src/services/`. Es el patrón mayoritario y el preferido.
   - **Un test de render** en `src/components/layout/shell.test.jsx` monta el árbol real con `createRoot` + `act` de `react` (sin testing-library) y comprueba el shell: rutas, ítem activo, nombre de usuario, persistencia del tema y menú de perfil. Existe porque un fallo de cableado de providers deja la app en blanco y ningún test de lógica lo detecta.

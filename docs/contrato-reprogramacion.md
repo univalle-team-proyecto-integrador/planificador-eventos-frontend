@@ -186,6 +186,41 @@ Notas de `SubtareaService.reprogramar`:
 >
 > El backend ya documenta este body como `ProblemaCapacidadDTO` en su
 > `/v3/api-docs`; antes springdoc deducía `SubtareaDTO` y la spec mentía.
+
+### Crear una subtarea
+
+También evalúa el límite diario: al añadir una gestión, suma las horas ya asignadas al `fechaObjetivo` con las nuevas y devuelve `409` si supera el límite.
+
+```http
+POST /api/eventos/{id}/subtareas
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{ "nombreGestion": "...", "fechaObjetivo": "2026-11-15", "horasEstimadas": 2, "notaExplicativa": null }
+```
+
+Respuesta `201` (`SubtareaDTO` plano).
+
+Respuesta `409` cuando crearla deja al día por encima del límite (la subtarea **no** se crea):
+
+```json
+{
+  "type": "about:blank",
+  "title": "Límite diario excedido",
+  "status": 409,
+  "detail": "La reprogramación supera el límite diario de 6 horas",
+  "limiteDiario": 6,
+  "horasAsignadasPreviamente": 5,
+  "horasSolicitadas": 3,
+  "horasPlanificadasTotales": 8,
+  "excedente": 2,
+  "fecha": "2026-11-15",
+  "idSubtarea": null
+}
+```
+
+El cuerpo usa las mismas propiedades aplanadas en raíz que `reprogramar`. `idSubtarea` puede ser `null` al crear.
+
 ### Reducir horas (misma fecha, menos horas)
 
 No hay endpoint propio: se reutiliza la actualización de campos.

@@ -136,3 +136,53 @@ export const reprogramarSubtask = async (id, { nuevaFecha, nuevasHoras }) => {
   // 200 con la SubtareaDTO plana: sin envoltorio y sin campos de conflicto.
   return clonar(estado.subtareas[id]);
 };
+
+export const createSubtask = async (eventoId, dto = {}) => {
+  const { nombreGestion, horasEstimadas, fechaObjetivo, notaExplicativa } =
+    dto || {};
+  if (!fechaObjetivo) {
+    throw new ApiError('La fecha objetivo es obligatoria.', 400);
+  }
+  const horas = Number(horasEstimadas);
+  if (!esEntero(horas) || horas <= 0) {
+    throw new ApiError(
+      'Las horas estimadas deben ser un entero mayor que cero.',
+      400
+    );
+  }
+  const limiteDiario = estado.perfil.limiteHorasDiarias;
+  const horasOtras = estado.horasPorFecha[fechaObjetivo] ?? 0;
+  const horasPlanificadasTotales = horasOtras + horas;
+  if (horasPlanificadasTotales > limiteDiario) {
+    throw new ApiError(
+      `La reprogramación supera el límite diario de ${limiteDiario} horas`,
+      409,
+      {
+        title: 'Límite diario excedido',
+        status: 409,
+        detail: `La reprogramación supera el límite diario de ${limiteDiario} horas`,
+        limiteDiario,
+        horasAsignadasPreviamente: horasOtras,
+        horasSolicitadas: horas,
+        horasPlanificadasTotales,
+        excedente: horasPlanificadasTotales - limiteDiario,
+        fecha: fechaObjetivo,
+        idSubtarea: null,
+      }
+    );
+  }
+  const id = 10000 + Math.floor(Math.random() * 90000);
+  estado.subtareas[id] = {
+    idSubtarea: Number(id),
+    idEvento: Number(eventoId) || null,
+    nombreGestion: nombreGestion || '',
+    fechaObjetivo,
+    fechaObjetivoOriginal: null,
+    horasEstimadas: horas,
+    estado: 'pendiente',
+    notaExplicativa: notaExplicativa ?? null,
+    fechaCreacion: new Date().toISOString(),
+  };
+  estado.horasPorFecha[fechaObjetivo] = horasOtras + horas;
+  return clonar(estado.subtareas[id]);
+};

@@ -19,6 +19,7 @@ export function ConflictoModal({
   open,
   conflicto,
   subtareaTitle = '',
+  origen = 'reprogram',
   onAdjust,
   onCancel,
   isSaving = false,
@@ -62,6 +63,11 @@ export function ConflictoModal({
   const total = getHorasTotales(conflicto);
   const exceso = getExceso(conflicto);
 
+  const tituloModal =
+    origen === 'create'
+      ? 'Al añadir esta gestión, ese día queda sin espacio'
+      : 'Ese día queda sin espacio';
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--surface-overlay)] p-4"
@@ -93,10 +99,10 @@ export function ConflictoModal({
               id={titleId}
               className="text-lg font-semibold text-primary-text"
             >
-              Ese día queda sin espacio
+              {tituloModal}
             </h2>
             <p id={descriptionId} className="mt-1 text-sm text-secondary-text">
-              {getMensajeConflicto(conflicto)}
+              {getMensajeConflicto(conflicto, { origen })}
             </p>
           </div>
         </div>
@@ -122,7 +128,7 @@ export function ConflictoModal({
           </div>
         </dl>
 
-        {subtareaTitle && (
+        {origen !== 'create' && subtareaTitle && (
           <p className="mt-3 text-xs text-muted-text">
             Gestión sin cambios: “{subtareaTitle}”.
           </p>

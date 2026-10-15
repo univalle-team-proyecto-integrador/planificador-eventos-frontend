@@ -52,7 +52,8 @@ export const esConflicto = (entrada) =>
   entrada?.status === 409 ||
   cuerpo(entrada)?.status === 409;
 
-export const getLimiteDiario = (entrada) => Number(cuerpo(entrada)?.limiteDiario) || 0;
+export const getLimiteDiario = (entrada) =>
+  Number(cuerpo(entrada)?.limiteDiario) || 0;
 
 // El backend manda `horasPlanificadasTotales`; `horasTotalesCalculadas` es el
 // nombre del objeto normalizado. Se aceptan ambos, con el real primero.
@@ -95,9 +96,10 @@ export const getExceso = (entrada) => {
 export const getMensajeConflictoPersistente = () =>
   'Horas actualizadas, pero ese día sigue por encima de tu límite. Reduce más o mueve la gestión a otro día.';
 
-export const getMensajeConflicto = (entrada) => {
+export const getMensajeConflicto = (entrada, { origen } = {}) => {
   const total = getHorasTotales(entrada);
   const limite = getLimiteDiario(entrada);
+  const contexto = origen === 'create' ? 'Al añadir esta gestión, ' : '';
 
   if (!total && !limite) {
     const source = cuerpo(entrada);
@@ -106,11 +108,11 @@ export const getMensajeConflicto = (entrada) => {
       (typeof source?.detail === 'string' && source.detail.trim()) ||
       (typeof source?.title === 'string' && source.title.trim()) ||
       (typeof source?.mensaje === 'string' && source.mensaje.trim()) ||
-      'Ese día ya cubre tu límite de horas. Reduce las horas o elige otro día.'
+      `${contexto}Ese día ya cubre tu límite de horas. Reduce las horas o elige otro día.`
     );
   }
 
-  return `Ese día quedaría con ${total} h y tu límite diario es ${limite} h. Reduce las horas o mueve la gestión a otro día.`;
+  return `${contexto}Ese día quedaría con ${total} h y tu límite diario es ${limite} h. Reduce las horas o mueve la gestión a otro día.`;
 };
 
 const numberLike = (value) => {
@@ -141,7 +143,8 @@ export const normalizarConflicto409 = (details, nuevasHoras = 0) => {
 
   // El backend manda `excedente`, no "horas a liberar": la suma del límite y el
   // exceso es justamente el total planificado.
-  const excedente = numberLike(source.excedente) ?? numberLike(source.horasALiberar);
+  const excedente =
+    numberLike(source.excedente) ?? numberLike(source.horasALiberar);
 
   const nuevas = Number.isFinite(Number(nuevasHoras)) ? Number(nuevasHoras) : 0;
 
@@ -197,8 +200,7 @@ export const validarReprogramacion = ({ fecha, horas } = {}, hoy) => {
     errores.horas =
       'Ingresaste una fracción de hora. Ingresa un número entero de horas.';
   } else if (numero <= 0) {
-    errores.horas =
-      'Ingresaste 0 o menos. Asigna al menos 1 hora de esfuerzo.';
+    errores.horas = 'Ingresaste 0 o menos. Asigna al menos 1 hora de esfuerzo.';
   }
 
   return errores;
