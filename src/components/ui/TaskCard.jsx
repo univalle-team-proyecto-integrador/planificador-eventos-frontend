@@ -55,6 +55,7 @@ export function TaskCard({
   task,
   dateLabel,
   isOverdue = false,
+  esVencida = false,
   showState = true,
   onComplete,
   onDefer,
@@ -86,13 +87,17 @@ export function TaskCard({
       // `transition-shadow` ni `hover:shadow-md`: `.event-card` va sin capa y
       // manda sobre ellas, así que quedarían como clases muertas.
       //
-      // `event-card--vencida` dibuja el anillo rojo y sustituye el halo del
-      // evento por el de alerta. NO lleva `border-warning`: el anillo de 3px
-      // queda justo fuera del borde y un ámbar de 1px pegado al rojo se ve como
-      // dos contornos. El fondo, el icono y el badge siguen ámbar, que es el
-      // color de "requiere atención"; el rojo se reserva para "destruir".
-      className={`event-card p-4 ${
-        isOverdue ? 'event-card--vencida bg-warning-soft/50' : ''
+      // El anillo rojo sale de `esVencida` (la FECHA ya pasó) y no de `isOverdue`
+      // (estar en el grupo de vencidas): son dos cosas distintas y con un solo
+      // booleano no se pueden expresar. Una gestión pospuesta con fecha de ayer
+      // está vencida aunque viva en su propio grupo, y antes no se le veía
+      // nada por eso. `isOverdue` sigue trayendo el tinte ámbar y el badge.
+      //
+      // El anillo NO lleva `border-warning` encima: queda 3px fuera del borde y
+      // un ámbar de 1px pegado al rojo se vería como dos contornos. El tinte
+      // ámbar y el badge "Atrasada" sí siguen atados a `isOverdue` (el grupo).
+      className={`event-card p-4 ${esVencida ? 'event-card--vencida' : ''} ${
+        isOverdue ? 'bg-warning-soft/50' : ''
       }`}
       // Con la gestión vencida NO se pasa el color del evento: el estilo inline
       // gana a `.event-card--vencida`, y si siguiera aquí el halo del hover

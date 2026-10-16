@@ -58,7 +58,9 @@
 		{"id":"m028","type":"file","file":"mejoras/2026-10-16-028-barra-de-progreso-y-carga-del-dia.md","x":200,"y":5400,"width":300,"height":140},
 		{"id":"p028","type":"text","text":"Mejora 028\nBarra de progreso con recuento y carga del día (US-10)\n2026-10-16","x":-240,"y":5400,"width":260,"height":120,"color":"1"},
 		{"id":"m029","type":"file","file":"mejoras/2026-10-16-029-sombra-roja-en-gestion-vencida.md","x":200,"y":5600,"width":300,"height":140},
-		{"id":"p029","type":"text","text":"Mejora 029\nSombra roja en la gestión vencida\n2026-10-16","x":-240,"y":5600,"width":260,"height":120,"color":"1"}
+		{"id":"p029","type":"text","text":"Mejora 029\nSombra roja en la gestión vencida\n2026-10-16","x":-240,"y":5600,"width":260,"height":120,"color":"1"},
+		{"id":"m030","type":"file","file":"mejoras/2026-10-16-030-vencida-por-fecha-y-no-por-grupo.md","x":200,"y":5800,"width":300,"height":140},
+		{"id":"p030","type":"text","text":"Mejora 030\nLa vencida depende de la fecha, no del grupo\n2026-10-16","x":-240,"y":5800,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -118,6 +120,8 @@
 		{"id":"e57","fromNode":"indice","fromSide":"bottom","toNode":"m028","toSide":"top"},
 		{"id":"e58","fromNode":"p028","fromSide":"right","toNode":"m028","toSide":"left"},
 		{"id":"e59","fromNode":"indice","fromSide":"bottom","toNode":"m029","toSide":"top"},
-		{"id":"e60","fromNode":"p029","fromSide":"right","toNode":"m029","toSide":"left"}
+		{"id":"e60","fromNode":"p029","fromSide":"right","toNode":"m029","toSide":"left"},
+		{"id":"e61","fromNode":"indice","fromSide":"bottom","toNode":"m030","toSide":"top"},
+		{"id":"e62","fromNode":"p030","fromSide":"right","toNode":"m030","toSide":"left"}
 	]
 }

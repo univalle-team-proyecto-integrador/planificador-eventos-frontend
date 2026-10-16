@@ -99,6 +99,23 @@ export const isTaskDeferred = (task) => getTaskState(task) === DEFERRED_STATE;
 export const isTaskActive = (task) =>
   !ESTADOS_SIN_COMPROMISO.includes(getTaskState(task));
 
+/**
+ * ¿La fecha objetivo de la gestión ya pasó?
+ *
+ * Deliberadamente NO mira el estado ni el grupo en el que se muestra. "Vencida"
+ * es una fecha, no un lugar: una gestión pospuesta conserva la última fecha que
+ * tuvo y sigue estando vencida aunque viva en su propio grupo, así que atar el
+ * aviso al grupo hacía que las pospuestas con fecha pasada no tuvieran ninguno.
+ *
+ * No mira `isTaskActive` a propósito: una pospuesta no compromete horas, pero sí
+ * está atrasada, y ese es justo el aviso que el usuario quiere ver.
+ */
+export const esVencida = (task, today) => {
+  const fecha = toDateKey(task?.date ?? task?.fechaObjetivo);
+
+  return Boolean(fecha) && fecha < toDateKey(today);
+};
+
 export const getTaskHours = (task) => {
   const hours = Number(task?.hours ?? task?.horasEstimadas);
   return Number.isFinite(hours) ? hours : 0;

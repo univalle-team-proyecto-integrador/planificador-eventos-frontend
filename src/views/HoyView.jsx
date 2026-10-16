@@ -27,6 +27,7 @@ import { ConflictoModal } from '../components/ui/ConflictoModal';
 import { normalizarConflicto409 } from '../utils/reprogramacion';
 import {
   classifyTasksByDate,
+  esVencida,
   formatHours,
   formatOverdueLabel,
   formatRelativeDate,
@@ -66,6 +67,14 @@ const getErrorMessage = (error) =>
   error?.message ||
   'No pudimos cargar las gestiones de hoy. Inténtalo de nuevo.';
 
+/**
+ * Un grupo de la pantalla de hoy.
+ *
+ * `esVencida` es un predicado por gestión, no un booleano de sección: el aviso
+ * rojo depende de la FECHA, y dentro de un mismo grupo puede variar (en
+ * Pospuestas, unas ya tienen la fecha pasada y otras no). `isOverdue` sigue
+ * siendo de la sección y es lo que aporta el tinte ámbar y el badge "Atrasada".
+ */
 function TaskSection({
   id,
   title,
@@ -73,6 +82,7 @@ function TaskSection({
   tasks,
   total,
   getDateLabel,
+  esVencida,
   isOverdue = false,
   onComplete,
   onDefer,
@@ -108,6 +118,7 @@ function TaskSection({
             key={task.id}
             task={task}
             dateLabel={getDateLabel(task)}
+            esVencida={esVencida ? esVencida(task) : false}
             isOverdue={isOverdue}
             onComplete={onComplete}
             onDefer={onDefer}
@@ -334,6 +345,15 @@ export const HoyView = () => {
   const cambiarRango = useCallback((days) => {
     setRangoProximas(persistRange(days));
   }, []);
+
+  // El aviso de vencida se calcula por FECHA y se pasa a los cuatro grupos,
+  // incluido el de Pospuestas: una gestion pospuesta conserva la ultima fecha
+  // que tuvo y sigue atrasada, asi que el aviso no puede depender de en que
+  // grupo aparezca.
+  const marcarSiVencida = useCallback(
+    (task) => esVencida(task, today),
+    [today]
+  );
 
   const groups = useMemo(
     () => classifyTasksByDate(filteredTasks, today, rangoProximas),
@@ -833,6 +853,7 @@ export const HoyView = () => {
             id="overdue-tasks-title"
             title="Gestiones vencidas"
             description="Gestiones con fecha objetivo anterior a hoy que requieren atención."
+            esVencida={marcarSiVencida}
             tasks={groups.overdueTasks}
             total={groups.overdueTotal}
             getDateLabel={(task) => formatOverdueLabel(task.date, today)}
@@ -846,6 +867,7 @@ export const HoyView = () => {
             id="today-tasks-title"
             title="Para hoy"
             description="Gestiones con fecha objetivo de hoy."
+            esVencida={marcarSiVencida}
             tasks={groups.todayTasks}
             total={groups.todayTotal}
             getDateLabel={() => 'Hoy'}
@@ -858,6 +880,7 @@ export const HoyView = () => {
             id="upcoming-tasks-title"
             title="Próximas"
             description={`Lo que viene en los próximos ${rangoProximas.days} días.`}
+            esVencida={marcarSiVencida}
             tasks={groups.upcomingTasks}
             total={groups.upcomingTotal}
             getDateLabel={(task) => formatRelativeDate(task.date, today)}
@@ -873,6 +896,7 @@ export const HoyView = () => {
             id="deferred-tasks-title"
             title="Pospuestas"
             description="Sin fecha asignada: no cuentan para tu carga diaria hasta que las reprogrames. Reprogramándolas vuelven a tu planificación."
+            esVencida={marcarSiVencida}
             tasks={groups.deferredTasks}
             total={groups.deferredTotal}
             getDateLabel={(task) =>

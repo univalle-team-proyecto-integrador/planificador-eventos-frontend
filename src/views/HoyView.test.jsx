@@ -101,6 +101,39 @@ const stubApi = ({
   return fetchMock;
 };
 
+// Una gestión POSPUESTA con la última fecha ya pasada. Es el caso que falló: al
+// posponerla sale del grupo de vencidas, pero sigue estando atrasada, así que el
+// aviso tiene que depender de la fecha y no de en qué grupo se pinte.
+const POSPUESTA_VENCIDA = {
+  ...SUBTAREA_VENCIDA,
+  estado: 'pospuesta',
+  notaExplicativa: 'Proveedor sin disponibilidad',
+};
+
+const stubApiPospuestaVencida = () => {
+  const fetchMock = vi.fn(async (url) => {
+    const ruta = String(url);
+
+    if (/\/api\/users\/capacity/.test(ruta)) {
+      return respuestaJson({ limiteHorasDiarias: 8 });
+    }
+    if (/\/api\/eventos\/9\/subtareas/.test(ruta)) {
+      return respuestaJson([POSPUESTA_VENCIDA]);
+    }
+    if (/\/api\/eventos\/9$/.test(ruta)) {
+      return respuestaJson(EVENTO);
+    }
+    if (/\/api\/eventos/.test(ruta)) {
+      return respuestaJson([EVENTO]);
+    }
+
+    return respuestaJson([]);
+  });
+
+  vi.stubGlobal('fetch', fetchMock);
+  return fetchMock;
+};
+
 describe('panel de hoy: registrar una gestión', () => {
   let container;
   let root;
@@ -124,7 +157,10 @@ describe('panel de hoy: registrar una gestión', () => {
     vi.unstubAllGlobals();
   });
 
-  const renderHoy = async () => {
+  // `espera` es el texto que cada prueba quiere ver montado: el panel agrupa
+  // por fecha y estado, asi que un stub con una sola gestion pospuesta nunca
+  // pinta la de hoy.
+  const renderHoy = async (espera = 'Confirmar proveedor') => {
     await act(async () => {
       root.render(
         <NotificationsProvider>
@@ -138,7 +174,7 @@ describe('panel de hoy: registrar una gestión', () => {
     });
 
     await vi.waitFor(() => {
-      expect(container.textContent).toContain('Confirmar proveedor');
+      expect(container.textContent).toContain(espera);
     });
   };
 
@@ -350,6 +386,27 @@ describe('panel de hoy: registrar una gestión', () => {
 
     expect(liVencida.style.getPropertyValue('--accent-glow')).toBe('');
     expect(liDeHoy.style.getPropertyValue('--accent-glow')).not.toBe('');
+  });
+
+  it('marca como vencida una pospuesta cuya fecha ya pasó', async () => {
+    // Es el caso que falló: la gestión está pospuesta, así que vive en su propio
+    // grupo, pero su fecha sigue siendo de ayer. "Vencida" es una FECHA, no un
+    // grupo, y el aviso tiene que verse igual.
+    stubApiPospuestaVencida();
+    await renderHoy('Cerrar el venue');
+
+    await vi.waitFor(() => {
+      expect(container.textContent).toContain('Cerrar el venue');
+    });
+
+    const liPospuesta = [...container.querySelectorAll('li')].find((li) =>
+      (li.textContent ?? '').includes('Cerrar el venue')
+    );
+
+    expect(liPospuesta.className).toContain('event-card--vencida');
+    // Pero sin el ámbar de la sección de vencidas: esa tarjeta no está en ese
+    // grupo, así que no gana el tinte ni el badge "Atrasada".
+    expect(liPospuesta.className).not.toContain('bg-warning-soft');
   });
 });
 

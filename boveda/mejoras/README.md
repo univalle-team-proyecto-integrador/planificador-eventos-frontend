@@ -30,3 +30,4 @@
 | 2026-10-16 | 027 | Registrar una gestión como hecha o pospuesta desde el panel de hoy (US-09) | [2026-10-16-027-registrar-gestion-hecha-o-pospuesta](2026-10-16-027-registrar-gestion-hecha-o-pospuesta.md) |
 | 2026-10-16 | 028 | La barra dice cuántas y qué día llevas (US-10) | [2026-10-16-028-barra-de-progreso-y-carga-del-dia](2026-10-16-028-barra-de-progreso-y-carga-del-dia.md) |
 | 2026-10-16 | 029 | La gestión vencida se sombrea de rojo | [2026-10-16-029-sombra-roja-en-gestion-vencida](2026-10-16-029-sombra-roja-en-gestion-vencida.md) |
+| 2026-10-16 | 030 | El aviso de vencida depende de la fecha, no del grupo | [2026-10-16-030-vencida-por-fecha-y-no-por-grupo](2026-10-16-030-vencida-por-fecha-y-no-por-grupo.md) |
