@@ -165,6 +165,18 @@
     --btn-focus: var(--success);
   }
 
+  /* El borde usa `--warning-text` y no `--warning`: en claro el ámbar del
+     relleno se queda en 5.02:1 y el del texto en 7.09:1, y para un borde —
+     que es lo único que identifica el control — se paga el margen. */
+  .btn--warning-outline {
+    --btn-bg: var(--surface-raised);
+    --btn-color: var(--warning-text);
+    --btn-border: var(--warning-text);
+    --btn-hover-bg: var(--warning-soft);
+    --btn-text-hover: var(--warning-text);
+    --btn-focus: var(--warning-text);
+  }
+
   .btn--danger-outline {
     --btn-bg: var(--surface-raised);
     --btn-color: var(--danger-text);
@@ -172,6 +184,19 @@
     --btn-hover-bg: var(--danger-soft);
     --btn-text-hover: var(--danger-text);
     --btn-focus: var(--danger-text);
+  }
+
+  /* Igual que el resto de contornos: fondo del tema, borde del color de la
+     acción. El borde toma `--primary-text` (7.06:1 en claro, 9.26:1 en oscuro)
+     y no `--primary`, que en claro baja a 3.42:1: pasa el mínimo, pero roza
+     la línea y el hover lo convertiría en el borde real. */
+  .btn--primary-outline {
+    --btn-bg: var(--surface-raised);
+    --btn-color: var(--primary-text);
+    --btn-border: var(--primary-text);
+    --btn-hover-bg: var(--primary);
+    --btn-text-hover: var(--primary-contrast);
+    --btn-focus: var(--primary-text);
   }
 
   /* Variante para "Eliminar evento": texto de alto contraste sobre la superficie

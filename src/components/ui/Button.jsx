@@ -11,7 +11,9 @@ const VARIANTS = {
   danger: 'btn--danger',
   neutral: 'btn--neutral',
   'success-outline': 'btn--success-outline',
+  'warning-outline': 'btn--warning-outline',
   'danger-outline': 'btn--danger-outline',
+  'primary-outline': 'btn--primary-outline',
   'neutral-outline': 'btn--neutral-outline',
   'danger-dark-text': 'btn--danger-dark-text',
 };

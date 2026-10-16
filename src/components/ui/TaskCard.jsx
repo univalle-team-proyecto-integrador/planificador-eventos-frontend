@@ -157,7 +157,9 @@ export function TaskCard({
                 <Button
                   type="button"
                   variant={
-                    task.state === ESTADO_EJECUTADA ? 'neutral' : 'success'
+                    task.state === ESTADO_EJECUTADA
+                      ? 'neutral'
+                      : 'success-outline'
                   }
                   className={TASK_ACTION_CLASS}
                   onClick={() => onComplete(task)}
@@ -177,7 +179,7 @@ export function TaskCard({
               {onDefer && puedePosponer && (
                 <Button
                   type="button"
-                  variant="warning"
+                  variant="warning-outline"
                   className={TASK_ACTION_CLASS}
                   onClick={() => onDefer(task)}
                   disabled={isUpdating}
@@ -193,7 +195,7 @@ export function TaskCard({
               {onReschedule && (
                 <Button
                   type="button"
-                  variant="primary"
+                  variant="primary-outline"
                   className={TASK_ACTION_CLASS}
                   onClick={() => onReschedule(task)}
                   disabled={isUpdating}
