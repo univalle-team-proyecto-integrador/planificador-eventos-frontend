@@ -235,8 +235,15 @@ export const classifyTasksByDate = (
   const taskList = Array.isArray(tasks) ? tasks : [];
   const upcomingLimit = addDays(today, days);
   // Una pospuesta tiene fecha pero no día: conserva la última que tuvo y esa ya
-  // no compromete nada, así que no va a Vencidas, Para hoy ni Próximas. Sale en
-  // su propio grupo para que siga siendo alcanzable y se pueda reprogramar.
+  // no compromete nada, así que no cuenta para la carga del día. Aun así, si esa
+  // fecha YA PASÓ está atrasada como cualquier otra y sale en Vencidas, que es
+  // donde se revisa lo que se pasó de fecha. Solo las pospuestas que conservan
+  // una fecha de hoy o futura se quedan en su propio grupo.
+  //
+  // Se reutiliza `esVencida` a propósito: el aviso rojo de la tarjeta y el grupo
+  // en el que aparece usan el mismo criterio, así que no pueden contradecirse.
+  const esAtrasada = (task) => esVencida(task, today);
+
   const isOpen = (task) => isTaskActive(task) && getTaskDate(task);
 
   // Regla de prioridad (US-04): primero la fecha objetivo más antigua y, en
@@ -246,7 +253,9 @@ export const classifyTasksByDate = (
     getTaskHours(a) - getTaskHours(b);
 
   const overdue = taskList
-    .filter((task) => isOpen(task) && getTaskDate(task) < today)
+    // Se excluyen las `ejecutada`: una gestión hecha no está atrasada, está
+    // terminada, aunque su fecha sea antigua.
+    .filter((task) => esAtrasada(task) && !isTaskCompleted(task))
     .sort(byDateThenEffort);
   const todayTasks = taskList
     .filter((task) => isOpen(task) && getTaskDate(task) === today)
@@ -261,7 +270,11 @@ export const classifyTasksByDate = (
     .sort(byDateThenEffort);
   // Las pospuestas no ocupan día, pero no se pierden: se listan aparte y sin
   // tope, porque quien pospuesta algo quiere recuperarlo, no verlo recortado.
-  const deferred = taskList.filter((task) => isTaskDeferred(task));
+  // Solo las pospuestas que NO están atrasadas: las de fecha ya pasada salen en
+  // Vencidas, que es donde se revisa lo que se pasó de fecha.
+  const deferred = taskList.filter(
+    (task) => isTaskDeferred(task) && !esAtrasada(task)
+  );
 
   return {
     todayTasks,

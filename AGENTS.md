@@ -22,7 +22,7 @@ npm run build   # vite build -> dist/
 ## Tests
 
 - `vite.config.js` **sí** tiene bloque `test`, con `environment: 'jsdom'` (la sesión vive en `localStorage`, así que `window` tiene que existir). **`jsdom` está instalado**; `@testing-library` y `happy-dom` no.
-- Cobertura actual: **19 archivos, 200 tests** — `api`, `authService`, `tokenStorage`, `dateValidation`, `emailValidation`, `passwordValidation`, `taskMetrics`, `taskSearch`, `taskExecution`, `theme`, `rangoPreximas`, `limiteHoras`, `limiteHorasValidation`, `reprogramacion`, `services/mocks/reprogramacion`, `components/ui/EventCard.test.jsx`, `views/EventDetailView.test.jsx`, `views/HoyView.test.jsx` y `components/layout/shell.test.jsx`.
+- Cobertura actual: **19 archivos, 201 tests** — `api`, `authService`, `tokenStorage`, `dateValidation`, `emailValidation`, `passwordValidation`, `taskMetrics`, `taskSearch`, `taskExecution`, `theme`, `rangoPreximas`, `limiteHoras`, `limiteHorasValidation`, `reprogramacion`, `services/mocks/reprogramacion`, `components/ui/EventCard.test.jsx`, `views/EventDetailView.test.jsx`, `views/HoyView.test.jsx` y `components/layout/shell.test.jsx`.
 - Dos patrones conviven:
   - **Lógica pura** en `src/utils/` y `src/services/`. Es el patrón mayoritario y el preferido.
   - **Tests de render** con `createRoot` + `act` de `react` (sin testing-library): `src/components/layout/shell.test.jsx` monta el shell real, `src/components/ui/EventCard.test.jsx` la tarjeta de evento de /progreso, y `src/views/{EventDetailView,HoyView}.test.jsx` ejercitan flujos que ningún test de lógica detecta (que el botón abra el modal, que el PATCH salga con el nombre del DTO, que la lista cambie sin recargar).
@@ -120,7 +120,7 @@ Todo el HTTP pasa por `src/services/api.js`; nunca hardcodear URLs en las vistas
 - Antes de empezar a trabajar, `git fetch` y arrancar desde `frontend/lead` al día, para no partir de una copia vieja.
 - Mensajes de commit en español con prefijos conventional: `feat:`, `fix:`, `docs:`, `style:`, `test:`, `merge:`. Con cuerpo cuando el _porqué_ no se entiende leyendo el diff; el cuerpo dice qué cambió y por qué, no el qué.
 - El backend es un **repo git aparte** en `../planificador-eventos-backend` (no es submódulo). `./mvnw test`, `./mvnw spring-boot:run` (puerto 8080). Render despliega desde su `main`; su rama de desarrollo es `backend/lead`.
-- Bóveda: crear un registro en `boveda/mejoras/` solo para mejoras notables (interfaz, UX, a11y, integración), no por cada commit. Al crearlo hay que actualizar también el índice `boveda/mejoras/README.md` y añadir el nodo en `boveda/lienzo-maestro.canvas`. Numeración usada: 001–031 (falta 009); el backend ya va por 037.
+- Bóveda: crear un registro en `boveda/mejoras/` solo para mejoras notables (interfaz, UX, a11y, integración), no por cada commit. Al crearlo hay que actualizar también el índice `boveda/mejoras/README.md` y añadir el nodo en `boveda/lienzo-maestro.canvas`. Numeración usada: 001–032 (falta 009); el backend ya va por 037.
 
 ## Documentos de referencia
 

@@ -171,22 +171,23 @@ export function TaskCard({
                   {task.state === ESTADO_EJECUTADA ? 'Completada' : 'Hecha'}
                 </Button>
               )}
-              {onDefer && (
+              {/* Un botón que no puede hacer nada no se pinta. Una gestión ya
+                  pospuesta llega a su tope: `siguienteEstado` devuelve `null`, y el
+                  botón solo repetiría el badge "Pospuesta" que ya está al lado. */}
+              {onDefer && puedePosponer && (
                 <Button
                   type="button"
-                  variant={
-                    task.state === ESTADO_POSPUEESTA ? 'neutral' : 'warning'
-                  }
+                  variant="warning"
                   className={TASK_ACTION_CLASS}
                   onClick={() => onDefer(task)}
-                  disabled={!puedePosponer || isUpdating}
+                  disabled={isUpdating}
                   aria-busy={isUpdating}
                 >
                   <CalendarClock
                     aria-hidden="true"
                     className="mr-1 inline size-4"
                   />
-                  {task.state === ESTADO_POSPUEESTA ? 'Pospuesta' : 'Posponer'}
+                  Posponer
                 </Button>
               )}
               {onReschedule && (

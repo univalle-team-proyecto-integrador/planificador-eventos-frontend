@@ -860,6 +860,10 @@ export const HoyView = () => {
             isOverdue
             onComplete={(task) => abrirRegistro(task, ACCION_COMPLETAR)}
             onDefer={(task) => abrirRegistro(task, ACCION_POSPONER)}
+            // Las pospuestas vencidas caen en este grupo (ver
+            // `classifyTasksByDate`) y reprogramar es la única acción que les
+            // sirve. Sin esto llegarían aquí sin forma de arreglar nada.
+            onReschedule={abrirReprogramacion}
             updatingId={updatingId}
           />
 

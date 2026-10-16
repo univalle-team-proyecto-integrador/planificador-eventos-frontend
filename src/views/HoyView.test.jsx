@@ -405,9 +405,16 @@ describe('panel de hoy: registrar una gestión', () => {
 
     expect(liPospuesta.className).toContain('event-card--vencida');
     expect(liPospuesta.className).toContain('bg-alerta-fondo/30');
-    // Pero sin el badge "Atrasada" del grupo de vencidas: esa tarjeta no está en
-    // ese grupo, así que no lo gana aunque esté vencida por fecha.
-    expect(liPospuesta.textContent).not.toContain('Atrasada');
+
+    // Va en el grupo de vencidas, así que gana el badge "Atrasada" como
+    // cualquier otra de ahí, y "Reprogramar" para poder sacarla de ahí.
+    expect(container.textContent).toContain('Gestiones vencidas');
+    expect(liPospuesta.textContent).toContain('Atrasada');
+    expect(liPospuesta.textContent).toContain('Reprogramar');
+
+    // Y no se duplica: si también saliera en Pospuestas, la misma gestión
+    // aparecería dos veces y habría que decidir cuál de las dos manda.
+    expect(container.textContent).not.toContain('Última fecha');
   });
 });
 
