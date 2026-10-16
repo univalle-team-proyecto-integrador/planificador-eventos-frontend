@@ -455,7 +455,7 @@ export const HoyView = () => {
 
         setReprogramError(
           getErrorMessage(failure) ||
-            'No se pudo reprogramar. Inténtalo de nuevo.'
+          'No se pudo reprogramar. Inténtalo de nuevo.'
         );
       } finally {
         setIsSavingDate(false);
@@ -523,7 +523,7 @@ export const HoyView = () => {
         setTasks(anterior);
         setSaveError(
           getErrorMessage(saveFailure) ||
-            'No pudimos actualizar el estado de la gestión.'
+          'No pudimos actualizar el estado de la gestión.'
         );
         notifyError({
           title: 'No pudimos actualizar el estado',
@@ -822,9 +822,9 @@ export const HoyView = () => {
           esconder el grupo dejaría esas acciones inalcanzables justo cuando son
           lo único que hay que hacer. */}
       {groups.overdueTasks.length === 0 &&
-      groups.todayTasks.length === 0 &&
-      groups.upcomingTasks.length === 0 &&
-      groups.deferredTasks.length === 0 ? (
+        groups.todayTasks.length === 0 &&
+        groups.upcomingTasks.length === 0 &&
+        groups.deferredTasks.length === 0 ? (
         activeFilterCount > 0 ? (
           <EmptyState
             title="Sin resultados para los filtros"
@@ -898,7 +898,7 @@ export const HoyView = () => {
               esto desaparecería de la pantalla sin forma de recuperarla. */}
           <TaskSection
             id="deferred-tasks-title"
-            title="Pospuestas"
+            title="Vencidas"
             description="Sin fecha asignada: no cuentan para tu carga diaria hasta que las reprogrames. Reprogramándolas vuelven a tu planificación."
             esVencida={marcarSiVencida}
             tasks={groups.deferredTasks}
