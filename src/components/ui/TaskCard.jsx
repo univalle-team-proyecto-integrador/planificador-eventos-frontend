@@ -86,11 +86,13 @@ export function TaskCard({
       // `transition-shadow` ni `hover:shadow-md`: `.event-card` va sin capa y
       // manda sobre ellas, así que quedarían como clases muertas.
       //
-      // `event-card--vencida` sustituye el halo del evento por el rojo de
-      // `--glow-alerta` y pone la sombra en rojo también en reposo. Solo define
-      // `box-shadow`, así que el tinte ámbar de abajo no se ve afectado.
+      // `event-card--vencida` dibuja el anillo rojo y sustituye el halo del
+      // evento por el de alerta. NO lleva `border-warning`: el anillo de 3px
+      // queda justo fuera del borde y un ámbar de 1px pegado al rojo se ve como
+      // dos contornos. El fondo, el icono y el badge siguen ámbar, que es el
+      // color de "requiere atención"; el rojo se reserva para "destruir".
       className={`event-card p-4 ${
-        isOverdue ? 'event-card--vencida border-warning bg-warning-soft/50' : ''
+        isOverdue ? 'event-card--vencida bg-warning-soft/50' : ''
       }`}
       // Con la gestión vencida NO se pasa el color del evento: el estilo inline
       // gana a `.event-card--vencida`, y si siguiera aquí el halo del hover
