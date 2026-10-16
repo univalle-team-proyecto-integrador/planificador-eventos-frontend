@@ -6,6 +6,7 @@ import {
   formatOverdueLabel,
   formatRelativeDate,
   getDesfase,
+  getHoursByDate,
   getTaskMetrics,
   isEventToday,
   normalizeEvent,
@@ -80,6 +81,65 @@ describe('taskMetrics', () => {
 
     expect(groups.upcomingTasks).toHaveLength(3);
     expect(groups.upcomingTotal).toBe(7);
+  });
+
+  // Una gestión pospuesta conserva la última fecha que tuvo, pero esa ya no
+  // compromete ningún día: no va a los grupos de planificación y sale aparte
+  // para que siga siendo alcanzable y se pueda reprogramar.
+  it('saca las pospuestas de los grupos de planificación', () => {
+    const groups = classifyTasksByDate(
+      [
+        task({ id: 1, date: '2026-09-25' }),
+        task({ id: 2, date: '2026-09-23', state: 'pospuesta' }),
+        task({ id: 3, date: '2026-09-25', state: 'pospuesta' }),
+        task({ id: 4, date: '2026-09-26' }),
+      ],
+      '2026-09-25'
+    );
+
+    expect(groups.todayTasks.map((item) => item.id)).toEqual([1]);
+    expect(groups.overdueTasks.map((item) => item.id)).toEqual([]);
+    expect(groups.upcomingTasks.map((item) => item.id)).toEqual([4]);
+  });
+
+  it('lista las pospuestas en su propio grupo y sin recortarlas', () => {
+    const pospuestas = Array.from({ length: 9 }, (_, index) =>
+      task({ id: index + 1, date: '2026-09-25', state: 'pospuesta' })
+    );
+    const groups = classifyTasksByDate(pospuestas, '2026-09-25', {
+      limit: 3,
+    });
+
+    expect(groups.deferredTasks).toHaveLength(9);
+    expect(groups.deferredTotal).toBe(9);
+  });
+
+  // La pospuesta no ocupa día, así que no puede empujar al día por encima del
+  // límite. Es lo que hace el backend al calcular el 409.
+  it('las pospuestas no cuentan para la carga del día', () => {
+    const horas = getHoursByDate(
+      [
+        task({ id: 1, hours: 2, date: '2026-09-25' }),
+        task({ id: 2, hours: 5, date: '2026-09-25', state: 'pospuesta' }),
+        task({ id: 3, hours: 4, date: '2026-09-25', state: 'ejecutada' }),
+        task({ id: 4, hours: 3, date: '2026-09-26', state: 'pospuesta' }),
+      ],
+      '2026-09-25'
+    );
+
+    expect(horas).toBe(2);
+  });
+
+  it('reprogramar devuelve una gestión a la planificación activa', () => {
+    const reprogramada = task({
+      id: 2,
+      date: '2026-09-30',
+      state: 'pendiente',
+    });
+    const groups = classifyTasksByDate([reprogramada], '2026-09-25');
+
+    expect(groups.deferredTasks).toHaveLength(0);
+    expect(groups.upcomingTasks.map((item) => item.id)).toEqual([2]);
   });
 
   it('ampliar el rango trae más gestiones próximas', () => {
@@ -211,7 +271,9 @@ describe('taskMetrics', () => {
     });
 
     it('no marca nada si la fecha no cambió', () => {
-      expect(getDesfase({ date: '2026-11-10', originalDate: '2026-11-10' })).toBeNull();
+      expect(
+        getDesfase({ date: '2026-11-10', originalDate: '2026-11-10' })
+      ).toBeNull();
     });
 
     it('no marca nada sin línea base con la que comparar', () => {

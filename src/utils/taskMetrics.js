@@ -1,4 +1,5 @@
 const COMPLETED_STATE = 'ejecutada';
+const DEFERRED_STATE = 'pospuesta';
 
 /**
  * Rango de días que el panel Hoy ofrece para el grupo "Próximas".
@@ -58,15 +59,8 @@ export const getHoursByDate = (tasks, dateKey) => {
   if (!dateKey || !Array.isArray(tasks)) return 0;
 
   return tasks
-    .filter(
-      (task) =>
-        task.state !== COMPLETED_STATE &&
-        toDateKey(task.date) === toDateKey(dateKey)
-    )
-    .reduce((total, task) => {
-      const hours = Number(task.hours ?? task.horasEstimadas ?? 0);
-      return total + (Number.isNaN(hours) ? 0 : hours);
-    }, 0);
+    .filter((task) => isTaskActive(task) && toDateKey(task.date) === dateKey)
+    .reduce((total, task) => total + getTaskHours(task), 0);
 };
 
 export const addDays = (dateKey, days) => {
@@ -85,6 +79,25 @@ export const getTaskState = (task) =>
   task?.state ?? task?.estado ?? 'pendiente';
 
 export const isTaskCompleted = (task) => getTaskState(task) === COMPLETED_STATE;
+
+/**
+ * Estados que no comprometen un día: `ejecutada` porque ya se hizo y `pospuesta`
+ * porque no tiene fecha efectiva conocida.
+ *
+ * <p>Una gestión pospuesta conserva la última fecha que tuvo, pero esa ya no es
+ * un compromiso: hasta reprogramarla no se sabe cuándo se hará. Por eso no cuenta
+ * ni para la carga del día ni para la alerta de sobrecarga, y no aparece en los
+ * grupos de planificación. Es la misma regla que aplica el backend al calcular el
+ * 409: si aquí contara y allí no, el panel avisaría de un sobrecosto que el
+ * servidor daría por bueno al guardar.
+ */
+export const ESTADOS_SIN_COMPROMISO = ['ejecutada', 'pospuesta'];
+
+export const isTaskDeferred = (task) => getTaskState(task) === DEFERRED_STATE;
+
+/** ¿La gestión ocupa un día del plan? */
+export const isTaskActive = (task) =>
+  !ESTADOS_SIN_COMPROMISO.includes(getTaskState(task));
 
 export const getTaskHours = (task) => {
   const hours = Number(task?.hours ?? task?.horasEstimadas);
@@ -204,7 +217,10 @@ export const classifyTasksByDate = (
 ) => {
   const taskList = Array.isArray(tasks) ? tasks : [];
   const upcomingLimit = addDays(today, days);
-  const isOpen = (task) => !isTaskCompleted(task) && getTaskDate(task);
+  // Una pospuesta tiene fecha pero no día: conserva la última que tuvo y esa ya
+  // no compromete nada, así que no va a Vencidas, Para hoy ni Próximas. Sale en
+  // su propio grupo para que siga siendo alcanzable y se pueda reprogramar.
+  const isOpen = (task) => isTaskActive(task) && getTaskDate(task);
 
   // Regla de prioridad (US-04): primero la fecha objetivo más antigua y, en
   // empate de fecha, la gestión con menor esfuerzo estimado (menos horas).
@@ -226,14 +242,19 @@ export const classifyTasksByDate = (
         getTaskDate(task) <= upcomingLimit
     )
     .sort(byDateThenEffort);
+  // Las pospuestas no ocupan día, pero no se pierden: se listan aparte y sin
+  // tope, porque quien pospuesta algo quiere recuperarlo, no verlo recortado.
+  const deferred = taskList.filter((task) => isTaskDeferred(task));
 
   return {
     todayTasks,
     overdueTasks: overdue.slice(0, limit),
     upcomingTasks: upcoming.slice(0, limit),
+    deferredTasks: deferred,
     todayTotal: todayTasks.length,
     overdueTotal: overdue.length,
     upcomingTotal: upcoming.length,
+    deferredTotal: deferred.length,
   };
 };
 
