@@ -270,4 +270,201 @@ describe('panel de hoy: registrar una gestión', () => {
     });
     expect(container.textContent).toContain('faltan 1 h por liberar');
   });
+
+  it('invita solo a completar, porque posponer ya no baja la carga', async () => {
+    stubApi({ capacidad: respuestaJson({ limiteHorasDiarias: 1 }) });
+    await renderHoy();
+
+    await vi.waitFor(() => {
+      expect(container.textContent).toContain('tu límite es de 1 h');
+    });
+    // Con la regla nueva, posponer saca la gestión de la cuenta por sí solo, así
+    // que ofrecerlo aquí prometería una bajada que el número no muestra.
+    expect(container.textContent).toContain('como hecha para bajarla');
+    expect(container.textContent).not.toContain('pospuesta para bajarla');
+  });
+});
+
+/**
+ * Reprogramar una gestión pospuesta desde el grupo "Pospuestas" (US-09/US-06).
+ *
+ * Va en su propio bloque porque necesita otro estado inicial: la gestión llega
+ * pospuesta, no pendiente. El stub responde con lo que el backend devolvería
+ * realmente, que es la gestión ya en `pendiente` con la fecha nueva.
+ */
+describe('panel de hoy: reprogramar una gestión pospuesta', () => {
+  let container;
+  let root;
+
+  const POSPUESTA = {
+    ...SUBTAREA,
+    estado: 'pospuesta',
+    notaExplicativa: 'Proveedor sin disponibilidad',
+  };
+
+  const REPROGRAMADA = {
+    ...SUBTAREA,
+    estado: 'pendiente',
+    fechaObjetivo: '2030-05-20',
+    notaExplicativa: 'Proveedor sin disponibilidad',
+  };
+
+  const stubApiPospuesta = () => {
+    const fetchMock = vi.fn(async (url) => {
+      const ruta = String(url);
+
+      if (/\/api\/users\/capacity/.test(ruta)) {
+        return respuestaJson({ limiteHorasDiarias: 8 });
+      }
+      if (/\/api\/eventos\/9\/subtareas/.test(ruta)) {
+        return respuestaJson([POSPUESTA]);
+      }
+      if (/\/api\/eventos\/9$/.test(ruta)) {
+        return respuestaJson(EVENTO);
+      }
+      if (/\/api\/eventos/.test(ruta)) {
+        return respuestaJson([EVENTO]);
+      }
+      if (/\/api\/subtareas\/3\/reprogramar/.test(ruta)) {
+        return respuestaJson(REPROGRAMADA);
+      }
+
+      return respuestaJson([]);
+    });
+
+    vi.stubGlobal('fetch', fetchMock);
+    return fetchMock;
+  };
+
+  beforeEach(() => {
+    global.IS_REACT_ACT_ENVIRONMENT = true;
+    window.localStorage.clear();
+    window.localStorage.setItem('eventflow.reglaHoy', '1');
+    saveSession({ token: 'abc', nombre: 'Santiago Perez' });
+
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+
+  afterEach(() => {
+    act(() => root.unmount());
+    container.remove();
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  const renderHoy = async () => {
+    await act(async () => {
+      root.render(
+        <NotificationsProvider>
+          <SearchProvider>
+            <MemoryRouter initialEntries={['/hoy']}>
+              <HoyView />
+            </MemoryRouter>
+          </SearchProvider>
+        </NotificationsProvider>
+      );
+    });
+
+    await vi.waitFor(() => {
+      expect(container.textContent).toContain('Confirmar proveedor');
+    });
+  };
+
+  // Compara por.includes y no por igualdad: los botones llevan un icono de Lucide
+  // delante, así que su textContent trae espacios que un === no limpiaba.
+  const botonPorTexto = (texto) =>
+    [...container.querySelectorAll('button')].find((b) =>
+      (b.textContent ?? '').includes(texto)
+    );
+
+  const pulsar = async (elemento) => {
+    expect(elemento).toBeTruthy();
+    await act(async () => {
+      elemento.click();
+    });
+  };
+
+  it('la muestra en su propio grupo y fuera de la planificación', async () => {
+    stubApiPospuesta();
+    await renderHoy();
+
+    expect(container.textContent).toContain('Pospuestas');
+    expect(container.textContent).toContain('Sin fecha asignada');
+    // No aparece en los grupos de planificación, que es lo que significa no
+    // tener día asignado.
+    expect(container.textContent).not.toContain('Para hoyGestiones con fecha');
+    // Conserva la última fecha que tenía, para que se vea de dónde salió, y
+    // ofrece la acción que la devuelve al plan.
+    expect(container.textContent).toContain('Última fecha:');
+    expect(botonPorTexto('Reprogramar')).toBeTruthy();
+  });
+
+  it('no compromete la carga del día', async () => {
+    stubApiPospuesta();
+    await renderHoy();
+
+    // Las 2 h de la gestión pospuesta no entran en la carga: sin día asignado no
+    // hay nada que contar.
+    await vi.waitFor(() => {
+      expect(container.textContent).toContain('Carga de hoy0 de 2 horas (0%)');
+    });
+  });
+
+  it('reprogramarla la devuelve al plan sin recargar', async () => {
+    const fetchMock = stubApiPospuesta();
+    await renderHoy();
+
+    await pulsar(botonPorTexto('Reprogramar'));
+
+    await vi.waitFor(() => {
+      expect(container.querySelector('[role="dialog"]')).toBeTruthy();
+    });
+
+    const campoFecha = container.querySelector('input[type="date"]');
+    expect(campoFecha).toBeTruthy();
+
+    // React ignora el evento 'input' directo sobre un input controlado: hay que
+    // pasar por el setter del prototipo para que su propio tracker de valor vea
+    // el cambio.
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        'value'
+      ).set;
+      setter.call(campoFecha, '2030-05-20');
+      campoFecha.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // Se toma el submit del formulario y no un botón por texto: el de la tarjeta
+    // se llama "Reprogramar" también y se colaría en el match.
+    await pulsar(
+      container.querySelector('[role="dialog"] button[type="submit"]')
+    );
+
+    await vi.waitFor(() => {
+      const llamada = fetchMock.mock.calls.find(
+        ([url, options]) =>
+          /\/api\/subtareas\/3\/reprogramar/.test(String(url)) &&
+          options?.method === 'PATCH'
+      );
+      expect(llamada).toBeTruthy();
+      expect(JSON.parse(llamada[1].body).nuevaFecha).toBe('2030-05-20');
+    });
+
+    // Sale de "Pospuestas" y entra en la planificación por su fecha nueva. La
+    // fecha viene en 2030, fuera del rango de próximas, así que no se espera ver
+    // un grupo concreto: lo que se comprueba es que ya no está pospuesta.
+    await vi.waitFor(() => {
+      expect(botonPorTexto('Reprogramar')).toBeFalsy();
+    });
+
+    // Y todo sin volver a pedir la lista.
+    const lecturasDeLista = fetchMock.mock.calls.filter(
+      ([url, options]) =>
+        /\/api\/eventos\/9\/subtareas/.test(String(url)) && !options?.method
+    );
+    expect(lecturasDeLista).toHaveLength(1);
+  });
 });

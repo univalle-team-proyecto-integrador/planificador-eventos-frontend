@@ -45,6 +45,11 @@ const TASK_ACTION_CLASS = 'w-28 rounded-full text-xs';
  * Cada botón se autodeshabilita si la gestión ya está en ese estado: `null` de
  * `siguienteEstado` significa que la acción no cambiaría nada, y mandar el PATCH
  * igual solo gastaría una petición.
+ *
+ * `onReschedule` es la acción de salida de una gestión pospuesta. No la
+ * comparten `onComplete`/`onDefer` porque solo tiene sentido cuando no hay día
+ * asignado: una gestión pospuesta no se puede volver a posponer ni a marcar como
+ * hecha desde aquí, solo reprogramarla.
  */
 export function TaskCard({
   task,
@@ -53,6 +58,7 @@ export function TaskCard({
   showState = true,
   onComplete,
   onDefer,
+  onReschedule,
   isUpdating = false,
 }) {
   const eventId = task.eventId;
@@ -67,7 +73,7 @@ export function TaskCard({
   const desfase = getDesfase(task);
   const marcaDesfase = desfase ? DESFASE[desfase.tipo] : null;
 
-  const acciones = onComplete || onDefer;
+  const acciones = onComplete || onDefer || onReschedule;
   const puedeCompletar =
     Boolean(onComplete) && siguienteEstado(task.state, 'completar') !== null;
   const puedePosponer =
@@ -158,6 +164,22 @@ export function TaskCard({
                     className="mr-1 inline size-4"
                   />
                   {task.state === ESTADO_POSPUEESTA ? 'Pospuesta' : 'Posponer'}
+                </Button>
+              )}
+              {onReschedule && (
+                <Button
+                  type="button"
+                  variant="primary"
+                  className={TASK_ACTION_CLASS}
+                  onClick={() => onReschedule(task)}
+                  disabled={isUpdating}
+                  aria-busy={isUpdating}
+                >
+                  <CalendarClock
+                    aria-hidden="true"
+                    className="mr-1 inline size-4"
+                  />
+                  Reprogramar
                 </Button>
               )}
             </>

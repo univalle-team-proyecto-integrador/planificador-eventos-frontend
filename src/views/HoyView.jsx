@@ -22,6 +22,9 @@ import {
   getMensajeConfirmacion,
   siguienteEstado,
 } from '../utils/taskExecution';
+import { ReprogramarModal } from '../components/ui/ReprogramarModal';
+import { ConflictoModal } from '../components/ui/ConflictoModal';
+import { normalizarConflicto409 } from '../utils/reprogramacion';
 import {
   classifyTasksByDate,
   formatHours,
@@ -73,6 +76,7 @@ function TaskSection({
   isOverdue = false,
   onComplete,
   onDefer,
+  onReschedule,
   updatingId,
 }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -107,6 +111,7 @@ function TaskSection({
             isOverdue={isOverdue}
             onComplete={onComplete}
             onDefer={onDefer}
+            onReschedule={onReschedule}
             isUpdating={updatingId === task.id}
           />
         ))}
@@ -152,6 +157,14 @@ export const HoyView = () => {
   const [isSavingState, setIsSavingState] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [updatingId, setUpdatingId] = useState(null);
+
+  // Reprogramación de una gestión pospuesta. Es la única vía para sacarla de
+  // "Pospuestas": el backend la devuelve a pendiente al confirmar, y entonces
+  // vuelve a entrar sola en Vencidas, Para hoy o Próximas según la fecha nueva.
+  const [reprogramacion, setReprogramacion] = useState(null);
+  const [isSavingDate, setIsSavingDate] = useState(false);
+  const [reprogramError, setReprogramError] = useState('');
+  const [conflictoReprogramacion, setConflictoReprogramacion] = useState(null);
 
   // Capacidad real del backend. Es un dato del servidor, no una suma del
   // cliente: el límite vive en el usuario, no en el navegador.
@@ -361,6 +374,76 @@ export const HoyView = () => {
     setEjecucion({ task, estado });
   }, []);
 
+  const abrirReprogramacion = useCallback((task) => {
+    setReprogramError('');
+    setConflictoReprogramacion(null);
+    setReprogramacion({ task });
+  }, []);
+
+  const cerrarReprogramacion = useCallback(() => {
+    setReprogramacion(null);
+    setReprogramError('');
+  }, []);
+
+  /**
+   * Reprograma la gestión pospuesta y la devuelve al plan.
+   *
+   * <p>El backend responde con la subtarea ya en `pendiente`, así que lo que se
+   * mezcla en la lista es su respuesta y no una suposición local. Si el día
+   * destino no cabe, llega un 409 y se abre el conflicto con las dos salidas que
+   * ofrece: ajustar horas o elegir otro día.
+   */
+  const confirmarReprogramacion = useCallback(
+    // El modal entrega los nombres del DTO (`nuevaFecha`, `nuevasHoras`), no los
+    // de la vista: se reenvían tal cual al endpoint.
+    async ({ nuevaFecha, nuevasHoras }) => {
+      if (!reprogramacion || isSavingDate) {
+        return;
+      }
+
+      const { task } = reprogramacion;
+
+      setIsSavingDate(true);
+      setReprogramError('');
+
+      try {
+        const response = unwrapData(
+          await api.reprogramarSubtask(task.id, {
+            nuevaFecha,
+            nuevasHoras,
+          })
+        );
+
+        const reprogramada = requireSubtaskResponse(response, task);
+
+        setTasks((current) =>
+          current.map((item) => (item.id === task.id ? reprogramada : item))
+        );
+        setReprogramacion(null);
+        invalidateSearchIndex();
+        notifySuccess({
+          icon: 'check',
+          message: 'Gestión reprogramada correctamente.',
+        });
+      } catch (failure) {
+        const conflicto = normalizarConflicto409(failure?.details);
+
+        if (conflicto) {
+          setConflictoReprogramacion(conflicto);
+          return;
+        }
+
+        setReprogramError(
+          getErrorMessage(failure) ||
+            'No se pudo reprogramar. Inténtalo de nuevo.'
+        );
+      } finally {
+        setIsSavingDate(false);
+      }
+    },
+    [reprogramacion, isSavingDate, invalidateSearchIndex, notifySuccess]
+  );
+
   const cerrarRegistro = useCallback(() => {
     if (isSavingState) {
       return;
@@ -443,9 +526,10 @@ export const HoyView = () => {
 
   // ── Carga horaria del día y sobrecarga (US-09) ─────────────────────────────
 
-  // `getHoursByDate` excluye las `ejecutada`, así que completar una gestión baja
-  // la cifra sola, sin restar a mano: si el cálculo se duplicara aquí, el número
-  // que se ve dejaría de coincidir con el que usa el backend para el 409.
+  // `getHoursByDate` excluye las `ejecutada` y las `pospuestas`, así que completar
+  // o posponer una gestión baja la cifra sola, sin restar a mano: si el cálculo
+  // se duplicara aquí, el número que se ve dejaría de coincidir con el que usa el
+  // backend para el 409.
   const comprometidasHoy = useMemo(
     () => getHoursByDate(tasks, today),
     [tasks, today]
@@ -462,9 +546,12 @@ export const HoyView = () => {
 
     const excedente = Math.round((comprometidasHoy - limiteDiario) * 10) / 10;
 
+    // Solo completar baja la carga. Poner una gestión pospuesta ya la saca de
+    // la cuenta por sí sola, así que ofrecerlo aquí sería prometer algo que el
+    // número que se ve no va a cambiar.
     return `Hoy llevas ${formatHours(comprometidasHoy)} comprometidas y tu límite es de ${formatHours(
       limiteDiario
-    )}: faltan ${formatHours(excedente)} por liberar. Marca una gestión como hecha o pospuesta para bajarla.`;
+    )}: faltan ${formatHours(excedente)} por liberar. Marca una gestión como hecha para bajarla.`;
   }, [comprometidasHoy, limiteDiario, sobrecargado]);
 
   // El modal de la regla se pinta por encima de los tres estados de la página,
@@ -519,6 +606,20 @@ export const HoyView = () => {
       onSubmit={confirmarRegistro}
       isSaving={isSavingState}
       serverError={saveError}
+    />
+  ) : null;
+
+  const modalReprogramacion = reprogramacion ? (
+    <ReprogramarModal
+      // Igual que en el modal de registro: cambiar la key por gestión vacía los
+      // campos sin necesitar un efecto que los limpie.
+      key={`reprogramar-${reprogramacion.task.id}`}
+      open
+      subtarea={reprogramacion.task}
+      onCancel={cerrarReprogramacion}
+      onSubmit={confirmarReprogramacion}
+      isSaving={isSavingDate}
+      serverError={reprogramError}
     />
   ) : null;
 
@@ -695,9 +796,15 @@ export const HoyView = () => {
         className="rounded-lg border border-border bg-surface-raised p-5"
       />
 
+      {/* El estado vacío solo sustituye a los grupos de PLANIFICACIÓN. El de
+          pospuestas va fuera de la condición a propósito: si el único trabajo que
+          hay es reprogramar lo pospuesto, mostrar "ninguna gestión pendiente" y
+          esconder el grupo dejaría esas acciones inalcanzables justo cuando son
+          lo único que hay que hacer. */}
       {groups.overdueTasks.length === 0 &&
       groups.todayTasks.length === 0 &&
-      groups.upcomingTasks.length === 0 ? (
+      groups.upcomingTasks.length === 0 &&
+      groups.deferredTasks.length === 0 ? (
         activeFilterCount > 0 ? (
           <EmptyState
             title="Sin resultados para los filtros"
@@ -758,6 +865,22 @@ export const HoyView = () => {
             onDefer={(task) => abrirRegistro(task, ACCION_POSPONER)}
             updatingId={updatingId}
           />
+
+          {/* Grupo aparte: una gestión pospuesta conserva la última fecha que tuvo
+              pero no ocupa ningún día, así que no va en los tres de arriba. Sin
+              esto desaparecería de la pantalla sin forma de recuperarla. */}
+          <TaskSection
+            id="deferred-tasks-title"
+            title="Pospuestas"
+            description="Sin fecha asignada: no cuentan para tu carga diaria hasta que las reprogrames. Reprogramándolas vuelven a tu planificación."
+            tasks={groups.deferredTasks}
+            total={groups.deferredTotal}
+            getDateLabel={(task) =>
+              `Última fecha: ${formatOverdueLabel(task.date, today)}`
+            }
+            onReschedule={abrirReprogramacion}
+            updatingId={updatingId}
+          />
         </>
       )}
 
@@ -769,6 +892,55 @@ export const HoyView = () => {
 
       {modalRegla}
       {modalRegistro}
+      {modalReprogramacion}
+      {conflictoReprogramacion && (
+        <ConflictoModal
+          conflicto={conflictoReprogramacion}
+          onCancel={() => setConflictoReprogramacion(null)}
+          onSave={async (horas) => {
+            // "Ajustar horas" reaplica la misma fecha destino con menos horas. Si
+            // aun así no cabe, el 409 vuelve a abrir este mismo modal con el
+            // nuevo número, y el modal de reprogramación sigue debajo con los
+            // campos intactos.
+            setIsSavingDate(true);
+            try {
+              const response = unwrapData(
+                await api.reprogramarSubtask(reprogramacion.task.id, {
+                  nuevaFecha: reprogramacion.task.date,
+                  nuevasHoras: horas,
+                })
+              );
+              setTasks((current) =>
+                current.map((item) =>
+                  item.id === reprogramacion.task.id
+                    ? requireSubtaskResponse(response, item)
+                    : item
+                )
+              );
+              setConflictoReprogramacion(null);
+              setReprogramacion(null);
+              invalidateSearchIndex();
+              notifySuccess({
+                icon: 'check',
+                message:
+                  'Horas ajustadas. El plan vuelve a estar en tu límite.',
+              });
+            } catch (failure) {
+              const conflicto = normalizarConflicto409(failure?.details);
+              if (conflicto) {
+                setConflictoReprogramacion(conflicto);
+                return;
+              }
+              notifyError({
+                title: 'No pudimos ajustar las horas',
+                message: getErrorMessage(failure),
+              });
+            } finally {
+              setIsSavingDate(false);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
