@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
-  CalendarClock,
   CalendarDays,
   Check,
   MapPin,
@@ -62,12 +61,19 @@ const SUBTASK_SUCCESS_MESSAGES = {
 };
 
 /**
- * Clase compartida por los cuatro botones de acción de cada gestión, que van
- * en el orden: Editar, Completar/Reabrir, Reprogramar y Eliminar.
+ * Clase compartida por los tres botones de acción de cada gestión, que van
+ * en el orden: Completar/Reabrir, Editar y Eliminar.
  *
- * El orden va de la acción más frecuente a la más destructiva, y deja
- * Eliminar al final: es el único irreversible y el más costoso de alcanzar por
- * error. Completar y Reabrir son el mismo botón según el estado de la gestión.
+ * Completar/Reabrir va primero porque es la acción más frecuente del día, y
+ * Eliminar al final porque es la única irreversible. Completar y Reabrir son
+ * el mismo botón según el estado de la gestión.
+ *
+ * Reprogramar se retiró de la fila el 2026-10-16: el modal, sus estados y el
+ * `PATCH /api/subtareas/{id}/reprogramar` siguen existiendo, pero ya no hay
+ * ningún `<Button>` que los abra. Para cambiar la fecha de una gestión se usa
+ * el formulario de edición, que **no** valida el límite diario: solo lo hacen
+ * `POST`, `PUT` (con la regla "solo si empeora") y el propio `PATCH`. Ojo con
+ * eso al tocar el flujo.
  *
  * La anchura fija es lo que los mantiene alineados: "Editar" y "Eliminar" son
  * muy distintos en longitud y, sin `w-28`, la fila se ve desigual. El color no
@@ -1921,24 +1927,6 @@ export function EventDetailView() {
                     </Badge>
                     <Button
                       type="button"
-                      variant="success-outline"
-                      className={TASK_ACTION_CLASS}
-                      onClick={() => startEditingSubtask(subtask)}
-                      disabled={
-                        updatingSubtaskId === subtask.id ||
-                        isSavingSubtaskEdit ||
-                        editingSubtaskId === subtask.id
-                      }
-                      aria-label={`Editar ${subtask.title}`}
-                    >
-                      <Pencil
-                        aria-hidden="true"
-                        className="mr-1 inline size-3.5"
-                      />
-                      Editar
-                    </Button>
-                    <Button
-                      type="button"
                       variant={
                         subtask.state === 'ejecutada'
                           ? 'neutral-outline'
@@ -1977,24 +1965,21 @@ export function EventDetailView() {
                     </Button>
                     <Button
                       type="button"
-                      variant="neutral-outline"
+                      variant="success-outline"
                       className={TASK_ACTION_CLASS}
-                      onClick={() => {
-                        setReprogramError('');
-                        setReprogramTarget(subtask);
-                      }}
+                      onClick={() => startEditingSubtask(subtask)}
                       disabled={
                         updatingSubtaskId === subtask.id ||
                         isSavingSubtaskEdit ||
                         editingSubtaskId === subtask.id
                       }
-                      aria-label={`Reprogramar ${subtask.title}`}
+                      aria-label={`Editar ${subtask.title}`}
                     >
-                      <CalendarClock
+                      <Pencil
                         aria-hidden="true"
                         className="mr-1 inline size-3.5"
                       />
-                      Reprogramar
+                      Editar
                     </Button>
                     <Button
                       type="button"
