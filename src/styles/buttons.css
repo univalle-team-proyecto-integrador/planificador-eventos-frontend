@@ -121,6 +121,20 @@
     --btn-focus: var(--danger);
   }
 
+  /* Aviso y posposición: relleno ámbar con el texto de `--warning-contrast`,
+     que es blanco en claro y oscuro en oscuro porque el relleno se invierte
+     entre temas. El hover oscurece con `--warning-text` y conserva ese texto:
+     los dos pares pasan AA (5.02:1 y 7.09:1 en claro, 10.93:1 y 11.6:1 en
+     oscuro). */
+  .btn--warning {
+    --btn-bg: var(--warning);
+    --btn-color: var(--warning-contrast);
+    --btn-border: transparent;
+    --btn-hover-bg: var(--warning-text);
+    --btn-text-hover: var(--warning-contrast);
+    --btn-focus: var(--warning);
+  }
+
   .btn--neutral {
     --btn-bg: var(--surface-raised);
     --btn-color: var(--text-secondary);

@@ -27,3 +27,5 @@
 | 2026-10-15 | 024 | Borrador automático, paginación en Hoy, fin de los destellos y confirmaciones | [2026-10-15-024-borrador-paginacion-y-confirmaciones](2026-10-15-024-borrador-paginacion-y-confirmaciones.md) |
 | 2026-10-15 | 025 | El cambio de tema se anima en lugar de saltar | [2026-10-15-025-transicion-de-tema](2026-10-15-025-transicion-de-tema.md) |
 | 2026-10-15 | 026 | Orden de las acciones de una gestión | [2026-10-15-026-orden-de-acciones-de-una-gestion](2026-10-15-026-orden-de-acciones-de-una-gestion.md) |
+| 2026-10-16 | 027 | Registrar una gestión como hecha o pospuesta desde el panel de hoy (US-09) | [2026-10-16-027-registrar-gestion-hecha-o-pospuesta](2026-10-16-027-registrar-gestion-hecha-o-pospuesta.md) |
+| 2026-10-16 | 028 | La barra dice cuántas y qué día llevas (US-10) | [2026-10-16-028-barra-de-progreso-y-carga-del-dia](2026-10-16-028-barra-de-progreso-y-carga-del-dia.md) |

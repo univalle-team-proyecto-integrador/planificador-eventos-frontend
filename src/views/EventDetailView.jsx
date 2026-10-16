@@ -25,6 +25,7 @@ import { WorkloadSummary } from '../components/ui/WorkloadSummary';
 import { getEventAccent } from '../utils/eventAccent';
 import { getEventTypeIcon } from '../utils/eventTypeIcons';
 import { getTaskMetrics, toDateKey } from '../utils/taskMetrics';
+import { requireSubtaskResponse } from '../utils/subtaskResponse';
 import {
   esConflicto,
   getMensajeConflictoPersistente,
@@ -160,34 +161,6 @@ const eventToForm = (event) => ({
   fecha: toDateInputValue(event.fechaEvento),
   lugar: event.lugar,
 });
-
-const normalizeSubtask = (payload, fallbackId) => {
-  const source = payload || {};
-
-  return {
-    id: source.id ?? source.idSubtarea ?? fallbackId,
-    title: source.nombreGestion ?? source.title ?? source.name ?? '',
-    hours: source.horasEstimadas ?? source.hours ?? '',
-    date: source.fechaObjetivo ?? source.date ?? '',
-    state: source.estado ?? source.state ?? 'pendiente',
-  };
-};
-
-const requireSubtaskResponse = (payload, currentSubtask = null) => {
-  const source = payload || {};
-  const id = source.id ?? source.idSubtarea;
-
-  if (id === undefined || id === null) {
-    throw new Error(
-      'La respuesta del servidor no incluye la subtarea actualizada.'
-    );
-  }
-
-  return normalizeSubtask(
-    currentSubtask ? { ...currentSubtask, ...source } : source,
-    id
-  );
-};
 
 const validateSubtask = (formData) => {
   const newErrors = {};

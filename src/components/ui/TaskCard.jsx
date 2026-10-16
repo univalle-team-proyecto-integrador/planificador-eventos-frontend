@@ -1,4 +1,9 @@
-import { ArrowUpRight, CalendarClock, TriangleAlert } from 'lucide-react';
+import {
+  ArrowUpRight,
+  CalendarClock,
+  CircleCheck,
+  TriangleAlert,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
   DESFASE_ADELANTADA,
@@ -9,6 +14,11 @@ import {
   getTaskDate,
   getTaskHours,
 } from '../../utils/taskMetrics';
+import {
+  ESTADO_EJECUTADA,
+  ESTADO_POSPUEESTA,
+  siguienteEstado,
+} from '../../utils/taskExecution';
 import { getEventAccent } from '../../utils/eventAccent';
 import { Badge } from './Badge';
 import { Button } from './Button';
@@ -21,11 +31,29 @@ const DESFASE = {
   postergada: { variant: 'pending', etiqueta: 'Postergada' },
 };
 
+// Las acciones de una gestión comparten ancho para que la fila no se vea
+// desigual. El ancho va aquí y no repetido en cada botón.
+const TASK_ACTION_CLASS = 'w-28 rounded-full text-xs';
+
+/**
+ * Tarjeta de una gestión.
+ *
+ * `onComplete` y `onDefer` son opcionales a propósito: /progreso y el calendario
+ * muestran la misma tarjeta sin acciones y no deben cambiar de aspecto. Cuando
+ * llegan, aparecen los botones rápidos de US-09.
+ *
+ * Cada botón se autodeshabilita si la gestión ya está en ese estado: `null` de
+ * `siguienteEstado` significa que la acción no cambiaría nada, y mandar el PATCH
+ * igual solo gastaría una petición.
+ */
 export function TaskCard({
   task,
   dateLabel,
   isOverdue = false,
   showState = true,
+  onComplete,
+  onDefer,
+  isUpdating = false,
 }) {
   const eventId = task.eventId;
   // Sin nombre de evento no se inventa un "Evento #12": ese numeral solo
@@ -38,6 +66,12 @@ export function TaskCard({
   const accent = getEventAccent(eventId);
   const desfase = getDesfase(task);
   const marcaDesfase = desfase ? DESFASE[desfase.tipo] : null;
+
+  const acciones = onComplete || onDefer;
+  const puedeCompletar =
+    Boolean(onComplete) && siguienteEstado(task.state, 'completar') !== null;
+  const puedePosponer =
+    Boolean(onDefer) && siguienteEstado(task.state, 'posponer') !== null;
 
   return (
     <Card
@@ -87,6 +121,46 @@ export function TaskCard({
             <Badge variant={getStateVariant(task.state)}>
               {getStateLabel(task.state)}
             </Badge>
+          )}
+          {acciones && (
+            <>
+              {onComplete && (
+                <Button
+                  type="button"
+                  variant={
+                    task.state === ESTADO_EJECUTADA ? 'neutral' : 'success'
+                  }
+                  className={TASK_ACTION_CLASS}
+                  onClick={() => onComplete(task)}
+                  disabled={!puedeCompletar || isUpdating}
+                  aria-busy={isUpdating}
+                >
+                  <CircleCheck
+                    aria-hidden="true"
+                    className="mr-1 inline size-4"
+                  />
+                  {task.state === ESTADO_EJECUTADA ? 'Completada' : 'Hecha'}
+                </Button>
+              )}
+              {onDefer && (
+                <Button
+                  type="button"
+                  variant={
+                    task.state === ESTADO_POSPUEESTA ? 'neutral' : 'warning'
+                  }
+                  className={TASK_ACTION_CLASS}
+                  onClick={() => onDefer(task)}
+                  disabled={!puedePosponer || isUpdating}
+                  aria-busy={isUpdating}
+                >
+                  <CalendarClock
+                    aria-hidden="true"
+                    className="mr-1 inline size-4"
+                  />
+                  {task.state === ESTADO_POSPUEESTA ? 'Pospuesta' : 'Posponer'}
+                </Button>
+              )}
+            </>
           )}
           {eventId && (
             <Button

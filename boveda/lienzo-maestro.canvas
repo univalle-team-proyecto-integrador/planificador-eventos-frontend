@@ -52,7 +52,11 @@
 		{"id":"m025","type":"file","file":"mejoras/2026-10-15-025-transicion-de-tema.md","x":200,"y":4820,"width":300,"height":140},
 		{"id":"p025","type":"text","text":"Mejora 025\nTransición de tema\n2026-10-15","x":-240,"y":4820,"width":260,"height":120,"color":"1"},
 		{"id":"m026","type":"file","file":"mejoras/2026-10-15-026-orden-de-acciones-de-una-gestion.md","x":200,"y":5000,"width":300,"height":140},
-		{"id":"p026","type":"text","text":"Mejora 026\nOrden de acciones de una gestión\n2026-10-15","x":-240,"y":5000,"width":260,"height":120,"color":"1"}
+		{"id":"p026","type":"text","text":"Mejora 026\nOrden de acciones de una gestión\n2026-10-15","x":-240,"y":5000,"width":260,"height":120,"color":"1"},
+		{"id":"m027","type":"file","file":"mejoras/2026-10-16-027-registrar-gestion-hecha-o-pospuesta.md","x":200,"y":5200,"width":300,"height":140},
+		{"id":"p027","type":"text","text":"Mejora 027\nRegistrar gestión como hecha o pospuesta (US-09)\n2026-10-16","x":-240,"y":5200,"width":260,"height":120,"color":"1"},
+		{"id":"m028","type":"file","file":"mejoras/2026-10-16-028-barra-de-progreso-y-carga-del-dia.md","x":200,"y":5400,"width":300,"height":140},
+		{"id":"p028","type":"text","text":"Mejora 028\nBarra de progreso con recuento y carga del día (US-10)\n2026-10-16","x":-240,"y":5400,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -106,6 +110,10 @@
 		{"id":"e51","fromNode":"indice","fromSide":"bottom","toNode":"m025","toSide":"top"},
 		{"id":"e52","fromNode":"p025","fromSide":"right","toNode":"m025","toSide":"left"},
 		{"id":"e53","fromNode":"indice","fromSide":"bottom","toNode":"m026","toSide":"top"},
-		{"id":"e54","fromNode":"p026","fromSide":"right","toNode":"m026","toSide":"left"}
+		{"id":"e54","fromNode":"p026","fromSide":"right","toNode":"m026","toSide":"left"},
+		{"id":"e55","fromNode":"indice","fromSide":"bottom","toNode":"m027","toSide":"top"},
+		{"id":"e56","fromNode":"p027","fromSide":"right","toNode":"m027","toSide":"left"},
+		{"id":"e57","fromNode":"indice","fromSide":"bottom","toNode":"m028","toSide":"top"},
+		{"id":"e58","fromNode":"p028","fromSide":"right","toNode":"m028","toSide":"left"}
 	]
 }

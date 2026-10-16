@@ -7,6 +7,7 @@
 const VARIANTS = {
   primary: 'btn--primary',
   success: 'btn--success',
+  warning: 'btn--warning',
   danger: 'btn--danger',
   neutral: 'btn--neutral',
   'success-outline': 'btn--success-outline',

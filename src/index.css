@@ -58,6 +58,12 @@
   --warning: #b45309;
   --warning-soft: #fffbeb;
   --warning-text: #92400e;
+  /* `--warning-contrast` es el texto sobre el RELLENO de `--warning`, no sobre su
+     tinte `-soft`: en claro son 5.02:1 (blanco sobre #b45309) y en oscuro 10.93:1
+     (#14122b sobre #fbbf24). Hace falta porque los ámbar se invierten entre
+     temas, igual que los verdes y los rojos, y sin él no hay forma de rellenar un
+     botón de advertencia con texto legible. */
+  --warning-contrast: #ffffff;
 
   --danger: #ffffff;
   --danger-soft: #fdecec;
@@ -118,6 +124,9 @@
   --warning: #fbbf24;
   --warning-soft: #3b2606;
   --warning-text: #fcd34d;
+  /* El relleno de aviso se aclara en oscuro, así que el texto tiene que volverse
+     oscuro: el mismo criterio que `--success-contrast` y `--danger-contrast`. */
+  --warning-contrast: #14122b;
 
   --danger: #c48383;
   --danger-soft: #3a2020;
@@ -174,6 +183,7 @@
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
   --color-warning-text: var(--warning-text);
+  --color-warning-contrast: var(--warning-contrast);
 
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
@@ -316,6 +326,11 @@
   inherits: true;
   initial-value: #92400e;
 }
+@property --warning-contrast {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
 @property --danger {
   syntax: '<color>';
   inherits: true;
@@ -390,6 +405,7 @@
     --warning 400ms ease-in-out,
     --warning-soft 400ms ease-in-out,
     --warning-text 400ms ease-in-out,
+    --warning-contrast 400ms ease-in-out,
     --danger 400ms ease-in-out,
     --danger-soft 400ms ease-in-out,
     --danger-text 400ms ease-in-out,
@@ -421,9 +437,9 @@
     --text-inverted, --primary, --primary-hover, --primary-soft,
     --primary-contrast, --primary-contrast-hover, --primary-text, --success,
     --success-soft, --success-text, --success-contrast, --warning,
-    --warning-soft, --warning-text, --danger, --danger-soft, --danger-text,
-    --danger-fill, --danger-contrast, --info, --info-soft, --info-text,
-    --focus-ring !important;
+    --warning-soft, --warning-text, --warning-contrast, --danger, --danger-soft,
+    --danger-text, --danger-fill, --danger-contrast, --info, --info-soft,
+    --info-text, --focus-ring !important;
 }
 
 /* Los descendientes no animan nada durante el cambio: heredan el valor

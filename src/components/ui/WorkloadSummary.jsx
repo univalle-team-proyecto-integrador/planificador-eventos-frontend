@@ -1,7 +1,14 @@
 import { ProgressBar } from './ProgressBar';
 import { MetricCard } from './MetricCard';
-import { formatHours } from '../../utils/taskMetrics';
+import { formatHours, formatProgressCount } from '../../utils/taskMetrics';
 
+/**
+ * Resumen de carga con la barra de avance.
+ *
+ * La barra mide HORAS (`progressHours`), así que el texto de la barra cuenta
+ * horas completadas sobre el total. Contar tareas ahí daría dos cifras que no
+ * miden lo mismo y el número no cuadraría con el ancho de la barra.
+ */
 export function WorkloadSummary({
   metrics,
   eventCount,
@@ -17,6 +24,8 @@ export function WorkloadSummary({
     hoursRemaining = 0,
     progressHours = 0,
   } = metrics || {};
+
+  const description = `${formatProgressCount(hoursCompleted, hoursTotal, 'hora', 'horas')} (${progressHours}%)`;
 
   return (
     <div className={`space-y-4 ${className}`.trim()}>
@@ -48,6 +57,7 @@ export function WorkloadSummary({
       <ProgressBar
         value={progressHours}
         label={progressLabel}
+        description={description}
         accentColor={accentColor}
       />
       <p className="text-xs text-muted-text">

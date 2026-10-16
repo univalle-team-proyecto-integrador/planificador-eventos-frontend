@@ -291,5 +291,47 @@ export const getStateLabel = (state) => {
   return labels[state] || 'Pendiente';
 };
 
+/**
+ * Recuento exacto de avance: "6 de 12 gestiones".
+ *
+ * El porcentaje solo no dice cuántas cosas faltan: "50%" de 2 y de 200 se leen
+ * igual, y quien organiza un evento necesita el número absoluto para decidir si
+ * falta una gestión o cien.
+ *
+ * El singular y el plural llegan como parámetros y no se derivan recortando una
+ * letra: en español `gestiones` no es `gestione`, y adivinar la terminación
+ * pondría "1 de 1 gestione" en pantalla. Por defecto cuenta gestiones.
+ */
+export const formatProgressCount = (
+  completed,
+  total,
+  singular = 'gestión',
+  plural = 'gestiones'
+) => {
+  const safeTotal = Math.max(0, Number(total) || 0);
+  const safeCompleted = Math.min(
+    safeTotal,
+    Math.max(0, Number(completed) || 0)
+  );
+  const etiqueta = safeTotal === 1 ? singular : plural;
+
+  return `${safeCompleted} de ${safeTotal} ${etiqueta}`;
+};
+
+/**
+ * Recuento y porcentaje del mismo modo: "6 de 12 gestiones (50%)".
+ *
+ * `progress` se redondea con `Math.round`, igual que `getTaskMetrics`, para que
+ * el número del texto y el de la barra no se contradigan por el redondeo.
+ */
+export const formatProgressDescription = (
+  completed,
+  total,
+  progress,
+  singular,
+  plural
+) =>
+  `${formatProgressCount(completed, total, singular, plural)} (${Math.round(Number(progress) || 0)}%)`;
+
 export const getStateVariant = (state) =>
   state === COMPLETED_STATE ? 'success' : 'pending';
