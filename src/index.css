@@ -105,15 +105,31 @@
   --shadow-card-hover:
     0 18px 40px -12px var(--accent-glow, rgb(133 129 217 / 0.45)),
     0 2px 8px rgb(0 0 0 / 0.08);
-  /* Halo de la tarjeta vencida. A diferencia del resto de tokens de color, este
-     NO se registra con @property ni entra en las listas de `transition`, y es
-     deliberado: es una sombra, y las sombras tampoco se animan con el tema (le
-     pasa igual a `--shadow-card` y `--shadow-card-hover`). Al cambiar de tema el
-     halo da un salto, como las demás sombras. */
+  /* Aviso de la tarjeta vencida. A diferencia del resto de tokens de color,
+     estos NO se registran con @property ni entran en las listas de `transition`,
+     y es deliberado: son sombras, y las sombras tampoco se animan con el tema (le
+     pasa igual a `--shadow-card` y `--shadow-card-hover`).
+
+     `--glow-alerta` es el halo difuso del hover: decorativo, y por eso puede
+     llevar opacidad.
+
+     `--ring-alerta` es el anillo de aviso y tiene que ser OPAQUE. Con alfa no
+     llega nunca al 3:1 que pide WCAG 1.4.11 sobre el fondo crema: medido,
+     #ef4444 al 45% da 1.80:1 y al 85% sigue en 2.98:1. Opaco da 3.47:1 en claro
+     y 5.05:1 en oscuro. Por eso no se reutiliza `--danger-fill`: el valor es el
+     mismo, pero este token dice lo que significa en vez de heredarlo de otro
+     sitio. */
   --glow-alerta: rgb(239 68 68 / 0.45);
+  --ring-alerta: #ef4444;
   /* La sombra neutra se conserva como segunda capa: la tarjeta no pierde su
-     profundidad, solo gana el halo rojo por encima. */
-  --shadow-card-alerta: 0 8px 18px -10px var(--glow-alerta), var(--shadow-card);
+     profundidad, solo gana el anillo. */
+  --shadow-card-alerta: 0 0 0 3px var(--ring-alerta), var(--shadow-card);
+  /* Variante de hover/foco: mantiene el anillo. Sin esta, `.event-card:hover`
+     tiene más especificidad y el anillo desaparecería justo al pasar el mouse,
+     que es cuando más se mira la tarjeta. */
+  --shadow-card-alerta-hover:
+    0 18px 40px -12px var(--accent-glow), 0 2px 8px rgb(0 0 0 / 0.08),
+    0 0 0 3px var(--ring-alerta);
 }
 
 [data-theme='dark'] {
@@ -173,11 +189,11 @@
   --shadow-card-hover:
     0 18px 40px -12px var(--accent-glow, rgb(133 129 217 / 0.45)),
     0 2px 8px rgb(0 0 0 / 0.55);
-  /* El halo se aclara con el tema: un rojo apagado se pierde sobre superficie
-     oscura. El borde y el fondo de la vencida siguen siendo ámbar (`--warning`),
-     así que aquí no se toca nada de eso. */
+  /* El aviso se aclara con el tema: un rojo apagado se pierde sobre superficie
+     oscura. Los compuestos (`--shadow-card-alerta*`) no se repiten aquí: ya
+     apuntan a estos dos tokens y bastan los simples por tema. */
   --glow-alerta: rgb(248 113 113 / 0.5);
-  --shadow-card-alerta: 0 8px 18px -10px var(--glow-alerta), var(--shadow-card);
+  --ring-alerta: #f87171;
 }
 
 @theme inline {
@@ -693,6 +709,16 @@ select option {
 .event-card--vencida {
   --accent-glow: var(--glow-alerta);
   box-shadow: var(--shadow-card-alerta);
+}
+
+/* Sin esta regla, `.event-card:hover` (dos clases + pseudo) le gana a
+   `.event-card--vencida` (una clase) y el anillo se pierde al pasar el mouse:
+   el aviso desaparecería justo cuando el usuario mira la tarjeta. El halo del
+   hover sale rojo sin trabajo extra porque esta capa usa `--accent-glow`, que la
+   regla anterior ya redirige a `--glow-alerta`. */
+.event-card--vencida:hover,
+.event-card--vencida:focus-within {
+  box-shadow: var(--shadow-card-alerta-hover);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -315,13 +315,18 @@ describe('panel de hoy: registrar una gestión', () => {
       (li.textContent ?? '').includes('Confirmar proveedor')
     );
 
-    // La clase es lo único que se puede comprobar aquí: el color lo pone el CSS
-    // a partir de `--glow-alerta` y vitest no renderiza estilos.
+    // La clase es lo único que se puede comprobar aquí: el anillo lo pinta el CSS
+    // a partir de `--ring-alerta` y vitest no renderiza estilos.
     expect(liVencida.className).toContain('event-card--vencida');
     expect(liDeHoy.className).not.toContain('event-card--vencida');
 
-    // Y el aviso en texto sigue estando, para quien no distingue el color: la
-    // sombra no puede ser la única señal de que algo está atrasado (WCAG 1.4.1).
+    // Sin el borde ámbar: el anillo de 3px queda fuera del borde y un ámbar de
+    // 1px pegado al rojo se vería como dos contornos. El fondo sí sigue ámbar.
+    expect(liVencida.className).not.toContain('border-warning');
+    expect(liVencida.className).toContain('bg-warning-soft');
+
+    // Y el aviso en texto sigue estando, para quien no distingue el color: el
+    // anillo no puede ser la única señal de que algo está atrasado (WCAG 1.4.1).
     expect(liVencida.textContent).toContain('Atrasada');
     expect(liVencida.textContent).toContain('Vencida');
   });
