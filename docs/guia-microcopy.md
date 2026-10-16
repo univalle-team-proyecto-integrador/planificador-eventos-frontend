@@ -55,7 +55,17 @@ El estado vacío debe responder tres preguntas:
 2. Por qué aparecerá cuando haya datos.
 3. Qué acción puede realizar la persona ahora.
 
-Ejemplo: “¿Aún no hay gestiones logísticas? Divide el evento en tareas pequeñas, asigna horas y define una fecha límite para cada gestión.”
+Ejemplo: “Aún no tienes gestiones. Crea un plan inicial.”
+
+Es el que usa la tarjeta de evento de `/progreso` cuando el evento todavía no
+tiene gestiones (`EventCard.jsx`), y cumple las tres preguntas: qué significa,
+por qué y qué hacer. La acción acompaña al texto en un botón “Añadir gestión”
+que lleva al detalle con el formulario de alta ya abierto (`?nueva=1`), de modo
+que el mensaje no pide una acción que el componente no ofrece.
+
+Cuando el texto venga impuesto por un criterio de aceptación, manda el criterio
+y la guía se actualiza: el criterio escrito en Jira es la fuente de verdad, y
+esta tabla es su reflejo, no al revés.
 
 ## Acciones
 
@@ -85,6 +95,7 @@ El conflicto de límite no es un error del sistema: decir qué pasó y ofrecer l
 | Abrir evento          | “Ver evento”                                                                          |
 | Guardar formulario    | “Guardar evento”                                                                      |
 | Crear primera gestión | “Añadir gestión”                                                                      |
+| Evento sin gestiones  | “Aún no tienes gestiones. Crea un plan inicial.”                                      |
 | Tareas atrasadas      | “Vencida hace 2 días”                                                                 |
 | Tarea próxima         | “Mañana”                                                                              |
 | Cargar                | “Cargando información...”                                                             |

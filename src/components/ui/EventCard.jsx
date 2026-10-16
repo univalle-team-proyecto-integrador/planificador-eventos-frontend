@@ -1,4 +1,4 @@
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getEventAccent } from '../../utils/eventAccent';
 import { formatHours } from '../../utils/taskMetrics';
@@ -72,9 +72,25 @@ export function EventCard({ event }) {
         />
         <p className="mt-2 text-xs text-muted-text">
           {total === 0
-            ? 'Aún no hay subtareas registradas.'
+            ? 'Aún no tienes gestiones. Crea un plan inicial.'
             : `${completed} de ${total} tareas · ${formatHours(hoursCompleted)} completadas · ${formatHours(hoursRemaining)} restantes`}
         </p>
+        {/* La acción solo tiene sentido cuando no hay gestiones, así que se
+            monta y se desmonta con el aviso en vez de dejar un botón vacío en
+            el resto de las tarjetas. */}
+        {total === 0 && (
+          <div className="mt-3">
+            <Button
+              as={Link}
+              to={`/evento/${id}?nueva=1`}
+              variant="primary"
+              className="text-xs"
+            >
+              <Plus aria-hidden="true" className="mr-1 inline size-3.5" />
+              Añadir gestión
+            </Button>
+          </div>
+        )}
         {total > 0 && (
           <p className="mt-1 text-xs text-muted-text">
             {formatHours(hoursTotal)} estimadas en total
