@@ -12,6 +12,7 @@ const VARIANTS = {
   'success-outline': 'btn--success-outline',
   'danger-outline': 'btn--danger-outline',
   'neutral-outline': 'btn--neutral-outline',
+  'danger-dark-text': 'btn--danger-dark-text',
 };
 
 const getButtonClassName = ({ variant = 'neutral', className = '' } = {}) =>

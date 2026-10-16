@@ -39,6 +39,7 @@ import { useNotifications } from '../providers/notifications-context';
 import { useTaskSearch } from '../providers/search-context';
 import { api, toApiDateTime, unwrapData } from '../services/api';
 import { reprogramarSubtask } from '../services/reprogramacionService';
+import { clearBorrador, saveBorrador } from '../utils/borrador';
 
 const initialSubtaskData = {
   title: '',
@@ -402,6 +403,16 @@ export function EventDetailView() {
   const [isDeletingEvent, setIsDeletingEvent] = useState(false);
   const [eventDeleteError, setEventDeleteError] = useState('');
 
+  // Modales de confirmación de cancelación
+  const [isCancelEventEditOpen, setIsCancelEventEditOpen] = useState(false);
+  const [isCancelNewSubtaskOpen, setIsCancelNewSubtaskOpen] = useState(false);
+  const [isCancelEditSubtaskOpen, setIsCancelEditSubtaskOpen] = useState(false);
+
+  // Doble verificación de eliminación
+  const [isSecondDeleteConfirmOpen, setIsSecondDeleteConfirmOpen] =
+    useState(false);
+  const [pendingDeleteAction, setPendingDeleteAction] = useState(null);
+
   const [updatingSubtaskId, setUpdatingSubtaskId] = useState(null);
   const [editingSubtaskId, setEditingSubtaskId] = useState(null);
   const [editingSubtaskData, setEditingSubtaskData] = useState({
@@ -554,6 +565,29 @@ export function EventDetailView() {
     setEditingTouched({});
   };
 
+  const confirmCancelEventEdit = () => {
+    clearBorrador();
+    setIsCancelEventEditOpen(false);
+    setIsEditingEvent(false);
+    setEventErrors({});
+    setEventTouched({});
+  };
+
+  const confirmCancelNewSubtask = () => {
+    setIsCancelNewSubtaskOpen(false);
+    setShowForm(false);
+    setErrors({});
+    setSubtaskTouched({});
+    if (searchParams.has('nueva')) {
+      setSearchParams({}, { replace: true });
+    }
+  };
+
+  const confirmCancelEditSubtask = () => {
+    setIsCancelEditSubtaskOpen(false);
+    cancelEditingSubtask();
+  };
+
   const updateEditingSubtaskField = (field, value) => {
     const next = { ...editingSubtaskData, [field]: value };
     setEditingSubtaskData(next);
@@ -608,6 +642,17 @@ export function EventDetailView() {
     Boolean(eventTouched[field]) &&
     !eventErrors[field] &&
     Boolean(String(eventForm[field] ?? '').trim());
+
+  // Auto-save del borrador de edición de evento con debounce.
+  useEffect(() => {
+    if (!isEditingEvent) return;
+
+    const timer = setTimeout(() => {
+      saveBorrador(eventForm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [eventForm, isEditingEvent]);
 
   const inputBorderClass = (isError, isSuccess) =>
     isError
@@ -914,15 +959,32 @@ export function EventDetailView() {
         current.filter((subtask) => subtask.id !== deleteTarget.id)
       );
       setDeleteTarget(null);
+      setIsSecondDeleteConfirmOpen(false);
       notifySuccess({
         icon: 'trash',
-        message: `La gestión “${deletedTitle}” se eliminó correctamente.`,
+        message: `La gestión "${deletedTitle}" se eliminó correctamente.`,
       });
     } catch (error) {
       setDeleteError(getErrorMessage(error));
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const requestDeleteSubtask = (subtask) => {
+    setDeleteTarget(subtask);
+    setDeleteError('');
+    setPendingDeleteAction('subtask');
+  };
+
+  const confirmSecondDelete = () => {
+    setIsSecondDeleteConfirmOpen(false);
+    if (pendingDeleteAction === 'subtask') {
+      void handleDeleteSubtask();
+    } else if (pendingDeleteAction === 'event') {
+      void handleDeleteEvent();
+    }
+    setPendingDeleteAction(null);
   };
 
   const handleDeleteEvent = async () => {
@@ -935,6 +997,7 @@ export function EventDetailView() {
 
     try {
       await api.deleteEvent(event.id);
+      clearBorrador();
       notifySuccess({
         icon: 'trash',
         message: `El evento “${event.nombre}” se eliminó correctamente.`,
@@ -992,6 +1055,7 @@ export function EventDetailView() {
       setEventForm(eventToForm(updatedEvent));
       setEventTouched({});
       setIsEditingEvent(false);
+      clearBorrador();
       notifySuccess({
         icon: 'edit',
         message: 'Evento actualizado correctamente.',
@@ -1071,9 +1135,10 @@ export function EventDetailView() {
               {!isEditingEvent && (
                 <Button
                   type="button"
-                  variant="danger"
+                  variant="danger-dark-text"
                   onClick={() => {
                     setEventDeleteError('');
+                    setPendingDeleteAction('event');
                     setIsEventDeleteOpen(true);
                   }}
                   disabled={isSavingEvent || isDeletingEvent}
@@ -1304,9 +1369,20 @@ export function EventDetailView() {
                 type="button"
                 variant="neutral"
                 onClick={() => {
-                  setIsEditingEvent(false);
-                  setEventErrors({});
-                  setEventTouched({});
+                  const hasChanges = Object.values(eventForm).some(
+                    (value, index) =>
+                      String(value ?? '').trim() !==
+                      String(
+                        Object.values(eventToForm(event))[index] ?? ''
+                      ).trim()
+                  );
+                  if (hasChanges) {
+                    setIsCancelEventEditOpen(true);
+                  } else {
+                    setIsEditingEvent(false);
+                    setEventErrors({});
+                    setEventTouched({});
+                  }
                 }}
                 disabled={isSavingEvent}
               >
@@ -1425,7 +1501,7 @@ export function EventDetailView() {
 
             <fieldset className="space-y-4 border-0 p-0">
               <legend className="text-sm font-semibold text-secondary-text">
-                ¿Qué gestión necesitas?
+                Datos de la gestión
               </legend>
               <div>
                 <label
@@ -1591,14 +1667,18 @@ export function EventDetailView() {
                 type="button"
                 variant="neutral"
                 onClick={() => {
-                  setShowForm(false);
-                  setErrors({});
-                  setSubtaskTouched({});
-                  // Se limpia el `?nueva=1` de la URL. Si se queda, recargar la
-                  // página volvería a abrir el formulario y el enlace de la
-                  // ventana sería distinto de lo que se ve.
-                  if (searchParams.has('nueva')) {
-                    setSearchParams({}, { replace: true });
+                  const hasChanges = Object.values(formData).some(
+                    (value) => String(value ?? '').trim() !== ''
+                  );
+                  if (hasChanges) {
+                    setIsCancelNewSubtaskOpen(true);
+                  } else {
+                    setShowForm(false);
+                    setErrors({});
+                    setSubtaskTouched({});
+                    if (searchParams.has('nueva')) {
+                      setSearchParams({}, { replace: true });
+                    }
                   }
                 }}
                 disabled={isSavingSubtask}
@@ -1637,7 +1717,16 @@ export function EventDetailView() {
               <Button
                 type="button"
                 variant="neutral"
-                onClick={cancelEditingSubtask}
+                onClick={() => {
+                  const hasChanges = Object.values(editingSubtaskData).some(
+                    (value) => String(value ?? '').trim() !== ''
+                  );
+                  if (hasChanges) {
+                    setIsCancelEditSubtaskOpen(true);
+                  } else {
+                    cancelEditingSubtask();
+                  }
+                }}
                 disabled={isSavingSubtaskEdit}
               >
                 Cancelar
@@ -1646,7 +1735,7 @@ export function EventDetailView() {
 
             <fieldset className="space-y-4 border-0 p-0">
               <legend className="text-sm font-semibold text-secondary-text">
-                ¿Qué gestión necesitas?
+                Datos de la gestión
               </legend>
               <div>
                 <label
@@ -1878,10 +1967,7 @@ export function EventDetailView() {
                       type="button"
                       variant="danger-outline"
                       className={TASK_ACTION_CLASS}
-                      onClick={() => {
-                        setDeleteError('');
-                        setDeleteTarget(subtask);
-                      }}
+                      onClick={() => requestDeleteSubtask(subtask)}
                       disabled={
                         updatingSubtaskId === subtask.id ||
                         isSavingSubtaskEdit ||
@@ -1983,16 +2069,32 @@ export function EventDetailView() {
         open={isEventDeleteOpen}
         title="¿Eliminar evento?"
         message="Esta acción borrará el evento y su logística asociada. No se puede deshacer."
-        confirmLabel="Eliminar"
+        confirmLabel="Continuar"
         onCancel={() => {
           if (!isDeletingEvent) {
             setIsEventDeleteOpen(false);
             setEventDeleteError('');
+            setPendingDeleteAction(null);
           }
         }}
-        onConfirm={() => void handleDeleteEvent()}
+        onConfirm={() => {
+          setIsEventDeleteOpen(false);
+          setIsSecondDeleteConfirmOpen(true);
+        }}
         isConfirming={isDeletingEvent}
         error={eventDeleteError}
+      />
+
+      <ConfirmModal
+        open={isSecondDeleteConfirmOpen}
+        title="Confirmar eliminación"
+        message="Ignora los que ya estén hechos. ¿Confirmas que deseas eliminar?"
+        confirmLabel="Sí, eliminar"
+        onCancel={() => {
+          setIsSecondDeleteConfirmOpen(false);
+          setPendingDeleteAction(null);
+        }}
+        onConfirm={confirmSecondDelete}
       />
 
       {reprogramTarget && (
@@ -2022,6 +2124,33 @@ export function EventDetailView() {
           isSaving={isReprogramming}
         />
       )}
+
+      <ConfirmModal
+        open={isCancelEventEditOpen}
+        title="¿Cancelar edición?"
+        message="Tienes cambios sin guardar. Si cancelas, perderás los datos modificados."
+        confirmLabel="Sí, cancelar"
+        onCancel={() => setIsCancelEventEditOpen(false)}
+        onConfirm={confirmCancelEventEdit}
+      />
+
+      <ConfirmModal
+        open={isCancelNewSubtaskOpen}
+        title="¿Cancelar nueva gestión?"
+        message="Tienes datos ingresados. Si cancelas, perderás la gestión que estabas creando."
+        confirmLabel="Sí, cancelar"
+        onCancel={() => setIsCancelNewSubtaskOpen(false)}
+        onConfirm={confirmCancelNewSubtask}
+      />
+
+      <ConfirmModal
+        open={isCancelEditSubtaskOpen}
+        title="¿Cancelar edición de gestión?"
+        message="Tienes cambios sin guardar. Si cancelas, perderás las modificaciones."
+        confirmLabel="Sí, cancelar"
+        onCancel={() => setIsCancelEditSubtaskOpen(false)}
+        onConfirm={confirmCancelEditSubtask}
+      />
     </div>
   );
 }

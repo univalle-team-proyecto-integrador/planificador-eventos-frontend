@@ -63,7 +63,12 @@ export const applyTheme = (theme) => {
   const next = isTheme(theme) ? theme : DEFAULT_THEME;
 
   if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.classList.add('theme-changing');
     document.documentElement.dataset.theme = next;
+    // Quitar la clase después de un breve intervalo para evitar destellos
+    setTimeout(() => {
+      document.documentElement.classList.remove('theme-changing');
+    }, 100);
   }
 
   return next;

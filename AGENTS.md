@@ -12,16 +12,17 @@ npm run test    # vitest run
 npm run build   # vite build -> dist/
 ```
 
-- Un solo archivo de tests: `npx vitest run src/utils/taskMetrics.test.js`
+- Un archivo de tests: `npx vitest run src/utils/taskMetrics.test.js` (o `src/views/EventDetailView.test.jsx`, el otro de render).
 - Formatear: `npx prettier --write <archivo>` (80 cols, comillas simples, punto y coma). Prettier no tiene script propio.
 - **No hay typecheck.** No ejecutar `tsc`.
 - `npm run lint` es **oxlint**, no ESLint. `eslint.config.js` y las devDependencies de `eslint*` son residuales: no ejecutarlos ni "arreglarlos".
+- `.oxlintrc.json` no activa `no-undef`. Está bien así: sin `env`, oxlint no conoce los globales del navegador ni los de Node, y activarlo marca referencias correctas como indefinidas (le pasó a `shell.test.jsx` con `global`). Si lo activas, declara antes el entorno.
 - No hay CI (`.github/` no existe en este repo). La verificación es manual.
 
 ## Tests
 
 - `vite.config.js` **sí** tiene bloque `test`, con `environment: 'jsdom'` (la sesión vive en `localStorage`, así que `window` tiene que existir). **`jsdom` está instalado**; `@testing-library` y `happy-dom` no.
-- Cobertura actual: **16 archivos, 148 tests** — `api`, `authService`, `tokenStorage`, `dateValidation`, `emailValidation`, `passwordValidation`, `taskMetrics`, `taskSearch`, `theme` y `components/layout/shell.test.jsx`.
+- Cobertura actual: **16 archivos, 148 tests** — `api`, `authService`, `tokenStorage`, `dateValidation`, `emailValidation`, `passwordValidation`, `taskMetrics`, `taskSearch`, `theme`, `rangoPreximas`, `limiteHoras`, `limiteHorasValidation`, `reprogramacion`, `services/mocks/reprogramacion`, `views/EventDetailView.test.jsx` y `components/layout/shell.test.jsx`.
 - Dos patrones conviven:
   - **Lógica pura** en `src/utils/` y `src/services/`. Es el patrón mayoritario y el preferido.
   - **Un test de render** en `src/components/layout/shell.test.jsx` monta el árbol real con `createRoot` + `act` de `react` (sin testing-library) y comprueba el shell: rutas, ítem activo, nombre de usuario, persistencia del tema y menú de perfil. Existe porque un fallo de cableado de providers deja la app en blanco y ningún test de lógica lo detecta.
@@ -64,7 +65,7 @@ npm run build   # vite build -> dist/
 ## Convenciones de interfaz
 
 - `Button` acepta `as` para navegación: `Button as={Link}`. **Nunca anidar un `button` dentro de un `Link`.**
-- Variantes de `Button`: `primary`, `success`, `neutral`, `danger`, y las de contorno `success-outline`, `danger-outline`, `neutral-outline`. Las de `Badge` son un set distinto: `neutral`, `info`, `pending`, `success`. No cruzarlos.
+- Variantes de `Button`: `primary`, `success`, `neutral`, `danger`, las de contorno `success-outline`, `danger-outline`, `neutral-outline` y **`danger-dark-text`** (la de "Eliminar evento": sin relleno, borde rojo y texto de alto contraste). Las de `Badge` son un set distinto: `neutral`, `info`, `pending`, `success`. No cruzarlos. **Si añades una variante, defínela en `src/styles/buttons.css` y mápeala en `Button.jsx`: sin el mapeo, `getButtonClassName` cae a `btn--neutral` y el botón se ve del color equivocado sin dar ningún error.**
 - `Button` solo traduce `variant` a una clase `.btn--*`; el sistema de botones vive en `src/styles/buttons.css` (`@layer components`, base `.btn` + una variante por clase). La base solo lee variables (`--btn-bg`, `--btn-color`, `--btn-border`, `--btn-hover-bg`, `--btn-text-hover`, `--btn-focus`) y cada variante solo las redefine, sin `background-color`/`color`/`border-color` sueltos. Toma los colores de los tokens semánticos de `src/index.css`, así que el tema se resuelve con `data-theme` sin duplicar por tema. No agregues estilos de color por variante en el componente.
 - El anillo de foco global de `src/index.css` vive en `@layer base`; por eso `.btn:focus-visible` puede ir en `@layer components` con el color de cada variante (`--btn-focus`) y ganarle. No lo saques de la capa.
 - La base `.btn` lleva la "reacción de agarre": `cursor-pointer`, elevación al pasar el mouse y hundido al presionar. Ojo con la transición: anima `transform` y `box-shadow` además del color, o no se ve. Al estar en `@layer components`, las utilidades de Tailwind que llegan por `className` siguen ganando. Los botones de tarea de `EventDetailView` comparten `TASK_ACTION_CLASS` (`w-28 rounded-full`) para que la fila no se vea desigual; el ancho va en esa constante, no repetido por botón.
@@ -116,7 +117,7 @@ Todo el HTTP pasa por `src/services/api.js`; nunca hardcodear URLs en las vistas
 - Antes de empezar a trabajar, `git fetch` y arrancar desde `frontend/lead` al día, para no partir de una copia vieja.
 - Mensajes de commit en español con prefijos conventional: `feat:`, `fix:`, `docs:`, `style:`, `test:`, `merge:`. Con cuerpo cuando el _porqué_ no se entiende leyendo el diff; el cuerpo dice qué cambió y por qué, no el qué.
 - El backend es un **repo git aparte** en `../planificador-eventos-backend` (no es submódulo). `./mvnw test`, `./mvnw spring-boot:run` (puerto 8080). Render despliega desde su `main`; su rama de desarrollo es `backend/lead`.
-- Bóveda: crear un registro en `boveda/mejoras/` solo para mejoras notables (interfaz, UX, a11y, integración), no por cada commit. Al crearlo hay que actualizar también el índice `boveda/mejoras/README.md` y añadir el nodo en `boveda/lienzo-maestro.canvas`. Numeración usada: 001–016 (falta 009); el backend ya va por 021.
+- Bóveda: crear un registro en `boveda/mejoras/` solo para mejoras notables (interfaz, UX, a11y, integración), no por cada commit. Al crearlo hay que actualizar también el índice `boveda/mejoras/README.md` y añadir el nodo en `boveda/lienzo-maestro.canvas`. Numeración usada: 001–024 (falta 009); el backend ya va por 037.
 
 ## Documentos de referencia
 
@@ -127,7 +128,8 @@ Sabido desactualizado: `PRD.md` describe la autenticación como pendiente y menc
 ## Pendientes conocidos
 
 - US-11 (autenticación) ya está implementado y desplegado; falta evidencia en Jira.
-- Falta evidencia en Jira y la validación end-to-end contra Render.
+- Falta evidencia en Jira y la validación end-to-end contra Render. En concreto, la épica de capacidad: los commits que producen el 409 en el backend y los que lo interpretan en el cliente salieron el mismo día sin una prueba que los junte sobre el despliegue real.
 - Modo oscuro en dos fases: el shell y los componentes compartidos ya usan tokens. **Las vistas de `src/views/` (excepto login y registro) todavía tienen colores literales**, así que en tema oscuro se ven a medio migrar.
-- `/configuracion` es un placeholder; falta decidir qué va dentro.
+- `/configuracion` ya edita el límite diario; la segunda tarjeta sigue siendo un «Próximamente», falta decidir qué va dentro.
+- `DESIGN_SYSTEM.md` describe los tokens como clases de Tailwind por defecto (`blue-700`…); ya no es así. Ese capítulo contradice al código.
 - Auditorías Lighthouse/axe pendientes sobre el despliegue de Vercel.

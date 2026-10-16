@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ErrorState } from '../components/states/ErrorState';
 import { Button } from '../components/ui/Button';
+import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { FieldSuccess } from '../components/ui/FieldSuccess';
 import { useNotifications } from '../providers/notifications-context';
 import { useTaskSearch } from '../providers/search-context';
@@ -12,6 +13,7 @@ import {
   getToday,
   isDateInPast,
 } from '../utils/dateValidation';
+import { clearBorrador, readBorrador, saveBorrador } from '../utils/borrador';
 
 const initialFormData = {
   nombre: '',
@@ -45,7 +47,10 @@ export function CreateEventView() {
   const navigate = useNavigate();
   const { notifySuccess, notifyError } = useNotifications();
   const { invalidate: invalidateSearchIndex } = useTaskSearch();
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState(() => {
+    const borrador = readBorrador();
+    return borrador ? { ...initialFormData, ...borrador } : initialFormData;
+  });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,6 +58,7 @@ export function CreateEventView() {
   const [eventTypes, setEventTypes] = useState([]);
   const [isLoadingTypes, setIsLoadingTypes] = useState(true);
   const [typesError, setTypesError] = useState('');
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const formRef = useRef(null);
 
   const getDateError = (value) =>
@@ -119,6 +125,15 @@ export function CreateEventView() {
     // oxlint-disable-next-line react/set-state-in-effect
     void loadEventTypes();
   }, [loadEventTypes]);
+
+  // Auto-save del borrador con debounce para no escribir en cada tecla.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      saveBorrador(formData);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [formData]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -233,6 +248,7 @@ export function CreateEventView() {
         icon: 'check',
         message: 'Evento creado correctamente.',
       });
+      clearBorrador();
       // El buscador global mantiene su propia copia de eventos y tareas: sin
       // invalidarla, buscaría el nombre de un evento recién creado sin
       // encontrarlo.
@@ -251,6 +267,23 @@ export function CreateEventView() {
   const handleSubmit = (event) => {
     event.preventDefault();
     void submitEvent();
+  };
+
+  const handleCancelClick = () => {
+    const hasChanges = Object.values(formData).some(
+      (value) => String(value ?? '').trim() !== ''
+    );
+    if (hasChanges) {
+      setIsCancelModalOpen(true);
+    } else {
+      navigate('/hoy');
+    }
+  };
+
+  const confirmCancel = () => {
+    clearBorrador();
+    setIsCancelModalOpen(false);
+    navigate('/hoy');
   };
 
   const fieldProps = (field) => {
@@ -364,19 +397,22 @@ export function CreateEventView() {
                         ? 'event-tipoEvento-success'
                         : undefined
                 }
-                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 ${
+                className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${
                   errors.tipoEvento || typesError
                     ? 'border-danger'
                     : isFieldSuccess('tipoEvento')
                       ? 'border-emerald-500'
                       : 'border-border'
+                } ${
+                  isLoadingTypes || Boolean(typesError)
+                    ? 'cursor-not-allowed opacity-50'
+                    : ''
                 }`}
                 value={formData.tipoEvento}
                 onChange={(event) =>
                   updateField('tipoEvento', event.target.value)
                 }
                 onBlur={() => markTouched('tipoEvento')}
-                disabled={isLoadingTypes || Boolean(typesError)}
                 required
               >
                 {isLoadingTypes ? (
@@ -530,7 +566,7 @@ export function CreateEventView() {
           <Button
             type="button"
             variant="neutral"
-            onClick={() => navigate('/hoy')}
+            onClick={handleCancelClick}
             disabled={isSubmitting}
           >
             Cancelar
@@ -545,6 +581,15 @@ export function CreateEventView() {
           </Button>
         </div>
       </form>
+
+      <ConfirmModal
+        open={isCancelModalOpen}
+        title="¿Cancelar creación?"
+        message="Tienes cambios sin guardar. Si cancelas, perderás los datos ingresados."
+        confirmLabel="Sí, cancelar"
+        onCancel={() => setIsCancelModalOpen(false)}
+        onConfirm={confirmCancel}
+      />
     </div>
   );
 }

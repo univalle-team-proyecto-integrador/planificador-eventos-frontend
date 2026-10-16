@@ -81,7 +81,7 @@ describe('shell de la aplicación', () => {
   let root;
 
   beforeEach(() => {
-    global.IS_REACT_ACT_ENVIRONMENT = true;
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true;
     window.localStorage.clear();
     // La regla de orden de /hoy se muestra una sola vez; los tests la dan por
     // vista para que el modal no tape el resto de aserciones.

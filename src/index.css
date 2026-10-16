@@ -186,6 +186,16 @@
   --color-info-text: var(--info-text);
 }
 
+/* Desactiva todas las transiciones durante el cambio de tema para evitar
+   destellos y reducir el riesgo para personas fotosensibles. */
+.theme-changing *,
+.theme-changing *::before,
+.theme-changing *::after {
+  transition: none !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+}
+
 /* ─── Base ──────────────────────────────────────────────────────────────── */
 
 :root {
@@ -214,9 +224,6 @@ body {
   min-width: 320px;
   background-color: var(--surface);
   color: var(--text-primary);
-  transition:
-    background-color 180ms ease,
-    color 180ms ease;
 }
 
 button,

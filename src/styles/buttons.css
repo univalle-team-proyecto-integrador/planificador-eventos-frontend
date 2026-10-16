@@ -154,6 +154,23 @@
     --btn-focus: var(--danger-text);
   }
 
+  /* Variante para "Eliminar evento": texto de alto contraste sobre la superficie
+     con borde rojo. El botón debe verse sin dominar, así que no lleva relleno de
+     color. El color va por token y no fijo: `--surface-raised` es blanco en claro
+     y #12191f en oscuro, así que un negro literal dejaba el texto invisible al
+     cambiar de tema. */
+  .btn--danger-dark-text {
+    --btn-focus: var(--danger-text);
+    background-color: var(--surface-raised);
+    color: var(--text-primary);
+    border-color: var(--danger-text);
+  }
+
+  .btn--danger-dark-text:hover {
+    background-color: var(--danger-soft);
+    color: var(--text-primary);
+  }
+
   /* El borde neutro usa `--text-muted` y no `--border-strong`: este último se
      queda en 1.47:1 sobre la superficie, y un borde así es justo el caso que
      1.4.11 marca (el borde es lo único que identifica el control). */

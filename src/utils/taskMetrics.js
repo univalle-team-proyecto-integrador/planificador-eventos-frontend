@@ -54,6 +54,21 @@ export const toDateKey = (value) => {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 };
 
+export const getHoursByDate = (tasks, dateKey) => {
+  if (!dateKey || !Array.isArray(tasks)) return 0;
+
+  return tasks
+    .filter(
+      (task) =>
+        task.state !== COMPLETED_STATE &&
+        toDateKey(task.date) === toDateKey(dateKey)
+    )
+    .reduce((total, task) => {
+      const hours = Number(task.hours ?? task.horasEstimadas ?? 0);
+      return total + (Number.isNaN(hours) ? 0 : hours);
+    }, 0);
+};
+
 export const addDays = (dateKey, days) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
     return '';

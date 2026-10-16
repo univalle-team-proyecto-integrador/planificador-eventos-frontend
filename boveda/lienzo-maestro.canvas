@@ -36,7 +36,19 @@
 		{"id":"m017","type":"file","file":"mejoras/2026-10-08-017-selector-rango-proximas.md","x":200,"y":3360,"width":300,"height":140},
 		{"id":"p017","type":"text","text":"Mejora 017\nSelector de rango Próximas\n2026-10-08","x":-240,"y":3360,"width":260,"height":120,"color":"1"},
 		{"id":"m018","type":"file","file":"mejoras/2026-10-09-018-arregla-reprogramar-y-desfase.md","x":200,"y":3560,"width":300,"height":140},
-		{"id":"p018","type":"text","text":"Mejora 018\nArregla reprogramar y marca de desfase\n2026-10-09","x":-240,"y":3560,"width":260,"height":120,"color":"1"}
+		{"id":"p018","type":"text","text":"Mejora 018\nArregla reprogramar y marca de desfase\n2026-10-09","x":-240,"y":3560,"width":260,"height":120,"color":"1"},
+		{"id":"m019","type":"file","file":"mejoras/2026-10-15-019-contrato-409-y-conflicto-por-origen.md","x":200,"y":3740,"width":300,"height":140},
+		{"id":"p019","type":"text","text":"Mejora 019\nContrato 409 y conflicto por origen\n2026-10-15","x":-240,"y":3740,"width":260,"height":120,"color":"1"},
+		{"id":"m020","type":"file","file":"mejoras/2026-10-15-020-retirada-de-horas-estimadas-del-evento.md","x":200,"y":3920,"width":300,"height":140},
+		{"id":"p020","type":"text","text":"Mejora 020\nRetirada de horas estimadas\n2026-10-15","x":-240,"y":3920,"width":260,"height":120,"color":"1"},
+		{"id":"m021","type":"file","file":"mejoras/2026-10-15-021-sistema-de-botones-en-css.md","x":200,"y":4100,"width":300,"height":140},
+		{"id":"p021","type":"text","text":"Mejora 021\nBotones en variables CSS\n2026-10-15","x":-240,"y":4100,"width":260,"height":120,"color":"1"},
+		{"id":"m022","type":"file","file":"mejoras/2026-10-15-022-informacion-al-menu-de-perfil.md","x":200,"y":4280,"width":300,"height":140},
+		{"id":"p022","type":"text","text":"Mejora 022\nInformación en el menú\n2026-10-15","x":-240,"y":4280,"width":260,"height":120,"color":"1"},
+		{"id":"m023","type":"file","file":"mejoras/2026-10-15-023-limite-diario-contra-capacidad-real.md","x":200,"y":4460,"width":300,"height":140},
+		{"id":"p023","type":"text","text":"Mejora 023\nLímite diario contra capacidad\n2026-10-15","x":-240,"y":4460,"width":260,"height":120,"color":"1"},
+		{"id":"m024","type":"file","file":"mejoras/2026-10-15-024-borrador-paginacion-y-confirmaciones.md","x":200,"y":4640,"width":300,"height":140},
+		{"id":"p024","type":"text","text":"Mejora 024\nBorrador, paginación y confirmaciones\n2026-10-15","x":-240,"y":4640,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -74,6 +86,18 @@
 		{"id":"e35","fromNode":"indice","fromSide":"bottom","toNode":"m017","toSide":"top"},
 		{"id":"e36","fromNode":"p017","fromSide":"right","toNode":"m017","toSide":"left"},
 		{"id":"e37","fromNode":"indice","fromSide":"bottom","toNode":"m018","toSide":"top"},
-		{"id":"e38","fromNode":"p018","fromSide":"right","toNode":"m018","toSide":"left"}
+		{"id":"e38","fromNode":"p018","fromSide":"right","toNode":"m018","toSide":"left"},
+		{"id":"e39","fromNode":"indice","fromSide":"bottom","toNode":"m019","toSide":"top"},
+		{"id":"e40","fromNode":"p019","fromSide":"right","toNode":"m019","toSide":"left"},
+		{"id":"e41","fromNode":"indice","fromSide":"bottom","toNode":"m020","toSide":"top"},
+		{"id":"e42","fromNode":"p020","fromSide":"right","toNode":"m020","toSide":"left"},
+		{"id":"e43","fromNode":"indice","fromSide":"bottom","toNode":"m021","toSide":"top"},
+		{"id":"e44","fromNode":"p021","fromSide":"right","toNode":"m021","toSide":"left"},
+		{"id":"e45","fromNode":"indice","fromSide":"bottom","toNode":"m022","toSide":"top"},
+		{"id":"e46","fromNode":"p022","fromSide":"right","toNode":"m022","toSide":"left"},
+		{"id":"e47","fromNode":"indice","fromSide":"bottom","toNode":"m023","toSide":"top"},
+		{"id":"e48","fromNode":"p023","fromSide":"right","toNode":"m023","toSide":"left"},
+		{"id":"e49","fromNode":"indice","fromSide":"bottom","toNode":"m024","toSide":"top"},
+		{"id":"e50","fromNode":"p024","fromSide":"right","toNode":"m024","toSide":"left"}
 	]
 }

@@ -19,3 +19,9 @@
 | 2026-09-25 | 016 | Microcopy de acceso al evento               | [2026-09-25-016-microcopy-ver-evento](2026-09-25-016-microcopy-ver-evento.md) |
 | 2026-10-08 | 017 | Selector de rango de Próximas en Hoy          | [2026-10-08-017-selector-rango-proximas](2026-10-08-017-selector-rango-proximas.md) |
 | 2026-10-09 | 018 | Arregla la reprogramación y añade la marca de desfase | [2026-10-09-018-arregla-reprogramar-y-desfase](2026-10-09-018-arregla-reprogramar-y-desfase.md) |
+| 2026-10-15 | 019 | El cliente habla el 409 real y el conflicto distingue el origen | [2026-10-15-019-contrato-409-y-conflicto-por-origen](2026-10-15-019-contrato-409-y-conflicto-por-origen.md) |
+| 2026-10-15 | 020 | Retirada de las horas estimadas del evento | [2026-10-15-020-retirada-de-horas-estimadas-del-evento](2026-10-15-020-retirada-de-horas-estimadas-del-evento.md) |
+| 2026-10-15 | 021 | El sistema de botones pasa a variables CSS por tema | [2026-10-15-021-sistema-de-botones-en-css](2026-10-15-021-sistema-de-botones-en-css.md) |
+| 2026-10-15 | 022 | La información y la ayuda salen de la vista al menú de perfil | [2026-10-15-022-informacion-al-menu-de-perfil](2026-10-15-022-informacion-al-menu-de-perfil.md) |
+| 2026-10-15 | 023 | Límite diario editable contra la capacidad real del backend | [2026-10-15-023-limite-diario-contra-capacidad-real](2026-10-15-023-limite-diario-contra-capacidad-real.md) |
+| 2026-10-15 | 024 | Borrador automático, paginación en Hoy, fin de los destellos y confirmaciones | [2026-10-15-024-borrador-paginacion-y-confirmaciones](2026-10-15-024-borrador-paginacion-y-confirmaciones.md) |

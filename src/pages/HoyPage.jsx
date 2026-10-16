@@ -19,6 +19,8 @@ import {
   UPCOMING_RANGES,
 } from '../utils/taskMetrics';
 
+const PAGE_SIZE = 5;
+
 const formatDate = (value) => {
   if (!value) {
     return 'Sin fecha';
@@ -50,6 +52,10 @@ function TaskSection({
   getDateLabel,
   isOverdue = false,
 }) {
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const visibleTasks = tasks.slice(0, visibleCount);
+  const hasMore = total > visibleCount;
+
   if (total === 0) {
     return null;
   }
@@ -63,14 +69,14 @@ function TaskSection({
           </h2>
           <p className="mt-1 text-sm text-muted-text">{description}</p>
         </div>
-        {total > tasks.length && (
+        {total > visibleTasks.length && (
           <p className="text-xs font-medium text-muted-text">
-            Mostrando {tasks.length} de {total}
+            Mostrando {visibleTasks.length} de {total}
           </p>
         )}
       </div>
       <ul className="space-y-3" aria-live="polite">
-        {tasks.map((task) => (
+        {visibleTasks.map((task) => (
           <TaskCard
             key={task.id}
             task={task}
@@ -79,6 +85,17 @@ function TaskSection({
           />
         ))}
       </ul>
+      {hasMore && (
+        <div className="flex justify-center pt-2">
+          <Button
+            type="button"
+            variant="neutral-outline"
+            onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+          >
+            Ver más ({total - visibleCount} restantes)
+          </Button>
+        </div>
+      )}
     </section>
   );
 }
