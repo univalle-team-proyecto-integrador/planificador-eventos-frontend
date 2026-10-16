@@ -61,8 +61,12 @@ const SUBTASK_SUCCESS_MESSAGES = {
 };
 
 /**
- * Clase compartida por los cuatro botones de acción de cada gestión (editar,
- * completar, reabrir y eliminar).
+ * Clase compartida por los cuatro botones de acción de cada gestión, que van
+ * en el orden: Editar, Completar/Reabrir, Reprogramar y Eliminar.
+ *
+ * El orden va de la acción más frecuente a la más destructiva, y deja
+ * Eliminar al final: es el único irreversible y el más costoso de alcanzar por
+ * error. Completar y Reabrir son el mismo botón según el estado de la gestión.
  *
  * La anchura fija es lo que los mantiene alineados: "Editar" y "Eliminar" son
  * muy distintos en longitud y, sin `w-28`, la fila se ve desigual. El color no
@@ -1944,45 +1948,6 @@ export function EventDetailView() {
                     </Badge>
                     <Button
                       type="button"
-                      variant="neutral-outline"
-                      className={TASK_ACTION_CLASS}
-                      onClick={() => {
-                        setReprogramError('');
-                        setReprogramTarget(subtask);
-                      }}
-                      disabled={
-                        updatingSubtaskId === subtask.id ||
-                        isSavingSubtaskEdit ||
-                        editingSubtaskId === subtask.id
-                      }
-                      aria-label={`Reprogramar ${subtask.title}`}
-                    >
-                      <CalendarClock
-                        aria-hidden="true"
-                        className="mr-1 inline size-3.5"
-                      />
-                      Reprogramar
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="danger-outline"
-                      className={TASK_ACTION_CLASS}
-                      onClick={() => requestDeleteSubtask(subtask)}
-                      disabled={
-                        updatingSubtaskId === subtask.id ||
-                        isSavingSubtaskEdit ||
-                        editingSubtaskId === subtask.id
-                      }
-                      aria-label={`Eliminar ${subtask.title}`}
-                    >
-                      <Trash2
-                        aria-hidden="true"
-                        className="mr-1 inline size-3.5"
-                      />
-                      Eliminar
-                    </Button>
-                    <Button
-                      type="button"
                       variant="success-outline"
                       className={TASK_ACTION_CLASS}
                       onClick={() => startEditingSubtask(subtask)}
@@ -2036,6 +2001,45 @@ export function EventDetailView() {
                           Completar
                         </>
                       )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="neutral-outline"
+                      className={TASK_ACTION_CLASS}
+                      onClick={() => {
+                        setReprogramError('');
+                        setReprogramTarget(subtask);
+                      }}
+                      disabled={
+                        updatingSubtaskId === subtask.id ||
+                        isSavingSubtaskEdit ||
+                        editingSubtaskId === subtask.id
+                      }
+                      aria-label={`Reprogramar ${subtask.title}`}
+                    >
+                      <CalendarClock
+                        aria-hidden="true"
+                        className="mr-1 inline size-3.5"
+                      />
+                      Reprogramar
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="danger-outline"
+                      className={TASK_ACTION_CLASS}
+                      onClick={() => requestDeleteSubtask(subtask)}
+                      disabled={
+                        updatingSubtaskId === subtask.id ||
+                        isSavingSubtaskEdit ||
+                        editingSubtaskId === subtask.id
+                      }
+                      aria-label={`Eliminar ${subtask.title}`}
+                    >
+                      <Trash2
+                        aria-hidden="true"
+                        className="mr-1 inline size-3.5"
+                      />
+                      Eliminar
                     </Button>
                   </div>
                 </div>

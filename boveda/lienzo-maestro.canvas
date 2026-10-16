@@ -48,7 +48,11 @@
 		{"id":"m023","type":"file","file":"mejoras/2026-10-15-023-limite-diario-contra-capacidad-real.md","x":200,"y":4460,"width":300,"height":140},
 		{"id":"p023","type":"text","text":"Mejora 023\nLímite diario contra capacidad\n2026-10-15","x":-240,"y":4460,"width":260,"height":120,"color":"1"},
 		{"id":"m024","type":"file","file":"mejoras/2026-10-15-024-borrador-paginacion-y-confirmaciones.md","x":200,"y":4640,"width":300,"height":140},
-		{"id":"p024","type":"text","text":"Mejora 024\nBorrador, paginación y confirmaciones\n2026-10-15","x":-240,"y":4640,"width":260,"height":120,"color":"1"}
+		{"id":"p024","type":"text","text":"Mejora 024\nBorrador, paginación y confirmaciones\n2026-10-15","x":-240,"y":4640,"width":260,"height":120,"color":"1"},
+		{"id":"m025","type":"file","file":"mejoras/2026-10-15-025-transicion-de-tema.md","x":200,"y":4820,"width":300,"height":140},
+		{"id":"p025","type":"text","text":"Mejora 025\nTransición de tema\n2026-10-15","x":-240,"y":4820,"width":260,"height":120,"color":"1"},
+		{"id":"m026","type":"file","file":"mejoras/2026-10-15-026-orden-de-acciones-de-una-gestion.md","x":200,"y":5000,"width":300,"height":140},
+		{"id":"p026","type":"text","text":"Mejora 026\nOrden de acciones de una gestión\n2026-10-15","x":-240,"y":5000,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -98,6 +102,10 @@
 		{"id":"e47","fromNode":"indice","fromSide":"bottom","toNode":"m023","toSide":"top"},
 		{"id":"e48","fromNode":"p023","fromSide":"right","toNode":"m023","toSide":"left"},
 		{"id":"e49","fromNode":"indice","fromSide":"bottom","toNode":"m024","toSide":"top"},
-		{"id":"e50","fromNode":"p024","fromSide":"right","toNode":"m024","toSide":"left"}
+		{"id":"e50","fromNode":"p024","fromSide":"right","toNode":"m024","toSide":"left"},
+		{"id":"e51","fromNode":"indice","fromSide":"bottom","toNode":"m025","toSide":"top"},
+		{"id":"e52","fromNode":"p025","fromSide":"right","toNode":"m025","toSide":"left"},
+		{"id":"e53","fromNode":"indice","fromSide":"bottom","toNode":"m026","toSide":"top"},
+		{"id":"e54","fromNode":"p026","fromSide":"right","toNode":"m026","toSide":"left"}
 	]
 }

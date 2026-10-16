@@ -25,3 +25,5 @@
 | 2026-10-15 | 022 | La información y la ayuda salen de la vista al menú de perfil | [2026-10-15-022-informacion-al-menu-de-perfil](2026-10-15-022-informacion-al-menu-de-perfil.md) |
 | 2026-10-15 | 023 | Límite diario editable contra la capacidad real del backend | [2026-10-15-023-limite-diario-contra-capacidad-real](2026-10-15-023-limite-diario-contra-capacidad-real.md) |
 | 2026-10-15 | 024 | Borrador automático, paginación en Hoy, fin de los destellos y confirmaciones | [2026-10-15-024-borrador-paginacion-y-confirmaciones](2026-10-15-024-borrador-paginacion-y-confirmaciones.md) |
+| 2026-10-15 | 025 | El cambio de tema se anima en lugar de saltar | [2026-10-15-025-transicion-de-tema](2026-10-15-025-transicion-de-tema.md) |
+| 2026-10-15 | 026 | Orden de las acciones de una gestión | [2026-10-15-026-orden-de-acciones-de-una-gestion](2026-10-15-026-orden-de-acciones-de-una-gestion.md) |
