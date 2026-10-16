@@ -7,6 +7,7 @@ import { NotificationsProvider } from '../providers/NotificationsProvider';
 import { SearchProvider } from '../providers/SearchProvider';
 import { saveSession } from '../services/tokenStorage';
 import { getToday } from '../utils/dateValidation';
+import { addDays } from '../utils/taskMetrics';
 
 /**
  * Registro de una gestión como ejecutada o pospuesta desde el panel de hoy
@@ -46,6 +47,18 @@ const SUBTAREA = {
   estado: 'pendiente',
 };
 
+// Una segunda gestión con fecha pasada: es la que cae en "Gestiones vencidas" y
+// la única que lleva el aviso de demora. Va a un día antes porque la sección
+// clasifica por `fechaObjetivo < hoy`.
+const SUBTAREA_VENCIDA = {
+  idSubtarea: 4,
+  idEvento: 9,
+  nombreGestion: 'Cerrar el venue',
+  fechaObjetivo: addDays(HOY, -2),
+  horasEstimadas: 1,
+  estado: 'pendiente',
+};
+
 const respuestaJson = (cuerpo, status = 200) => ({
   ok: status >= 200 && status < 300,
   status,
@@ -53,11 +66,12 @@ const respuestaJson = (cuerpo, status = 200) => ({
 });
 
 /**
- * @param {{ parche?: object, capacidad?: object }} opciones
+ * @param {{ parche?: object, capacidad?: object, conVencida?: boolean }} opciones
  */
 const stubApi = ({
   parche = respuestaJson({ ...SUBTAREA, estado: 'ejecutada' }),
   capacidad = respuestaJson({ limiteHorasDiarias: 8 }),
+  conVencida = false,
 } = {}) => {
   const fetchMock = vi.fn(async (url, options = {}) => {
     const ruta = String(url);
@@ -66,7 +80,9 @@ const stubApi = ({
       return capacidad;
     }
     if (/\/api\/eventos\/9\/subtareas/.test(ruta)) {
-      return respuestaJson([SUBTAREA]);
+      return respuestaJson(
+        conVencida ? [SUBTAREA, SUBTAREA_VENCIDA] : [SUBTAREA]
+      );
     }
     if (/\/api\/eventos\/9$/.test(ruta)) {
       return respuestaJson(EVENTO);
@@ -282,6 +298,53 @@ describe('panel de hoy: registrar una gestión', () => {
     // que ofrecerlo aquí prometería una bajada que el número no muestra.
     expect(container.textContent).toContain('como hecha para bajarla');
     expect(container.textContent).not.toContain('pospuesta para bajarla');
+  });
+
+  it('marca como vencida solo la gestión con fecha pasada', async () => {
+    stubApi({ conVencida: true });
+    await renderHoy();
+
+    await vi.waitFor(() => {
+      expect(container.textContent).toContain('Cerrar el venue');
+    });
+
+    const liVencida = [...container.querySelectorAll('li')].find((li) =>
+      (li.textContent ?? '').includes('Cerrar el venue')
+    );
+    const liDeHoy = [...container.querySelectorAll('li')].find((li) =>
+      (li.textContent ?? '').includes('Confirmar proveedor')
+    );
+
+    // La clase es lo único que se puede comprobar aquí: el color lo pone el CSS
+    // a partir de `--glow-alerta` y vitest no renderiza estilos.
+    expect(liVencida.className).toContain('event-card--vencida');
+    expect(liDeHoy.className).not.toContain('event-card--vencida');
+
+    // Y el aviso en texto sigue estando, para quien no distingue el color: la
+    // sombra no puede ser la única señal de que algo está atrasado (WCAG 1.4.1).
+    expect(liVencida.textContent).toContain('Atrasada');
+    expect(liVencida.textContent).toContain('Vencida');
+  });
+
+  it('no fija el halo del evento en la tarjeta vencida', async () => {
+    // Si el estilo inline trajera `--accent-glow`, ganaría a la clase y el hover
+    // volvería a brillar con el color del evento en vez de en rojo.
+    stubApi({ conVencida: true });
+    await renderHoy();
+
+    await vi.waitFor(() => {
+      expect(container.textContent).toContain('Cerrar el venue');
+    });
+
+    const liVencida = [...container.querySelectorAll('li')].find((li) =>
+      (li.textContent ?? '').includes('Cerrar el venue')
+    );
+    const liDeHoy = [...container.querySelectorAll('li')].find((li) =>
+      (li.textContent ?? '').includes('Confirmar proveedor')
+    );
+
+    expect(liVencida.style.getPropertyValue('--accent-glow')).toBe('');
+    expect(liDeHoy.style.getPropertyValue('--accent-glow')).not.toBe('');
   });
 });
 

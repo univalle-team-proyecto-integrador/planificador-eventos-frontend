@@ -105,6 +105,15 @@
   --shadow-card-hover:
     0 18px 40px -12px var(--accent-glow, rgb(133 129 217 / 0.45)),
     0 2px 8px rgb(0 0 0 / 0.08);
+  /* Halo de la tarjeta vencida. A diferencia del resto de tokens de color, este
+     NO se registra con @property ni entra en las listas de `transition`, y es
+     deliberado: es una sombra, y las sombras tampoco se animan con el tema (le
+     pasa igual a `--shadow-card` y `--shadow-card-hover`). Al cambiar de tema el
+     halo da un salto, como las demás sombras. */
+  --glow-alerta: rgb(239 68 68 / 0.45);
+  /* La sombra neutra se conserva como segunda capa: la tarjeta no pierde su
+     profundidad, solo gana el halo rojo por encima. */
+  --shadow-card-alerta: 0 8px 18px -10px var(--glow-alerta), var(--shadow-card);
 }
 
 [data-theme='dark'] {
@@ -164,6 +173,11 @@
   --shadow-card-hover:
     0 18px 40px -12px var(--accent-glow, rgb(133 129 217 / 0.45)),
     0 2px 8px rgb(0 0 0 / 0.55);
+  /* El halo se aclara con el tema: un rojo apagado se pierde sobre superficie
+     oscura. El borde y el fondo de la vencida siguen siendo ámbar (`--warning`),
+     así que aquí no se toca nada de eso. */
+  --glow-alerta: rgb(248 113 113 / 0.5);
+  --shadow-card-alerta: 0 8px 18px -10px var(--glow-alerta), var(--shadow-card);
 }
 
 @theme inline {
@@ -663,6 +677,22 @@ select option {
 .event-card:focus-within {
   transform: scale(1.03);
   box-shadow: var(--shadow-card-hover);
+}
+
+/* Gestión vencida: el aviso no puede esperar al hover, así que la sombra en
+   reposo también lleva color. Va sin capa, como `.event-card`, y solo define
+   `box-shadow` y el color del halo: no toca fondo ni borde, de modo que el tinte
+   ámbar que la tarjeta vencida ya tenía sigue ganando sin pelea.
+
+   Redirigir `--accent-glow` es lo que hace que el hover salga rojo sin una
+   segunda regla: `.event-card:hover` tiene más especificidad y gana con
+   `--shadow-card-hover`, que ya usa `--accent-glow`. Por eso `TaskCard` tiene
+   que dejar de pasar el color del evento en el estilo inline cuando la gestión
+   está vencida: el inline gana a cualquier clase y el hover volvería a
+   brillar con el color del evento. */
+.event-card--vencida {
+  --accent-glow: var(--glow-alerta);
+  box-shadow: var(--shadow-card-alerta);
 }
 
 @media (prefers-reduced-motion: reduce) {
