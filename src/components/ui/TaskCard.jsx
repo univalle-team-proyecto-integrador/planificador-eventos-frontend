@@ -166,11 +166,23 @@ export function TaskCard({
                   disabled={!puedeCompletar || isUpdating}
                   aria-busy={isUpdating}
                 >
-                  <CircleCheck
-                    aria-hidden="true"
-                    className="mr-1 inline size-4"
-                  />
-                  {task.state === ESTADO_EJECUTADA ? 'Completada' : 'Hecha'}
+                  {/* "Completada" no lleva icono y "Hecha" sí. El ancho de la
+                      fila es fijo (`w-28`) y el texto con icono no cabía: el
+                      grupo se salía del botón y el texto quedaba pegado al
+                      borde en vez de centrado. Los dos textos se leen igual de
+                      bien sin icono, y el badge de estado que hay al lado ya
+                      dice que está completada. */}
+                  {task.state === ESTADO_EJECUTADA ? (
+                    'Completada'
+                  ) : (
+                    <>
+                      <CircleCheck
+                        aria-hidden="true"
+                        className="mr-1 inline size-4"
+                      />
+                      Hecha
+                    </>
+                  )}
                 </Button>
               )}
               {/* Un botón que no puede hacer nada no se pinta. Una gestión ya
@@ -201,10 +213,10 @@ export function TaskCard({
                   disabled={isUpdating}
                   aria-busy={isUpdating}
                 >
-                  <CalendarClock
-                    aria-hidden="true"
-                    className="mr-1 inline size-4"
-                  />
+                  {/* Sin icono a propósito. Es la etiqueta más larga de la fila
+                      (~71px) y con el icono no cabía en el ancho fijo de `w-28`:
+                      el texto se salía del botón y quedaba pegado al borde en
+                      vez de centrado. */}
                   Reprogramar
                 </Button>
               )}
