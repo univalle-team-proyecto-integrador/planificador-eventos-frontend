@@ -33,3 +33,4 @@
 | 2026-10-16 | 030 | El aviso de vencida depende de la fecha, no del grupo | [2026-10-16-030-vencida-por-fecha-y-no-por-grupo](2026-10-16-030-vencida-por-fecha-y-no-por-grupo.md) |
 | 2026-10-16 | 031 | La gestión vencida se pinta de rojo, no solo se rodea | [2026-10-16-031-vencida-con-fondo-rojo](2026-10-16-031-vencida-con-fondo-rojo.md) |
 | 2026-10-16 | 032 | Una pospuesta con la fecha pasada sale en "Gestiones vencidas" | [2026-10-16-032-pospuestas-vencidas-en-el-grupo-de-vencidas](2026-10-16-032-pospuestas-vencidas-en-el-grupo-de-vencidas.md) |
+| 2026-10-16 | 033 | Las acciones de TaskCard se distinguen por el borde, no por el relleno | [2026-10-16-033-acciones-con-contorno-en-taskcard](2026-10-16-033-acciones-con-contorno-en-taskcard.md) |
