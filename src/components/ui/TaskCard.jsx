@@ -87,17 +87,21 @@ export function TaskCard({
       // `transition-shadow` ni `hover:shadow-md`: `.event-card` va sin capa y
       // manda sobre ellas, así que quedarían como clases muertas.
       //
-      // El anillo rojo sale de `esVencida` (la FECHA ya pasó) y no de `isOverdue`
+      // El aviso sale de `esVencida` (la FECHA ya pasó) y no de `isOverdue`
       // (estar en el grupo de vencidas): son dos cosas distintas y con un solo
       // booleano no se pueden expresar. Una gestión pospuesta con fecha de ayer
       // está vencida aunque viva en su propio grupo, y antes no se le veía
-      // nada por eso. `isOverdue` sigue trayendo el tinte ámbar y el badge.
+      // nada por eso.
       //
-      // El anillo NO lleva `border-warning` encima: queda 3px fuera del borde y
-      // un ámbar de 1px pegado al rojo se vería como dos contornos. El tinte
-      // ámbar y el badge "Atrasada" sí siguen atados a `isOverdue` (el grupo).
-      className={`event-card p-4 ${esVencida ? 'event-card--vencida' : ''} ${
-        isOverdue ? 'bg-warning-soft/50' : ''
+      // `esVencida` trae el anillo Y el fondo rojo (`--alerta-fondo` al 30%,
+      // medido para que el texto siga pasando AA en los dos temas). El tinte
+      // ámbar desaparece cuando hay rojo: dos fondos de aviso a la vez no
+      // significan nada, y el rojo es el que se pidió.
+      //
+      // NO lleva `border-warning`: el anillo queda 3px fuera del borde y un
+      // ámbar de 1px pegado al rojo se vería como dos contornos.
+      className={`event-card p-4 ${
+        esVencida ? 'event-card--vencida bg-alerta-fondo/30' : ''
       }`}
       // Con la gestión vencida NO se pasa el color del evento: el estilo inline
       // gana a `.event-card--vencida`, y si siguiera aquí el halo del hover
@@ -115,7 +119,12 @@ export function TaskCard({
             {task.title}
           </h3>
           {(dateLabel || isOverdue) && (
-            <p className="mt-2 flex items-center gap-1 text-sm text-muted-text">
+            <p
+              className={`mt-2 flex items-center gap-1 text-sm ${
+                // Sobre el fondo rojo, `--text-muted` cae a 3.9:1 y no pasa AA.
+                esVencida ? 'text-secondary-text' : 'text-muted-text'
+              }`}
+            >
               {isOverdue && (
                 <TriangleAlert
                   aria-hidden="true"

@@ -356,10 +356,10 @@ describe('panel de hoy: registrar una gestión', () => {
     expect(liVencida.className).toContain('event-card--vencida');
     expect(liDeHoy.className).not.toContain('event-card--vencida');
 
-    // Sin el borde ámbar: el anillo de 3px queda fuera del borde y un ámbar de
-    // 1px pegado al rojo se vería como dos contornos. El fondo sí sigue ámbar.
+    // El aviso es rojo: anillo + fondo. Sin borde ámbar, porque el anillo queda
+    // 3px fuera del borde y un ámbar de 1px pegado se vería como dos contornos.
     expect(liVencida.className).not.toContain('border-warning');
-    expect(liVencida.className).toContain('bg-warning-soft');
+    expect(liVencida.className).toContain('bg-alerta-fondo/30');
 
     // Y el aviso en texto sigue estando, para quien no distingue el color: el
     // anillo no puede ser la única señal de que algo está atrasado (WCAG 1.4.1).
@@ -404,9 +404,10 @@ describe('panel de hoy: registrar una gestión', () => {
     );
 
     expect(liPospuesta.className).toContain('event-card--vencida');
-    // Pero sin el ámbar de la sección de vencidas: esa tarjeta no está en ese
-    // grupo, así que no gana el tinte ni el badge "Atrasada".
-    expect(liPospuesta.className).not.toContain('bg-warning-soft');
+    expect(liPospuesta.className).toContain('bg-alerta-fondo/30');
+    // Pero sin el badge "Atrasada" del grupo de vencidas: esa tarjeta no está en
+    // ese grupo, así que no lo gana aunque esté vencida por fecha.
+    expect(liPospuesta.textContent).not.toContain('Atrasada');
   });
 });
 

@@ -60,7 +60,9 @@
 		{"id":"m029","type":"file","file":"mejoras/2026-10-16-029-sombra-roja-en-gestion-vencida.md","x":200,"y":5600,"width":300,"height":140},
 		{"id":"p029","type":"text","text":"Mejora 029\nSombra roja en la gestión vencida\n2026-10-16","x":-240,"y":5600,"width":260,"height":120,"color":"1"},
 		{"id":"m030","type":"file","file":"mejoras/2026-10-16-030-vencida-por-fecha-y-no-por-grupo.md","x":200,"y":5800,"width":300,"height":140},
-		{"id":"p030","type":"text","text":"Mejora 030\nLa vencida depende de la fecha, no del grupo\n2026-10-16","x":-240,"y":5800,"width":260,"height":120,"color":"1"}
+		{"id":"p030","type":"text","text":"Mejora 030\nLa vencida depende de la fecha, no del grupo\n2026-10-16","x":-240,"y":5800,"width":260,"height":120,"color":"1"},
+		{"id":"m031","type":"file","file":"mejoras/2026-10-16-031-vencida-con-fondo-rojo.md","x":200,"y":6000,"width":300,"height":140},
+		{"id":"p031","type":"text","text":"Mejora 031\nLa vencida se pinta de fondo rojo\n2026-10-16","x":-240,"y":6000,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -122,6 +124,8 @@
 		{"id":"e59","fromNode":"indice","fromSide":"bottom","toNode":"m029","toSide":"top"},
 		{"id":"e60","fromNode":"p029","fromSide":"right","toNode":"m029","toSide":"left"},
 		{"id":"e61","fromNode":"indice","fromSide":"bottom","toNode":"m030","toSide":"top"},
-		{"id":"e62","fromNode":"p030","fromSide":"right","toNode":"m030","toSide":"left"}
+		{"id":"e62","fromNode":"p030","fromSide":"right","toNode":"m030","toSide":"left"},
+		{"id":"e63","fromNode":"indice","fromSide":"bottom","toNode":"m031","toSide":"top"},
+		{"id":"e64","fromNode":"p031","fromSide":"right","toNode":"m031","toSide":"left"}
 	]
 }

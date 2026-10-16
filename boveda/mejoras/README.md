@@ -31,3 +31,4 @@
 | 2026-10-16 | 028 | La barra dice cuántas y qué día llevas (US-10) | [2026-10-16-028-barra-de-progreso-y-carga-del-dia](2026-10-16-028-barra-de-progreso-y-carga-del-dia.md) |
 | 2026-10-16 | 029 | La gestión vencida se sombrea de rojo | [2026-10-16-029-sombra-roja-en-gestion-vencida](2026-10-16-029-sombra-roja-en-gestion-vencida.md) |
 | 2026-10-16 | 030 | El aviso de vencida depende de la fecha, no del grupo | [2026-10-16-030-vencida-por-fecha-y-no-por-grupo](2026-10-16-030-vencida-por-fecha-y-no-por-grupo.md) |
+| 2026-10-16 | 031 | La gestión vencida se pinta de rojo, no solo se rodea | [2026-10-16-031-vencida-con-fondo-rojo](2026-10-16-031-vencida-con-fondo-rojo.md) |

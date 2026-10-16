@@ -120,7 +120,13 @@
      mismo, pero este token dice lo que significa en vez de heredarlo de otro
      sitio. */
   --glow-alerta: rgb(239 68 68 / 0.45);
-  --ring-alerta: #ef4444;
+  /* Fondo de la gestión vencida. Se usa con opacidad (`bg-alerta-fondo/30`), así
+     que el mismo valor sirve para los dos temas: el resultado depende de la
+     superficie sobre la que se mezcla y ya se midió en cada uno (30% deja el
+     texto peor en 4.88:1 en claro y 4.73:1 en oscuro, ambos por encima de AA).
+     Por eso no se redefine en `[data-theme='dark']`. */
+  --alerta-fondo: #e3566b;
+  --ring-alerta: #dc2626;
   /* La sombra neutra se conserva como segunda capa: la tarjeta no pierde su
      profundidad, solo gana el anillo. */
   --shadow-card-alerta: 0 0 0 3px var(--ring-alerta), var(--shadow-card);
@@ -232,6 +238,7 @@
   --color-warning-soft: var(--warning-soft);
   --color-warning-text: var(--warning-text);
   --color-warning-contrast: var(--warning-contrast);
+  --color-alerta-fondo: var(--alerta-fondo);
 
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);

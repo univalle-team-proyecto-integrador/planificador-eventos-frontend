@@ -120,7 +120,7 @@ Todo el HTTP pasa por `src/services/api.js`; nunca hardcodear URLs en las vistas
 - Antes de empezar a trabajar, `git fetch` y arrancar desde `frontend/lead` al día, para no partir de una copia vieja.
 - Mensajes de commit en español con prefijos conventional: `feat:`, `fix:`, `docs:`, `style:`, `test:`, `merge:`. Con cuerpo cuando el _porqué_ no se entiende leyendo el diff; el cuerpo dice qué cambió y por qué, no el qué.
 - El backend es un **repo git aparte** en `../planificador-eventos-backend` (no es submódulo). `./mvnw test`, `./mvnw spring-boot:run` (puerto 8080). Render despliega desde su `main`; su rama de desarrollo es `backend/lead`.
-- Bóveda: crear un registro en `boveda/mejoras/` solo para mejoras notables (interfaz, UX, a11y, integración), no por cada commit. Al crearlo hay que actualizar también el índice `boveda/mejoras/README.md` y añadir el nodo en `boveda/lienzo-maestro.canvas`. Numeración usada: 001–030 (falta 009); el backend ya va por 037.
+- Bóveda: crear un registro en `boveda/mejoras/` solo para mejoras notables (interfaz, UX, a11y, integración), no por cada commit. Al crearlo hay que actualizar también el índice `boveda/mejoras/README.md` y añadir el nodo en `boveda/lienzo-maestro.canvas`. Numeración usada: 001–031 (falta 009); el backend ya va por 037.
 
 ## Documentos de referencia
 
