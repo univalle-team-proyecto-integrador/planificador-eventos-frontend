@@ -7,6 +7,7 @@ import { SearchProvider } from '../../providers/SearchProvider';
 import { SessionProvider } from '../../providers/SessionProvider';
 import { NotificationsProvider } from '../../providers/NotificationsProvider';
 import { saveSession } from '../../services/tokenStorage';
+import { THEME_TRANSITION_MS } from '../../utils/theme';
 
 /**
  * Smoke del shell (barra superior + barra lateral + perfil + tema).
@@ -213,6 +214,45 @@ describe('shell de la aplicación', () => {
     expect(toggle.getAttribute('aria-checked')).toBe('true');
     expect(document.documentElement.dataset.theme).toBe('dark');
     expect(window.localStorage.getItem('eventflow.tema')).toBe('dark');
+  });
+
+  it('el interruptor ignora un segundo clic dentro de la transición', async () => {
+    stubApi();
+    saveSession({ token: 'abc', nombre: 'Santiago Perez' });
+
+    await renderAt('/hoy');
+
+    const menu = await abrirMenuPerfil(container);
+    const toggle = menu.querySelector('[role="switch"]');
+
+    // El provider compara contra Date.now(). Se adelanta el reloj para simular
+    // que pasó la transición, en vez de usar timers falsos: activarlos aquí
+    // rompería el desmontaje de los React.lazy del resto del archivo.
+    const reloj = vi.spyOn(Date, 'now');
+
+    await act(async () => {
+      toggle.click();
+    });
+    expect(toggle.getAttribute('aria-checked')).toBe('true');
+
+    // Segundo clic inmediato: se ignora. Dos cambios completos de luminancia
+    // sobre toda la pantalla en el mismo segundo es lo que WCAG 2.3.1 limita.
+    await act(async () => {
+      toggle.click();
+    });
+    expect(toggle.getAttribute('aria-checked')).toBe('true');
+    expect(document.documentElement.dataset.theme).toBe('dark');
+
+    // Pasada la transición, vuelve a responder. Se reutiliza el mismo toggle:
+    // el menú sigue abierto y abrirlo otra vez lo cerraría.
+    reloj.mockReturnValue(Date.now() + THEME_TRANSITION_MS + 50);
+
+    await act(async () => {
+      toggle.click();
+    });
+    expect(document.documentElement.dataset.theme).toBe('light');
+
+    reloj.mockRestore();
   });
 
   it('el menú de perfil abre con el nombre real y la acción de salir', async () => {
