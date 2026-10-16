@@ -54,6 +54,24 @@
   --success-soft: #ecfdf5;
   --success-text: #065f46;
   --success-contrast: #ffffff;
+  /* Rellenos del botón verde de "Hecha" (US-09). A diferencia de los demás
+     tokens de color, estos NO varían con el tema, y es deliberado: la letra
+     blanca en reposo pide un relleno oscuro y la negra en hover pide uno claro,
+     así que un único relleno que se invierte al cambiar de tema no puede dar las
+     dos cosas. Medidos: blanco sobre `#047857` da 5.15:1 y negro sobre
+     `#34d399` da 9.48:1, igual en los dos temas y por encima de AA en los dos.
+
+     Se declaran solo aquí y no en `[data-theme='dark']`. Por eso tampoco están
+     en las listas de `transition`: con el mismo valor en los dos temas no hay
+     nada que interpolar y no pueden dar un salto al cambiar de tema. */
+  --success-fill: #047857;
+  --success-fill-hover: #34d399;
+  /* El texto va emparejado con su relleno, no con `--success-contrast`: ese token
+     se invierte con el tema (blanco en claro, oscuro en oscuro) porque asume un
+     relleno que también se invierte. Aquí el relleno es el mismo en los dos
+     temas, así que el texto tiene que serlo también. */
+  --success-fill-text: #ffffff;
+  --success-fill-hover-text: #14122b;
 
   --warning: #b45309;
   --warning-soft: #fffbeb;
@@ -310,6 +328,28 @@
   syntax: '<color>';
   inherits: true;
   initial-value: #ffffff;
+}
+/* Los dos rellenos del botón verde no se redefinen en el tema oscuro, así que su
+   `initial-value` tiene que ser el valor de `:root` o darían un salto al cargar. */
+@property --success-fill {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #047857;
+}
+@property --success-fill-hover {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #34d399;
+}
+@property --success-fill-text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --success-fill-hover-text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #14122b;
 }
 @property --warning {
   syntax: '<color>';

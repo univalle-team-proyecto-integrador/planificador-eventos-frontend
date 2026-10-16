@@ -98,12 +98,18 @@
     --btn-focus: var(--primary-text);
   }
 
+  /* "Hecha" y "Marcar como completada": verde oscuro con letra blanca en reposo,
+     verde claro con letra negra al pasar el mouse. Los rellenos son
+     deliberadamente independientes del tema, porque la blanca necesita un fondo
+     oscuro y la negra un fondo claro. Antes el texto iba en `--primary-contrast`,
+     que es oscuro: sobre `#047857` quedaba en 3.34:1, por debajo del 4.5:1 que
+     pide AA. Ahora los dos pares dan 5.15:1 y 9.48:1 en los dos temas. */
   .btn--success {
-    --btn-bg: var(--success);
-    --btn-color: var(--primary-contrast);
+    --btn-bg: var(--success-fill);
+    --btn-color: var(--success-fill-text);
     --btn-border: transparent;
-    --btn-hover-bg: var(--success-text);
-    --btn-text-hover: var(--primary-contrast);
+    --btn-hover-bg: var(--success-fill-hover);
+    --btn-text-hover: var(--success-fill-hover-text);
     --btn-focus: var(--success);
   }
 

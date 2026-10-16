@@ -73,7 +73,7 @@ las secciones.
 
 ## Verificación
 
-- `npm run lint` → exit 0; `npm run test` → **18 archivos, 185 pruebas**; `npm run build` ✅.
+- `npm run lint` → exit 0; `npm run test` → **19 archivos, 189 pruebas**; `npm run build` ✅.
 - `src/views/HoyView.test.jsx` cubre el aviso de sobrecarga (aparece con 2 h y límite 1 h)
   y su retirada al completar, que es la parte que ningún test de lógica puede ver.
 

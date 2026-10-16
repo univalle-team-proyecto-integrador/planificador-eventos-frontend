@@ -22,10 +22,10 @@ npm run build   # vite build -> dist/
 ## Tests
 
 - `vite.config.js` **sí** tiene bloque `test`, con `environment: 'jsdom'` (la sesión vive en `localStorage`, así que `window` tiene que existir). **`jsdom` está instalado**; `@testing-library` y `happy-dom` no.
-- Cobertura actual: **18 archivos, 185 tests** — `api`, `authService`, `tokenStorage`, `dateValidation`, `emailValidation`, `passwordValidation`, `taskMetrics`, `taskSearch`, `taskExecution`, `theme`, `rangoPreximas`, `limiteHoras`, `limiteHorasValidation`, `reprogramacion`, `services/mocks/reprogramacion`, `views/EventDetailView.test.jsx`, `views/HoyView.test.jsx` y `components/layout/shell.test.jsx`.
+- Cobertura actual: **19 archivos, 189 tests** — `api`, `authService`, `tokenStorage`, `dateValidation`, `emailValidation`, `passwordValidation`, `taskMetrics`, `taskSearch`, `taskExecution`, `theme`, `rangoPreximas`, `limiteHoras`, `limiteHorasValidation`, `reprogramacion`, `services/mocks/reprogramacion`, `components/ui/EventCard.test.jsx`, `views/EventDetailView.test.jsx`, `views/HoyView.test.jsx` y `components/layout/shell.test.jsx`.
 - Dos patrones conviven:
   - **Lógica pura** en `src/utils/` y `src/services/`. Es el patrón mayoritario y el preferido.
-  - **Tests de render** con `createRoot` + `act` de `react` (sin testing-library): `src/components/layout/shell.test.jsx` monta el shell real y `src/views/{EventDetailView,HoyView}.test.jsx` ejercitan flujos que ningún test de lógica detecta (que el botón abra el modal, que el PATCH salga con el nombre del DTO, que la lista cambie sin recargar).
+  - **Tests de render** con `createRoot` + `act` de `react` (sin testing-library): `src/components/layout/shell.test.jsx` monta el shell real, `src/components/ui/EventCard.test.jsx` la tarjeta de evento de /progreso, y `src/views/{EventDetailView,HoyView}.test.jsx` ejercitan flujos que ningún test de lógica detecta (que el botón abra el modal, que el PATCH salga con el nombre del DTO, que la lista cambie sin recargar).
 - En tests de render hay que dejar que los `React.lazy` resuelvan antes de mirar el DOM: usar `vi.waitFor`, no un `setTimeout` fijo.
 - `api.test.js` stubbea `global.fetch` y fija `BASE = 'https://planificador-eventos-backend-1.onrender.com'`; sigue ese patrón al añadir casos.
 

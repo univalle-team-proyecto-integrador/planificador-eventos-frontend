@@ -35,7 +35,9 @@ carencias: acciones rápidas en la tarjeta y un modal que captura el motivo.
   `isUpdating`; botones "Hecha" y "Posponer" con `TASK_ACTION_CLASS`. `/progreso` y el
   calendario los usan sin esas props y no cambian de aspecto.
 - `src/index.css`, `src/styles/buttons.css`, `src/components/ui/Button.jsx` — variante
-  `warning` (el botón "Posponer") y su token `--warning-contrast`.
+  `warning` (el botón "Posponer") y su token `--warning-contrast`, más los cuatro tokens
+  emparejados del botón "Hecha" (`--success-fill`, `--success-fill-hover`,
+  `--success-fill-text`, `--success-fill-hover-text`).
 - `src/views/HoyView.jsx` (**nuevo**) — la lógica de `/hoy`, antes en
   `src/pages/HoyPage.jsx`, más el flujo de registro, la carga del día y el aviso de
   sobrecarga.
@@ -65,6 +67,20 @@ carencias: acciones rápidas en la tarjeta y un modal que captura el motivo.
   y luego se mezcla sobre la tarea en pantalla, de modo que el servidor gana en las
   claves compartidas y el cliente conserva lo que el servidor no manda (`eventName`).
   Este bug ya afectaba al botón Completar del detalle; lo cazó el test de render.
+- **El botón "Hecha" usa un par de tokens propios, que no invierten con el tema:**
+  `--success-fill` (verde oscuro) con `--success-fill-text` (blanco) en reposo, y
+  `--success-fill-hover` (verde claro) con `--success-fill-hover-text` (negro) al pasar
+  el mouse. El texto no va en `--success-contrast` porque ese token se invierte con el
+  tema asumiendo un relleno que también se invierte; aquí el relleno es el mismo en los
+  dos temas, así que el texto tiene que serlo también. Los cuatro se declaran solo en
+  `:root` y por eso quedan fuera de las listas de `transition`: con el mismo valor en
+  ambos temas no hay nada que interpolar ni pueden dar un salto.
+  **El texto anterior fallaba en claro:** `--primary-contrast` sobre `#047857` daba
+  3.34:1, por debajo del 4.5:1 de AA. Ahora son 5.15:1 en reposo y 9.48:1 en hover, en
+  los dos temas. Se acepta el compromiso de que en oscuro el botón es un bloque verde
+  oscuro sobre superficie oscura (≈3.4:1 contra la superficie, por encima del 3:1 de
+  1.4.11): es la consecuencia de pedir letra blanca también en tema oscuro, y es
+  reversible en dos líneas si llega a molestar.
 - **`--warning-contrast` sigue el patrón de `--success-contrast`.** Los ámbar también se
   invierten entre temas: en claro `--warning` es `#b45309` y admite blanco (5.02:1), en
   oscuro es `#fbbf24` y necesita texto oscuro (10.93:1). Sin ese token no había forma de
@@ -79,7 +95,7 @@ carencias: acciones rápidas en la tarjeta y un modal que captura el motivo.
 
 - `npm run lint` → exit 0 (queda un único warning preexistente,
   `react/set-state-in-effect` en el efecto que abre la regla de orden).
-- `npm run test` → **18 archivos, 185 pruebas** en verde.
+- `npm run test` → **19 archivos, 189 pruebas** en verde.
 - `npm run build` ✅ y `npx prettier --check` ✅ sobre los archivos tocados.
 - Pruebas nuevas: `src/utils/taskExecution.test.js` (reglas de estado, validación de la
   nota, orden del merge) y `src/views/HoyView.test.jsx` (6 pruebas de render: el modal
