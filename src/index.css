@@ -186,14 +186,263 @@
   --color-info-text: var(--info-text);
 }
 
-/* Desactiva todas las transiciones durante el cambio de tema para evitar
-   destellos y reducir el riesgo para personas fotosensibles. */
-.theme-changing *,
-.theme-changing *::before,
-.theme-changing *::after {
+/* ─── Transición de tema ────────────────────────────────────────────────────
+   El salto de claro a oscuro es un cambio de luminancia de x108 sobre el
+   100% de la pantalla (#ffffff -> #12191f). Hacerlo de golpe no destella: un
+   destello es un ciclo, y aquí no hay ninguno. Pero si alguien alterna el
+   tema varias veces seguidas, varios cambios completos caen en el mismo
+   segundo y ahí sí se supera el umbral de WCAG 2.3.1 (máx. 3 por segundo).
+
+   Estos tokens se animan en vez de saltar. La duración de 400 ms reparte el
+   cambio de luminancia en el tiempo, de modo que un clic seguido de otro
+   produce una transicion continua y no una serie de saltos.
+
+   OJO: una custom property NO es animable por defecto. `transition: --surface`
+   es un no-op silencioso si el token no está registrado con @property y su
+   tipo declarado: sin el bloque de abajo, esta transición no se mueve. El
+   `initial-value` de cada @property debe coincidir con el valor de :root. */
+@property --surface {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f7f6ed;
+}
+@property --surface-raised {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --surface-sunken {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #efede1;
+}
+@property --surface-overlay {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgb(17 24 39 / 0.55);
+}
+@property --border {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e5e7eb;
+}
+@property --border-strong {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d1d5db;
+}
+@property --text-primary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #111827;
+}
+@property --text-secondary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #4b5563;
+}
+@property --text-muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #676f7b;
+}
+@property --text-inverted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --primary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8581d9;
+}
+@property --primary-hover {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #6966ab;
+}
+@property --primary-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e9e7f8;
+}
+@property --primary-contrast {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1b1830;
+}
+@property --primary-contrast-hover {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --primary-text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #514ea4;
+}
+@property --success {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #047857;
+}
+@property --success-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ecfdf5;
+}
+@property --success-text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #065f46;
+}
+@property --success-contrast {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --warning {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #b45309;
+}
+@property --warning-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fffbeb;
+}
+@property --warning-text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #92400e;
+}
+@property --danger {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --danger-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fdecec;
+}
+@property --danger-text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ab0100;
+}
+@property --danger-fill {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ef4444;
+}
+@property --danger-contrast {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #14122b;
+}
+@property --info {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1d4ed8;
+}
+@property --info-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #eff6ff;
+}
+@property --info-text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1e40af;
+}
+@property --focus-ring {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #514ea4;
+}
+
+/* La transición va en :root y no en `*`: los tokens heredan el valor
+   interpolado, así que todo el documento se mueve en una sola pasada de
+   estilo en vez de animar cada elemento por su cuenta. */
+:root {
+  transition:
+    --surface 400ms ease-in-out,
+    --surface-raised 400ms ease-in-out,
+    --surface-sunken 400ms ease-in-out,
+    --surface-overlay 400ms ease-in-out,
+    --border 400ms ease-in-out,
+    --border-strong 400ms ease-in-out,
+    --text-primary 400ms ease-in-out,
+    --text-secondary 400ms ease-in-out,
+    --text-muted 400ms ease-in-out,
+    --text-inverted 400ms ease-in-out,
+    --primary 400ms ease-in-out,
+    --primary-hover 400ms ease-in-out,
+    --primary-soft 400ms ease-in-out,
+    --primary-contrast 400ms ease-in-out,
+    --primary-contrast-hover 400ms ease-in-out,
+    --primary-text 400ms ease-in-out,
+    --success 400ms ease-in-out,
+    --success-soft 400ms ease-in-out,
+    --success-text 400ms ease-in-out,
+    --success-contrast 400ms ease-in-out,
+    --warning 400ms ease-in-out,
+    --warning-soft 400ms ease-in-out,
+    --warning-text 400ms ease-in-out,
+    --danger 400ms ease-in-out,
+    --danger-soft 400ms ease-in-out,
+    --danger-text 400ms ease-in-out,
+    --danger-fill 400ms ease-in-out,
+    --danger-contrast 400ms ease-in-out,
+    --info 400ms ease-in-out,
+    --info-soft 400ms ease-in-out,
+    --info-text 400ms ease-in-out,
+    --focus-ring 400ms ease-in-out;
+}
+
+/* Durante la transición del tema solo debe moverse el color de los tokens.
+   Cada elemento tiene además sus propias transiciones (hover, focus, sombra);
+   si se dejaran correr, animarían su fondo con un retardo distinto al del
+   token y el cambio de tema se vería escalonado en vez de uniforme.
+
+   OJO: el selector lleva el `*` a propósito. `.theme-animating` sin `*`
+   alcanzaría también a <html>, que es donde vive la transición de los tokens,
+   y la anularía justo cuando tiene que correr. El `*` sí incluye a <html>
+   como descendiente de sí mismo. */
+/* Solo <html> conserva la transición: es donde se escriben los tokens y donde
+   la interpolación ocurre. El selector va sin `*` a propósito, porque
+   `.theme-animating *` también alcanzaría a <html> (es descendiente de sí
+   mismo) y anularía la transición que tiene que correr. */
+.theme-animating {
+  transition-property:
+    --surface, --surface-raised, --surface-sunken, --surface-overlay, --border,
+    --border-strong, --text-primary, --text-secondary, --text-muted,
+    --text-inverted, --primary, --primary-hover, --primary-soft,
+    --primary-contrast, --primary-contrast-hover, --primary-text, --success,
+    --success-soft, --success-text, --success-contrast, --warning,
+    --warning-soft, --warning-text, --danger, --danger-soft, --danger-text,
+    --danger-fill, --danger-contrast, --info, --info-soft, --info-text,
+    --focus-ring !important;
+}
+
+/* Los descendientes no animan nada durante el cambio: heredan el valor
+   interpolado de los tokens y basta. Sin esto, un elemento con
+   `transition-colors` en su hover animaría su fondo por su cuenta y el cambio
+   de tema se vería escalonado en vez de uniforme. */
+.theme-animating *,
+.theme-animating *::before,
+.theme-animating *::after {
   transition: none !important;
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
+}
+
+/* Quien declara no querer movimiento recibe el cambio de golpe. Saltar a un
+   tema es una preferencia, no una animación: negársela sería peor que
+   saltarla, así que se aplica igualmente y solo se acorta el desplazamiento. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    transition-duration: 0.01ms;
+  }
 }
 
 /* ─── Base ──────────────────────────────────────────────────────────────── */

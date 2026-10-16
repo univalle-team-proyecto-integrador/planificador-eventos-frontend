@@ -13,7 +13,21 @@ export const THEME_KEY = 'eventflow.tema';
 export const THEMES = ['light', 'dark'];
 export const DEFAULT_THEME = 'light';
 
+/**
+ * Duración de la transición de tema, en ms. Tiene que coincidir con el valor
+ * de `src/index.css` (la transición de `:root`): el temporizador de aquí
+ * solo decide cuándo quitar la clase que protege la animación, no cuándo
+ * termina el movimiento. Si uno cambia y el otro no, la clase se queda puesta
+ * o se quita antes de tiempo.
+ */
+export const THEME_TRANSITION_MS = 400;
+
 const isTheme = (value) => THEMES.includes(value);
+
+// Timer de la última transición en curso. Se guarda a nivel de módulo para que
+// dos cambios seguidos no acumulen temporizadores: el segundo cancela al
+// primero, y la clase se queda exactamente el tiempo de la última.
+let transitionTimer = null;
 
 const getStorage = () => {
   try {
@@ -61,14 +75,33 @@ export const resolveInitialTheme = () => readStoredTheme() ?? getSystemTheme();
 /** Escribe el atributo en <html>, que es lo que lee src/index.css. */
 export const applyTheme = (theme) => {
   const next = isTheme(theme) ? theme : DEFAULT_THEME;
+  const root = document?.documentElement;
 
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.classList.add('theme-changing');
-    document.documentElement.dataset.theme = next;
-    // Quitar la clase después de un breve intervalo para evitar destellos
-    setTimeout(() => {
-      document.documentElement.classList.remove('theme-changing');
-    }, 100);
+  if (root) {
+    // La transición de :root solo arranca si el elemento ya está pintado con
+    // el valor anterior. Escribir el atributo en el mismo task que el pintado
+    // hace que el navegador resuelva el cambio de golpe, sin frame
+    // intermedio, y la transición no se ve. Forzar el reflow con offsetHeight
+    // asegura que existe un valor previo con el que interpolar.
+    if (root.dataset.theme) {
+      void root.offsetHeight;
+    }
+
+    // La clase marca "estamos transicionando": sin ella, un cambio de tema
+    // a mitad de otro se mezclaría con las transiciones propias de cada
+    // elemento (colores, sombras, transforms de hover) y el resultado es
+    // irregular. Con ella, solo se animan los tokens del tema.
+    root.classList.add('theme-animating');
+
+    if (transitionTimer !== null) {
+      clearTimeout(transitionTimer);
+    }
+    transitionTimer = setTimeout(() => {
+      root.classList.remove('theme-animating');
+      transitionTimer = null;
+    }, THEME_TRANSITION_MS);
+
+    root.dataset.theme = next;
   }
 
   return next;

@@ -1,6 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { ThemeContext } from './theme-context';
-import { applyTheme, initializeTheme, persistTheme } from '../utils/theme';
+import {
+  applyTheme,
+  initializeTheme,
+  persistTheme,
+  THEME_TRANSITION_MS,
+} from '../utils/theme';
 
 /**
  * Tema claro u oscuro.
@@ -17,15 +22,29 @@ export const ThemeProvider = ({ children }) => {
     () => document.documentElement.dataset.theme || initializeTheme()
   );
 
+  // Marca temporal del último cambio, para no encadenar transiciones.
+  const ultimoCambio = useRef(0);
+
   // Los efectos van fuera del actualizador de setState: en StrictMode puede
   // ejecutarse dos veces y escribir el atributo o el storage repetido.
   const setThemeAndPersist = useCallback((next) => {
     const resolved = applyTheme(next);
     persistTheme(resolved);
+    ultimoCambio.current = Date.now();
     setTheme(resolved);
   }, []);
 
   const toggleTheme = useCallback(() => {
+    // Un clic por debajo de la duración de la transición se ignora. Alternar
+    // el tema más de una vez por segundo produce varios cambios completos de
+    // luminancia sobre toda la pantalla en el mismo segundo, que es lo que
+    // WCAG 2.3.1 limita a tres. El umbral coincide con la transición: si se
+    // aceptara el clic, se solaparían dos transiciones a mitad.
+    const desdeElUltimo = Date.now() - ultimoCambio.current;
+    if (desdeElUltimo < THEME_TRANSITION_MS) {
+      return;
+    }
+
     setThemeAndPersist(theme === 'dark' ? 'light' : 'dark');
   }, [theme, setThemeAndPersist]);
 
