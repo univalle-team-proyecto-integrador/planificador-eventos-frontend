@@ -33,6 +33,7 @@ import {
   getPastDateMessage,
   getToday,
   isDateInPast,
+  maxGestionDate,
 } from '../utils/dateValidation';
 import { focusFirstInvalidField } from '../utils/formFocus';
 import { useNotifications } from '../providers/notifications-context';
@@ -211,13 +212,13 @@ const validateSubtask = (formData) => {
  * equivocó. El día del evento sí se permite: para entonces todavía hay margen para
  * ejecutar la gestión.
  *
- * Si el evento no tiene fecha no hay tope posible, así que se devuelve la fecha
- * tal cual.
+ * Si el evento no tiene fecha, o su fecha ya pasó y por tanto no hay tope que
+ * valga, se devuelve la fecha tal cual.
  */
 const capGestionDate = (date, fechaEvento) => {
   const limite = toDateKey(fechaEvento);
 
-  if (!limite || !date || date <= limite) {
+  if (!limite || limite < getToday() || !date || date <= limite) {
     return date;
   }
 
@@ -484,8 +485,10 @@ export function EventDetailView() {
   // todavía hay margen para ejecutarla, después ya no. El `max` del input deja
   // el calendario del navegador limitado, y si el evento no tiene fecha no se
   // acota para no dejar el campo bloqueado sin motivo.
+  // Tope de la fecha límite de una gestión: el día del evento, y solo si no deja
+  // el calendario vacío (ver `maxGestionDate`).
   const fechaMaxGestion = useMemo(
-    () => toDateInputValue(event?.fechaEvento),
+    () => maxGestionDate(toDateInputValue(event?.fechaEvento)),
     [event]
   );
 
@@ -1638,7 +1641,9 @@ export function EventDetailView() {
                       id="subtask-date-help"
                       className="mt-1 text-xs text-muted-text"
                     >
-                      Selecciona hoy o una fecha futura.
+                      {fechaMaxGestion
+                        ? `Selecciona hoy o una fecha futura, hasta el día del evento (${fechaMaxGestion}).`
+                        : 'Selecciona hoy o una fecha futura.'}
                     </p>
                   )}
                 </div>
