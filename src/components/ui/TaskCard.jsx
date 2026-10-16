@@ -85,10 +85,17 @@ export function TaskCard({
       // `event-card` aporta la sombra y el realce del hover. No se declaran aquí
       // `transition-shadow` ni `hover:shadow-md`: `.event-card` va sin capa y
       // manda sobre ellas, así que quedarían como clases muertas.
+      //
+      // `event-card--vencida` sustituye el halo del evento por el rojo de
+      // `--glow-alerta` y pone la sombra en rojo también en reposo. Solo define
+      // `box-shadow`, así que el tinte ámbar de abajo no se ve afectado.
       className={`event-card p-4 ${
-        isOverdue ? 'border-warning bg-warning-soft/50' : ''
+        isOverdue ? 'event-card--vencida border-warning bg-warning-soft/50' : ''
       }`}
-      style={{ '--accent-glow': accent.glow }}
+      // Con la gestión vencida NO se pasa el color del evento: el estilo inline
+      // gana a `.event-card--vencida`, y si siguiera aquí el halo del hover
+      // volvería a ser el del evento en vez de rojo.
+      style={isOverdue ? undefined : { '--accent-glow': accent.glow }}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
