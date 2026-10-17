@@ -84,9 +84,10 @@ describe('taskMetrics', () => {
   });
 
   // Una pospuesta conserva la última fecha que tuvo y esa no compromete ningún
-  // día: sale de Para hoy y Próximas. Pero si la fecha YA PASÓ está atrasada como
-  // cualquier otra, y lo que está atrasado se revisa en Vencidas.
-  it('saca las pospuestas de la planificación salvo si ya están atrasadas', () => {
+  // día: sale de Para hoy y Próximas. Y aunque esa fecha YA PASÓ, tampoco entra
+  // en Vencidas: lo pospuesto se revisa aparte, para que "vencidas" siga
+  // significando solo lo que se forgotó por su cuenta.
+  it('saca todas las pospuestas de la planificación, tengan la fecha que tengan', () => {
     const groups = classifyTasksByDate(
       [
         task({ id: 1, date: '2026-09-25' }),
@@ -100,14 +101,15 @@ describe('taskMetrics', () => {
     expect(groups.todayTasks.map((item) => item.id)).toEqual([1]);
     expect(groups.upcomingTasks.map((item) => item.id)).toEqual([4]);
 
-    // La 2 conserva una fecha de anteayer: está atrasada, así que va a Vencidas.
-    expect(groups.overdueTasks.map((item) => item.id)).toEqual([2]);
-    // La 3 conserva la de hoy: no está atrasada y se queda en su grupo.
-    expect(groups.deferredTasks.map((item) => item.id)).toEqual([3]);
+    // Ni la 2 (fecha de anteayer) ni la 3 (fecha de hoy) van a Vencidas.
+    expect(groups.overdueTasks).toHaveLength(0);
+    expect(groups.deferredTasks.map((item) => item.id)).toEqual([2, 3]);
   });
 
   it('no manda a Vencidas una gestión ya ejecutada aunque su fecha sea antigua', () => {
-    // Hecha no es lo mismo que atrasada: se。今后 no va a ningún grupo abierto.
+    // Hecha no es lo mismo que atrasada: no va a ningún grupo abierto. Y una
+    // pospuesta tampoco, que es lo que se comprueba aquí: dos gestiones con
+    // fecha antigua que NO son un caso de Vencidas, cada una por su motivo.
     const groups = classifyTasksByDate(
       [
         task({ id: 1, date: '2026-09-20', state: 'ejecutada' }),
@@ -116,8 +118,21 @@ describe('taskMetrics', () => {
       '2026-09-25'
     );
 
-    expect(groups.overdueTasks.map((item) => item.id)).toEqual([2]);
-    expect(groups.deferredTasks).toHaveLength(0);
+    expect(groups.overdueTasks).toHaveLength(0);
+    expect(groups.deferredTasks.map((item) => item.id)).toEqual([2]);
+  });
+
+  // La que no tiene fecha es la que el grupo describe de verdad: conserva
+  // "última fecha" solo si hubo alguna, y si nunca se movió no hay nada que
+  // repintar. Antes de este caso no lo cubría nadie.
+  it('deja en su grupo una pospuesta que nunca tuvo fecha asignada', () => {
+    const groups = classifyTasksByDate(
+      [task({ id: 7, date: '', state: 'pospuesta' })],
+      '2026-09-25'
+    );
+
+    expect(groups.deferredTasks.map((item) => item.id)).toEqual([7]);
+    expect(groups.overdueTasks).toHaveLength(0);
   });
 
   it('lista las pospuestas en su propio grupo y sin recortarlas', () => {
