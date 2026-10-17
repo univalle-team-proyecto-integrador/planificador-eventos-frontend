@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { CalendarModal } from '../components/ui/CalendarModal';
 import { FilterField, FiltersDropdown } from '../components/ui/FiltersDropdown';
@@ -74,6 +75,11 @@ const getErrorMessage = (error) =>
  * rojo depende de la FECHA, y dentro de un mismo grupo puede variar (en
  * Pospuestas, unas ya tienen la fecha pasada y otras no). `isOverdue` sigue
  * siendo de la sección y es lo que aporta el tinte ámbar y el badge "Atrasada".
+ *
+ * `collapsible` lo convierte en un desplegable con `<details>` nativo: el
+ * teclado, el Enter/Espacio y el anuncio de lector de pantalla los da el
+ * elemento, sin estado en React ni `aria-expanded` que mantener a mano. El
+ * contador va en el summary para que se sepa que hay algo dentro sin abrirlo.
  */
 function TaskSection({
   id,
@@ -84,6 +90,7 @@ function TaskSection({
   getDateLabel,
   esVencida,
   isOverdue = false,
+  collapsible = false,
   onComplete,
   onDefer,
   onReschedule,
@@ -95,6 +102,65 @@ function TaskSection({
 
   if (total === 0) {
     return null;
+  }
+
+  const lista = (
+    <ul className="space-y-3" aria-live="polite">
+      {visibleTasks.map((task) => (
+        <TaskCard
+          key={task.id}
+          task={task}
+          dateLabel={getDateLabel(task)}
+          esVencida={esVencida ? esVencida(task) : false}
+          isOverdue={isOverdue}
+          onComplete={onComplete}
+          onDefer={onDefer}
+          onReschedule={onReschedule}
+          isUpdating={updatingId === task.id}
+        />
+      ))}
+    </ul>
+  );
+
+  const botonVerMas = hasMore && (
+    <div className="flex justify-center pt-2">
+      <Button
+        type="button"
+        variant="neutral-outline"
+        onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+      >
+        Ver más ({total - visibleCount} restantes)
+      </Button>
+    </div>
+  );
+
+  if (collapsible) {
+    // El título y el contador van DENTRO del summary para que su nombre
+    // accesible sea corto ("Pospuestas, 3") y no arrastre la descripción. El
+    // texto largo va en el cuerpo, que solo se anuncia al abrirlo.
+    return (
+      <details className="group rounded-lg border border-border bg-surface-raised p-5">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+          <h2 id={id} className="text-lg font-semibold text-primary">
+            {title}
+          </h2>
+          <span className="flex shrink-0 items-center gap-2">
+            <span className="text-sm text-muted-text">
+              {total} {total === 1 ? 'gestión' : 'gestiones'}
+            </span>
+            <ChevronDown
+              aria-hidden="true"
+              className="size-4 text-muted-text transition-transform group-open:rotate-180 motion-reduce:transform-none motion-reduce:transition-none"
+            />
+          </span>
+        </summary>
+        <div className="mt-4 space-y-3">
+          <p className="text-sm text-muted-text">{description}</p>
+          {lista}
+          {botonVerMas}
+        </div>
+      </details>
+    );
   }
 
   return (
@@ -112,32 +178,8 @@ function TaskSection({
           </p>
         )}
       </div>
-      <ul className="space-y-3" aria-live="polite">
-        {visibleTasks.map((task) => (
-          <TaskCard
-            key={task.id}
-            task={task}
-            dateLabel={getDateLabel(task)}
-            esVencida={esVencida ? esVencida(task) : false}
-            isOverdue={isOverdue}
-            onComplete={onComplete}
-            onDefer={onDefer}
-            onReschedule={onReschedule}
-            isUpdating={updatingId === task.id}
-          />
-        ))}
-      </ul>
-      {hasMore && (
-        <div className="flex justify-center pt-2">
-          <Button
-            type="button"
-            variant="neutral-outline"
-            onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-          >
-            Ver más ({total - visibleCount} restantes)
-          </Button>
-        </div>
-      )}
+      {lista}
+      {botonVerMas}
     </section>
   );
 }
@@ -348,8 +390,8 @@ export const HoyView = () => {
 
   // El aviso de vencida se calcula por FECHA y se pasa a los cuatro grupos,
   // incluido el de Pospuestas: una gestion pospuesta conserva la ultima fecha
-  // que tuvo y sigue atrasada, asi que el aviso no puede depender de en que
-  // grupo aparezca.
+  // que tuvo, asi que dentro de su grupo se ve en rojo si esa fecha ya paso. Es
+  // solo el aviso; en que grupo sale lo decide `classifyTasksByDate`.
   const marcarSiVencida = useCallback(
     (task) => esVencida(task, today),
     [today]
@@ -455,7 +497,7 @@ export const HoyView = () => {
 
         setReprogramError(
           getErrorMessage(failure) ||
-          'No se pudo reprogramar. Inténtalo de nuevo.'
+            'No se pudo reprogramar. Inténtalo de nuevo.'
         );
       } finally {
         setIsSavingDate(false);
@@ -523,7 +565,7 @@ export const HoyView = () => {
         setTasks(anterior);
         setSaveError(
           getErrorMessage(saveFailure) ||
-          'No pudimos actualizar el estado de la gestión.'
+            'No pudimos actualizar el estado de la gestión.'
         );
         notifyError({
           title: 'No pudimos actualizar el estado',
@@ -822,9 +864,9 @@ export const HoyView = () => {
           esconder el grupo dejaría esas acciones inalcanzables justo cuando son
           lo único que hay que hacer. */}
       {groups.overdueTasks.length === 0 &&
-        groups.todayTasks.length === 0 &&
-        groups.upcomingTasks.length === 0 &&
-        groups.deferredTasks.length === 0 ? (
+      groups.todayTasks.length === 0 &&
+      groups.upcomingTasks.length === 0 &&
+      groups.deferredTasks.length === 0 ? (
         activeFilterCount > 0 ? (
           <EmptyState
             title="Sin resultados para los filtros"
@@ -860,9 +902,10 @@ export const HoyView = () => {
             isOverdue
             onComplete={(task) => abrirRegistro(task, ACCION_COMPLETAR)}
             onDefer={(task) => abrirRegistro(task, ACCION_POSPONER)}
-            // Las pospuestas vencidas caen en este grupo (ver
-            // `classifyTasksByDate`) y reprogramar es la única acción que les
-            // sirve. Sin esto llegarían aquí sin forma de arreglar nada.
+            // Reprogramar mueve la fecha objetivo sin cambiar el estado: es la
+            // vía para devolver al plan una vencida que no se va a hacer hoy.
+            // Poner en pospuesta sirve para lo contrario (sacar del plan sin
+            // día), así que las dos acciones no se pisan.
             onReschedule={abrirReprogramacion}
             updatingId={updatingId}
           />
@@ -893,13 +936,18 @@ export const HoyView = () => {
             updatingId={updatingId}
           />
 
-          {/* Grupo aparte: una gestión pospuesta conserva la última fecha que tuvo
-              pero no ocupa ningún día, así que no va en los tres de arriba. Sin
-              esto desaparecería de la pantalla sin forma de recuperarla. */}
+          {/* Último grupo y plegado. Lo pospuesto está fuera de la
+              planificación porque no ocupa ningún día, y aunque conserve la
+              última fecha que tuvo nunca vuelve a Gestiones vencidas: allí lo
+              que está atrasado es lo que se repasó a diario, no lo que alguien
+              apartó a propósito (ver `classifyTasksByDate`). Va plegado porque
+              es lo secundario de la pantalla, con el contador a la vista para
+              que no pase desapercibido. Sin esto desaparecería sin forma de
+              recuperarla. */}
           <TaskSection
             id="deferred-tasks-title"
-            title="Vencidas"
-            description="Sin fecha asignada: no cuentan para tu carga diaria hasta que las reprogrames. Reprogramándolas vuelven a tu planificación."
+            title="Pospuestas"
+            description="Sin día asignado: no cuentan para tu carga diaria hasta que las reprogrames. Reprogramándolas vuelven a tu planificación."
             esVencida={marcarSiVencida}
             tasks={groups.deferredTasks}
             total={groups.deferredTotal}
@@ -908,6 +956,7 @@ export const HoyView = () => {
             }
             onReschedule={abrirReprogramacion}
             updatingId={updatingId}
+            collapsible
           />
         </>
       )}

@@ -68,7 +68,9 @@
 		{"id":"m033","type":"file","file":"mejoras/2026-10-16-033-acciones-con-contorno-en-taskcard.md","x":200,"y":6380,"width":300,"height":140},
 		{"id":"p033","type":"text","text":"Mejora 033\nAcciones con contorno en TaskCard\n2026-10-16","x":-240,"y":6380,"width":260,"height":120,"color":"1"},
 		{"id":"m034","type":"file","file":"mejoras/2026-10-16-034-calendario-vacio-en-eventos-vencidos.md","x":200,"y":6560,"width":300,"height":140},
-		{"id":"p034","type":"text","text":"Mejora 034\nCalendario vacio en eventos vencidos\n2026-10-16","x":-240,"y":6560,"width":260,"height":120,"color":"1"}
+		{"id":"p034","type":"text","text":"Mejora 034\nCalendario vacio en eventos vencidos\n2026-10-16","x":-240,"y":6560,"width":260,"height":120,"color":"1"},
+		{"id":"m035","type":"file","file":"mejoras/2026-10-16-035-pospuestas-fuera-de-vencidas-y-plegadas.md","x":200,"y":6740,"width":300,"height":140},
+		{"id":"p035","type":"text","text":"Mejora 035\nPospuestas fuera de Vencidas y plegadas\n2026-10-16","x":-240,"y":6740,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -138,6 +140,8 @@
 		{"id":"e67","fromNode":"indice","fromSide":"bottom","toNode":"m033","toSide":"top"},
 		{"id":"e68","fromNode":"p033","fromSide":"right","toNode":"m033","toSide":"left"},
 		{"id":"e69","fromNode":"indice","fromSide":"bottom","toNode":"m034","toSide":"top"},
-		{"id":"e70","fromNode":"p034","fromSide":"right","toNode":"m034","toSide":"left"}
+		{"id":"e70","fromNode":"p034","fromSide":"right","toNode":"m034","toSide":"left"},
+		{"id":"e71","fromNode":"indice","fromSide":"bottom","toNode":"m035","toSide":"top"},
+		{"id":"e72","fromNode":"p035","fromSide":"right","toNode":"m035","toSide":"left"}
 	]
 }

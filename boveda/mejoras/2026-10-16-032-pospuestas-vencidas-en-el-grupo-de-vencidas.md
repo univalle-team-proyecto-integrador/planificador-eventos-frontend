@@ -2,6 +2,13 @@
 tipo: mejora
 ---
 
+> **Revertida por la mejora 035** (2026-10-16, mismo día). Este texto se conserva
+> como registro de lo que se decidió y se dejó atrás; **no describe el
+> comportamiento actual**. La 035 saca las pospuestas de Vencidas y las plega en su
+> propio grupo. Las dos decisiones de aquí que ya no valen son "se reutiliza
+> `esVencida` como criterio único" y "`onReschedule` también en vencidas" (este
+> último prop se conserva, pero por otro motivo).
+
 # Una pospuesta con la fecha pasada sale en "Gestiones vencidas"
 
 - **Fecha:** 2026-10-16

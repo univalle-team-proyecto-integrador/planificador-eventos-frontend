@@ -101,9 +101,8 @@ const stubApi = ({
   return fetchMock;
 };
 
-// Una gestión POSPUESTA con la última fecha ya pasada. Es el caso que falló: al
-// posponerla sale del grupo de vencidas, pero sigue estando atrasada, así que el
-// aviso tiene que depender de la fecha y no de en qué grupo se pinte.
+// Una gestión POSPUESTA con la última fecha ya pasada. Conserva el aviso rojo
+// (la fecha pasó) pero no se mezcla con Vencidas: se revisa en "Pospuestas".
 const POSPUESTA_VENCIDA = {
   ...SUBTAREA_VENCIDA,
   estado: 'pospuesta',
@@ -367,6 +366,24 @@ describe('panel de hoy: registrar una gestión', () => {
     expect(liVencida.textContent).toContain('Vencida');
   });
 
+  it('ofrece reprogramar en una vencida corriente', async () => {
+    // Reprogramar mueve la fecha objetivo sin cambiar el estado, así que es la
+    // vía para devolver al plan una vencida que no se va a hacer hoy. No es lo
+    // mismo que posponer, que saca la gestión del plan sin día.
+    stubApi({ conVencida: true });
+    await renderHoy();
+
+    await vi.waitFor(() => {
+      expect(container.textContent).toContain('Cerrar el venue');
+    });
+
+    const liVencida = [...container.querySelectorAll('li')].find((li) =>
+      (li.textContent ?? '').includes('Cerrar el venue')
+    );
+
+    expect(liVencida.textContent).toContain('Reprogramar');
+  });
+
   it('no fija el halo del evento en la tarjeta vencida', async () => {
     // Si el estilo inline trajera `--accent-glow`, ganaría a la clase y el hover
     // volvería a brillar con el color del evento en vez de en rojo.
@@ -388,10 +405,10 @@ describe('panel de hoy: registrar una gestión', () => {
     expect(liDeHoy.style.getPropertyValue('--accent-glow')).not.toBe('');
   });
 
-  it('marca como vencida una pospuesta cuya fecha ya pasó', async () => {
-    // Es el caso que falló: la gestión está pospuesta, así que vive en su propio
-    // grupo, pero su fecha sigue siendo de ayer. "Vencida" es una FECHA, no un
-    // grupo, y el aviso tiene que verse igual.
+  it('deja la pospuesta vencida en su grupo y fuera de Vencidas', async () => {
+    // La fecha sigue siendo de ayer, así que la tarjeta se avisa en rojo. Pero
+    // el grupo lo decide el estado, no la fecha: lo que alguien pospuso a
+    // propósito se revisa en "Pospuestas" y no mezclado con lo que se olvidó.
     stubApiPospuestaVencida();
     await renderHoy('Cerrar el venue');
 
@@ -406,15 +423,18 @@ describe('panel de hoy: registrar una gestión', () => {
     expect(liPospuesta.className).toContain('event-card--vencida');
     expect(liPospuesta.className).toContain('bg-alerta-fondo/30');
 
-    // Va en el grupo de vencidas, así que gana el badge "Atrasada" como
-    // cualquier otra de ahí, y "Reprogramar" para poder sacarla de ahí.
-    expect(container.textContent).toContain('Gestiones vencidas');
-    expect(liPospuesta.textContent).toContain('Atrasada');
-    expect(liPospuesta.textContent).toContain('Reprogramar');
+    // Sin el badge "Atrasada": ese es de Gestiones vencidas, y aquí la gestión
+    // ya está marcada como pospuesta. El rojo y el texto de la fecha bastan.
+    expect(liPospuesta.textContent).not.toContain('Atrasada');
 
-    // Y no se duplica: si también saliera en Pospuestas, la misma gestión
-    // aparecería dos veces y habría que decidir cuál de las dos manda.
-    expect(container.textContent).not.toContain('Última fecha');
+    // Vive en su propio grupo, conservando la fecha de la que salió, y no se
+    // cuela en Vencidas por muy antigua que sea esa fecha.
+    expect(container.textContent).toContain('Pospuestas');
+    expect(liPospuesta.textContent).toContain('Última fecha:');
+    expect(container.textContent).not.toContain('Gestiones vencidas');
+
+    // Y sigue siendo recuperable: ofrece la acción que la devuelve al plan.
+    expect(liPospuesta.textContent).toContain('Reprogramar');
   });
 });
 
@@ -524,7 +544,7 @@ describe('panel de hoy: reprogramar una gestión pospuesta', () => {
     await renderHoy();
 
     expect(container.textContent).toContain('Pospuestas');
-    expect(container.textContent).toContain('Sin fecha asignada');
+    expect(container.textContent).toContain('Sin día asignado');
     // No aparece en los grupos de planificación, que es lo que significa no
     // tener día asignado.
     expect(container.textContent).not.toContain('Para hoyGestiones con fecha');
@@ -543,6 +563,58 @@ describe('panel de hoy: reprogramar una gestión pospuesta', () => {
     await vi.waitFor(() => {
       expect(container.textContent).toContain('Carga de hoy0 de 2 horas (0%)');
     });
+  });
+
+  // El desplegable es un <details> nativo: cerrado por defecto, con el contador
+  // a la vista para que se sepa que hay algo dentro sin abrirlo.
+  it('deja el grupo de pospuestas plegado, con su contador a la vista', async () => {
+    stubApiPospuesta();
+    await renderHoy();
+
+    const details = container.querySelector('details');
+
+    expect(details).toBeTruthy();
+    expect(details.hasAttribute('open')).toBe(false);
+
+    // El contador va en el summary, no en el cuerpo: es lo que se lee sin abrir.
+    const summary = details.querySelector('summary');
+    expect(summary.textContent).toContain('Pospuestas');
+    expect(summary.textContent).toContain('1 gestión');
+
+    // El cuerpo está ahí pero plegado, y el texto largo queda fuera del summary
+    // para que su nombre accesible no arrastre la descripción.
+    expect(summary.textContent).not.toContain('Sin día asignado');
+    expect(details.textContent).toContain('Confirmar proveedor');
+  });
+
+  it('abre el grupo de pospuestas al pulsar su título', async () => {
+    stubApiPospuesta();
+    await renderHoy();
+
+    const details = container.querySelector('details');
+    expect(details.hasAttribute('open')).toBe(false);
+
+    await pulsar(details.querySelector('summary'));
+
+    expect(details.hasAttribute('open')).toBe(true);
+  });
+
+  it('no pliega los grupos de planificación', async () => {
+    // Solo el de pospuestas es desplegable: lo que hay que hacer hoy o esta
+    // semana no puede quedar escondido detrás de un clic. Este stub solo
+    // devuelve la gestión pospuesta, así que el único grupo que se pinta es ese.
+    stubApiPospuesta();
+    await renderHoy();
+
+    expect(container.querySelectorAll('details')).toHaveLength(1);
+    // Su encabezado vive dentro del <details>, no en una sección hermana: no es
+    // uno de los grupos de planificación, es el plegable de las pospuestas.
+    expect(
+      container.querySelector('section[aria-labelledby="deferred-tasks-title"]')
+    ).toBeNull();
+    expect(
+      container.querySelector('details #deferred-tasks-title')
+    ).toBeTruthy();
   });
 
   it('reprogramarla la devuelve al plan sin recargar', async () => {

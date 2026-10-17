@@ -104,11 +104,17 @@ export const isTaskActive = (task) =>
  *
  * Deliberadamente NO mira el estado ni el grupo en el que se muestra. "Vencida"
  * es una fecha, no un lugar: una gestión pospuesta conserva la última fecha que
- * tuvo y sigue estando vencida aunque viva en su propio grupo, así que atar el
- * aviso al grupo hacía que las pospuestas con fecha pasada no tuvieran ninguno.
+ * tuvo y sigue estando vencida aunque viva en su propio grupo.
  *
  * No mira `isTaskActive` a propósito: una pospuesta no compromete horas, pero sí
  * está atrasada, y ese es justo el aviso que el usuario quiere ver.
+ *
+ * OJO: esto decide el AVISO ROJO de la tarjeta, no en qué grupo sale. La
+ * clasificación de `/hoy` usa su propia regla en `classifyTasksByDate`, donde
+ * las pospuestas nunca pasan a Vencidas aunque esta función diga que sí: el
+ * aviso puede verse dentro de "Pospuestas" sin que la gestión se mezcle con las
+ * vencidas de verdad. Si alguna vez cambia esa regla, este docstring y el de
+ * `classifyTasksByDate` hay que leer los dos juntos.
  */
 export const esVencida = (task, today) => {
   const fecha = toDateKey(task?.date ?? task?.fechaObjetivo);
@@ -221,7 +227,15 @@ export const getTaskMetrics = (tasks) => {
 };
 
 /**
- * Separa las gestiones en vencidas, para hoy y próximas.
+ * Separa las gestiones en cuatro grupos: vencidas, para hoy, próximas y
+ * pospuestas.
+ *
+ * Cada respuesta trae su lista ya recortada (`{listas}Tasks`) y su total sin
+ * recortar (`{listas}Total`), porque el tope es de cuántas se pintan y no de
+ * cuántas hay.
+ *
+ * Una pospuesta va SIEMPRE a su grupo, tenga la fecha que conserve. Ver `esVencida`
+ * para el matiz entre el aviso rojo de la tarjeta y el grupo en el que aparece.
  *
  * `rango` acepta la forma de UPCOMING_RANGES (`{ days, limit }`), así que
  * quien llama puede pasar la opción elegida tal cual. Omitirlo usa el
@@ -234,16 +248,6 @@ export const classifyTasksByDate = (
 ) => {
   const taskList = Array.isArray(tasks) ? tasks : [];
   const upcomingLimit = addDays(today, days);
-  // Una pospuesta tiene fecha pero no día: conserva la última que tuvo y esa ya
-  // no compromete nada, así que no cuenta para la carga del día. Aun así, si esa
-  // fecha YA PASÓ está atrasada como cualquier otra y sale en Vencidas, que es
-  // donde se revisa lo que se pasó de fecha. Solo las pospuestas que conservan
-  // una fecha de hoy o futura se quedan en su propio grupo.
-  //
-  // Se reutiliza `esVencida` a propósito: el aviso rojo de la tarjeta y el grupo
-  // en el que aparece usan el mismo criterio, así que no pueden contradecirse.
-  const esAtrasada = (task) => esVencida(task, today);
-
   const isOpen = (task) => isTaskActive(task) && getTaskDate(task);
 
   // Regla de prioridad (US-04): primero la fecha objetivo más antigua y, en
@@ -255,7 +259,18 @@ export const classifyTasksByDate = (
   const overdue = taskList
     // Se excluyen las `ejecutada`: una gestión hecha no está atrasada, está
     // terminada, aunque su fecha sea antigua.
-    .filter((task) => esAtrasada(task) && !isTaskCompleted(task))
+    //
+    // Y las `pospuesta`, aunque su fecha ya haya pasado. Lo que se pospuso sale
+    // de la planificación por decisión propia, así que no puede reaparecer en
+    // Vencidas: se revisa en su propio grupo, que es donde vive lo que alguien
+    // apartó a propósito. Mezclarlas hacía que "vencidas" significara dos cosas
+    // distintas en la misma pantalla, según el estado de la tarjeta.
+    .filter(
+      (task) =>
+        esVencida(task, today) &&
+        !isTaskCompleted(task) &&
+        !isTaskDeferred(task)
+    )
     .sort(byDateThenEffort);
   const todayTasks = taskList
     .filter((task) => isOpen(task) && getTaskDate(task) === today)
@@ -270,11 +285,9 @@ export const classifyTasksByDate = (
     .sort(byDateThenEffort);
   // Las pospuestas no ocupan día, pero no se pierden: se listan aparte y sin
   // tope, porque quien pospuesta algo quiere recuperarlo, no verlo recortado.
-  // Solo las pospuestas que NO están atrasadas: las de fecha ya pasada salen en
-  // Vencidas, que es donde se revisa lo que se pasó de fecha.
-  const deferred = taskList.filter(
-    (task) => isTaskDeferred(task) && !esAtrasada(task)
-  );
+  // Todas, tenga la fecha que conserve: la que ya pasó sigue siendo pospuesta,
+  // y por eso no sale en Vencidas.
+  const deferred = taskList.filter(isTaskDeferred);
 
   return {
     todayTasks,
