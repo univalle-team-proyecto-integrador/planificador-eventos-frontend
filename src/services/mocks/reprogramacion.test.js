@@ -3,6 +3,7 @@ import {
   getProfile,
   reprogramarSubtask,
   resetMock,
+  seedEstado,
   seedHoras,
   updateProfileLimit,
 } from './reprogramacion';
@@ -111,6 +112,50 @@ describe('mock de reprogramación', () => {
 
     expect(segunda.fechaObjetivo).toBe('2026-11-22');
     expect(segunda.fechaObjetivoOriginal).toBe('2026-11-20');
+  });
+
+  it('devuelve al plan una pospuesta reprogramada', async () => {
+    // Es lo que hace `SubtareaService.reprogramar`: al reprogramar, una
+    // pospuesta recupera su día y vuelve a `pendiente`. Sin esto el mock la
+    // dejaba en `pospuesta` con una fecha nueva, un estado que el backend nunca
+    // devuelve: en desarrollo se veía algo que en producción no pasa.
+    seedEstado(1, 'pospuesta');
+
+    const respuesta = await reprogramarSubtask(1, {
+      nuevaFecha: '2026-11-16',
+      nuevasHoras: 2,
+    });
+
+    expect(respuesta.estado).toBe('pendiente');
+  });
+
+  it('deja el estado como estaba al reprogramar lo que no era pospuesta', async () => {
+    // La transición solo ocurre si el estado era `pospuesta`.
+    seedEstado(1, 'pendiente');
+
+    const pendiente = await reprogramarSubtask(1, {
+      nuevaFecha: '2026-11-16',
+      nuevasHoras: 2,
+    });
+    expect(pendiente.estado).toBe('pendiente');
+
+    seedEstado(1, 'ejecutada');
+
+    const ejecutada = await reprogramarSubtask(1, {
+      nuevaFecha: '2026-11-17',
+      nuevasHoras: 2,
+    });
+    // Reprogramar una ejecutada no la reabre: es otra acción ("Reabrir").
+    expect(ejecutada.estado).toBe('ejecutada');
+  });
+
+  it('no inventa un estado si la gestión no lo tenía', async () => {
+    const respuesta = await reprogramarSubtask(1, {
+      nuevaFecha: '2026-11-16',
+      nuevasHoras: 2,
+    });
+
+    expect(respuesta.estado).toBeUndefined();
   });
 
   it('rechaza horas inválidas', async () => {

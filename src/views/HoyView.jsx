@@ -36,6 +36,7 @@ import {
   getTaskMetrics,
   normalizeEvent,
   normalizeSubtask,
+  notaLegible,
   UPCOMING_RANGES,
 } from '../utils/taskMetrics';
 
@@ -80,6 +81,11 @@ const getErrorMessage = (error) =>
  * teclado, el Enter/Espacio y el anuncio de lector de pantalla los da el
  * elemento, sin estado en React ni `aria-expanded` que mantener a mano. El
  * contador va en el summary para que se sepa que hay algo dentro sin abrirlo.
+ *
+ * `mostrarNota` pinta el motivo del último cambio de estado en cada tarjeta. Lo
+ * activa SOLO el grupo de pospuestas: es donde la pregunta "¿por qué esto está
+ * aquí?" tiene sentido. En los grupos de planificación la nota es historia vieja
+ * y solo añadiría ruido.
  */
 function TaskSection({
   id,
@@ -91,6 +97,7 @@ function TaskSection({
   esVencida,
   isOverdue = false,
   collapsible = false,
+  mostrarNota = false,
   onComplete,
   onDefer,
   onReschedule,
@@ -113,6 +120,7 @@ function TaskSection({
           dateLabel={getDateLabel(task)}
           esVencida={esVencida ? esVencida(task) : false}
           isOverdue={isOverdue}
+          note={mostrarNota ? notaLegible(task) : ''}
           onComplete={onComplete}
           onDefer={onDefer}
           onReschedule={onReschedule}
@@ -957,6 +965,7 @@ export const HoyView = () => {
             onReschedule={abrirReprogramacion}
             updatingId={updatingId}
             collapsible
+            mostrarNota
           />
         </>
       )}

@@ -565,6 +565,46 @@ describe('panel de hoy: reprogramar una gestión pospuesta', () => {
     });
   });
 
+  // La nota es el motivo de la posposición. Antes `normalizeSubtask` la tiraba
+  // y no había ni un sitio donde ver por qué algo estaba apartado del plan,
+  // aunque `esNotaObligatoria` obligara a escribirlo.
+  it('muestra el motivo por el que se pospuso', async () => {
+    stubApiPospuesta();
+    await renderHoy();
+
+    expect(container.textContent).toContain('“Proveedor sin disponibilidad”');
+  });
+
+  it('no muestra la nota en los grupos de planificación', async () => {
+    // Solo es información donde responde a una pregunta: en "Para hoy" o
+    // "Próximas" el motivo de un cambio pasado es ruido.
+    const gestion = { ...SUBTAREA, notaExplicativa: 'Nota que no debe verse' };
+    const fetchMock = vi.fn(async (url) => {
+      const ruta = String(url);
+
+      if (/\/api\/users\/capacity/.test(ruta)) {
+        return respuestaJson({ limiteHorasDiarias: 8 });
+      }
+      if (/\/api\/eventos\/9\/subtareas/.test(ruta)) {
+        return respuestaJson([gestion]);
+      }
+      if (/\/api\/eventos\/9$/.test(ruta)) {
+        return respuestaJson(EVENTO);
+      }
+      if (/\/api\/eventos/.test(ruta)) {
+        return respuestaJson([EVENTO]);
+      }
+
+      return respuestaJson([]);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await renderHoy();
+
+    expect(container.textContent).toContain('Para hoy');
+    expect(container.textContent).not.toContain('Nota que no debe verse');
+  });
+
   // El desplegable es un <details> nativo: cerrado por defecto, con el contador
   // a la vista para que se sepa que hay algo dentro sin abrirlo.
   it('deja el grupo de pospuestas plegado, con su contador a la vista', async () => {

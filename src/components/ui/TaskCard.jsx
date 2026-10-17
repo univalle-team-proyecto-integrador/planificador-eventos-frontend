@@ -50,10 +50,17 @@ const TASK_ACTION_CLASS = 'w-28 rounded-full text-xs';
  * comparten `onComplete`/`onDefer` porque solo tiene sentido cuando no hay día
  * asignado: una gestión pospuesta no se puede volver a posponer ni a marcar como
  * hecha desde aquí, solo reprogramarla.
+ *
+ * `note` es el motivo del último cambio de estado, ya recortado por
+ * `notaLegible`. La pasa SOLO el grupo de pospuestas de `/hoy`, que es donde
+ * responde a una pregunta real ("¿por qué esto está aquí?"). Viene como prop y
+ * no se lee del `task` a propósito: si se leyera aquí, saldría en cualquier
+ * tarjeta que traiga nota, y en "Para hoy" o "Próximas" no aporta nada.
  */
 export function TaskCard({
   task,
   dateLabel,
+  note = '',
   isOverdue = false,
   esVencida = false,
   showState = true,
@@ -132,6 +139,17 @@ export function TaskCard({
                 />
               )}
               {dateLabel && <time dateTime={taskDate}>{dateLabel}</time>}
+            </p>
+          )}
+          {note && (
+            // Se pinta recortado, pero la nota ENTERA va en el `title`: quien la
+            // necesite la tiene al pasar el ratón y los lectores de pantalla
+            // leen el atributo aunque no se vea.
+            <p
+              className="mt-2 text-sm italic text-muted-text"
+              title={String(task.note ?? '')}
+            >
+              {note}
             </p>
           )}
         </div>

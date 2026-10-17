@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
+  CalendarClock,
   CalendarDays,
   Check,
   MapPin,
@@ -23,7 +24,7 @@ import { FieldSuccess } from '../components/ui/FieldSuccess';
 import { WorkloadSummary } from '../components/ui/WorkloadSummary';
 import { getEventAccent } from '../utils/eventAccent';
 import { getEventTypeIcon } from '../utils/eventTypeIcons';
-import { getTaskMetrics, toDateKey } from '../utils/taskMetrics';
+import { getTaskMetrics, notaLegible, toDateKey } from '../utils/taskMetrics';
 import { requireSubtaskResponse } from '../utils/subtaskResponse';
 import {
   esConflicto,
@@ -69,20 +70,60 @@ const SUBTASK_SUCCESS_MESSAGES = {
  * Eliminar al final porque es la única irreversible. Completar y Reabrir son
  * el mismo botón según el estado de la gestión.
  *
- * Reprogramar se retiró de la fila el 2026-10-16: el modal, sus estados y el
- * `PATCH /api/subtareas/{id}/reprogramar` siguen existiendo, pero ya no hay
- * ningún `<Button>` que los abra. Para cambiar la fecha de una gestión se usa
- * el formulario de edición, que **no** valida el límite diario: solo lo hacen
- * `POST`, `PUT` (con la regla "solo si empeora") y el propio `PATCH`. Ojo con
- * eso al tocar el flujo.
+ * La fila se caída de "Reprogramar" el 2026-10-16 y volvió ese mismo día para
+ * las pospuestas, que sin él no tenían forma de volver al plan: la retirada
+ * dejó al descubierto que el formulario de edición **no** cambia el estado,
+ * solo texto, horas y fecha, y además **no** valida el límite diario (solo lo
+ * hacen `POST`, `PUT` con la regla "solo si empeora" y el propio `PATCH`).
+ * Por eso el botón de una pospuesta abre el `ReprogramarModal` en vez de
+ * cambiar el estado a mano. Ver `PRIMERA_ACCION`.
  *
  * La anchura fija es lo que los mantiene alineados: "Editar" y "Eliminar" son
  * muy distintos en longitud y, sin `w-28`, la fila se ve desigual. El color no
  * va aquí sino en la variante de cada botón: verde para editar y completar,
- * neutro para reabrir (es un deshacer, no una finalización) y rojo para
- * eliminar.
+ * ámbar para reprogramar (es lo que corresponde a una pospuesta), neutro para
+ * reabrir (es un deshacer, no una finalización) y rojo para eliminar. Son
+ * siempre tres botones en el mismo orden, para que la fila no cambie de
+ * ancho según el estado.
  */
 const TASK_ACTION_CLASS = 'w-28 rounded-full text-xs';
+
+/**
+ * Qué ofrece el primer botón de una gestión, según su estado.
+ *
+ * La pospuesta es el caso que obliga a que esto sea una tabla y no un ternario:
+ * ni "Reabrir" (que solo aplica a lo ejecutada) ni "Completar" la deshacen.
+ * Devolverla al plan es reprogramarla, que es justo lo que hace el backend: al
+ * reprogramar, una pospuesta recupera su día y vuelve a `pendiente`
+ * (`SubtareaService.reprogramar`). El formulario de edición no sirve aquí porque
+ * no toca el estado, solo el texto, las horas y la fecha.
+ *
+ * Va fuera del componente y en forma de datos para poder comprobarlo sin
+ * montar nada.
+ */
+const PRIMERA_ACCION = {
+  ejecutada: {
+    etiqueta: 'Reabrir',
+    Icono: Undo2,
+    variant: 'neutral-outline',
+    aria: (titulo) => `Marcar ${titulo} como pendiente`,
+  },
+  pospuesta: {
+    etiqueta: 'Reprogramar',
+    Icono: CalendarClock,
+    variant: 'warning-outline',
+    aria: (titulo) => `Reprogramar ${titulo} para devolverla al plan`,
+  },
+  pendiente: {
+    etiqueta: 'Completar',
+    Icono: Check,
+    variant: 'success-outline',
+    aria: (titulo) => `Marcar ${titulo} como completada`,
+  },
+};
+
+const getPrimeraAccion = (state) =>
+  PRIMERA_ACCION[state] ?? PRIMERA_ACCION.pendiente;
 
 const getErrorMessage = (error) =>
   error?.message || 'No pudimos conectar con el servidor. Inténtalo de nuevo.';
@@ -1899,115 +1940,122 @@ export function EventDetailView() {
 
         {subtasks.length > 0 && (
           <ul className="space-y-2" aria-live="polite">
-            {subtasks.map((subtask) => (
-              <Card
-                as="li"
-                key={subtask.id}
-                className="p-4 transition-shadow hover:shadow-md"
-              >
-                <div className="flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <p
-                      className={`font-medium ${
-                        subtask.state === 'ejecutada'
-                          ? 'text-muted-text line-through'
-                          : 'text-secondary-text'
-                      }`}
-                    >
-                      {subtask.title}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-text">
-                      Fecha límite: {formatDate(subtask.date)}
-                    </p>
-                  </div>
+            {subtasks.map((subtask) => {
+              const primeraAccion = getPrimeraAccion(subtask.state);
+              const Icono = primeraAccion.Icono;
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="neutral">{subtask.hours} hrs</Badge>
-                    <Badge
-                      variant={
-                        subtask.state === 'ejecutada' ? 'success' : 'pending'
-                      }
-                    >
-                      {getStateLabel(subtask.state)}
-                    </Badge>
-                    <Button
-                      type="button"
-                      variant={
-                        subtask.state === 'ejecutada'
-                          ? 'neutral-outline'
-                          : 'success-outline'
-                      }
-                      className={TASK_ACTION_CLASS}
-                      onClick={() => void handleToggleSubtask(subtask)}
-                      disabled={
-                        updatingSubtaskId === subtask.id ||
-                        isSavingSubtaskEdit ||
-                        editingSubtaskId === subtask.id
-                      }
-                      aria-label={
-                        subtask.state === 'ejecutada'
-                          ? `Marcar ${subtask.title} como pendiente`
-                          : `Marcar ${subtask.title} como completada`
-                      }
-                    >
-                      {subtask.state === 'ejecutada' ? (
-                        <>
-                          <Undo2
-                            aria-hidden="true"
-                            className="mr-1 inline size-3.5"
-                          />
-                          Reabrir
-                        </>
-                      ) : (
-                        <>
-                          <Check
-                            aria-hidden="true"
-                            className="mr-1 inline size-3.5"
-                          />
-                          Completar
-                        </>
+              return (
+                <Card
+                  as="li"
+                  key={subtask.id}
+                  className="p-4 transition-shadow hover:shadow-md"
+                >
+                  <div className="flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <p
+                        className={`font-medium ${
+                          subtask.state === 'ejecutada'
+                            ? 'text-muted-text line-through'
+                            : 'text-secondary-text'
+                        }`}
+                      >
+                        {subtask.title}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-text">
+                        Fecha límite: {formatDate(subtask.date)}
+                      </p>
+                      {/* El motivo del último cambio de estado. Aquí sí se
+                          muestra en cualquier estado, no solo en las pospuestas:
+                          el usuario ya abrió esta gestión a propósito, así que
+                          el contexto es la gestión entera y el porqué interesa
+                          igual. `notaLegible` devuelve '' cuando no hay, y así
+                          no se pinta nada. Se llama dos veces porque es trivial
+                          y evita una constante por fila. */}
+                      {notaLegible(subtask) && (
+                        <p
+                          className="mt-1 text-xs italic text-muted-text"
+                          title={String(subtask.note ?? '')}
+                        >
+                          {notaLegible(subtask)}
+                        </p>
                       )}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="success-outline"
-                      className={TASK_ACTION_CLASS}
-                      onClick={() => startEditingSubtask(subtask)}
-                      disabled={
-                        updatingSubtaskId === subtask.id ||
-                        isSavingSubtaskEdit ||
-                        editingSubtaskId === subtask.id
-                      }
-                      aria-label={`Editar ${subtask.title}`}
-                    >
-                      <Pencil
-                        aria-hidden="true"
-                        className="mr-1 inline size-3.5"
-                      />
-                      Editar
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="danger-outline"
-                      className={TASK_ACTION_CLASS}
-                      onClick={() => requestDeleteSubtask(subtask)}
-                      disabled={
-                        updatingSubtaskId === subtask.id ||
-                        isSavingSubtaskEdit ||
-                        editingSubtaskId === subtask.id
-                      }
-                      aria-label={`Eliminar ${subtask.title}`}
-                    >
-                      <Trash2
-                        aria-hidden="true"
-                        className="mr-1 inline size-3.5"
-                      />
-                      Eliminar
-                    </Button>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="neutral">{subtask.hours} hrs</Badge>
+                      <Badge
+                        variant={
+                          subtask.state === 'ejecutada' ? 'success' : 'pending'
+                        }
+                      >
+                        {getStateLabel(subtask.state)}
+                      </Badge>
+                      <Button
+                        type="button"
+                        variant={primeraAccion.variant}
+                        className={TASK_ACTION_CLASS}
+                        onClick={() => {
+                          if (subtask.state === 'pospuesta') {
+                            setReprogramTarget(subtask);
+                            return;
+                          }
+                          void handleToggleSubtask(subtask);
+                        }}
+                        disabled={
+                          updatingSubtaskId === subtask.id ||
+                          isSavingSubtaskEdit ||
+                          editingSubtaskId === subtask.id ||
+                          isReprogramming
+                        }
+                        aria-label={primeraAccion.aria(subtask.title)}
+                      >
+                        <Icono
+                          aria-hidden="true"
+                          className="mr-1 inline size-3.5"
+                        />
+                        {primeraAccion.etiqueta}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="success-outline"
+                        className={TASK_ACTION_CLASS}
+                        onClick={() => startEditingSubtask(subtask)}
+                        disabled={
+                          updatingSubtaskId === subtask.id ||
+                          isSavingSubtaskEdit ||
+                          editingSubtaskId === subtask.id
+                        }
+                        aria-label={`Editar ${subtask.title}`}
+                      >
+                        <Pencil
+                          aria-hidden="true"
+                          className="mr-1 inline size-3.5"
+                        />
+                        Editar
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="danger-outline"
+                        className={TASK_ACTION_CLASS}
+                        onClick={() => requestDeleteSubtask(subtask)}
+                        disabled={
+                          updatingSubtaskId === subtask.id ||
+                          isSavingSubtaskEdit ||
+                          editingSubtaskId === subtask.id
+                        }
+                        aria-label={`Eliminar ${subtask.title}`}
+                      >
+                        <Trash2
+                          aria-hidden="true"
+                          className="mr-1 inline size-3.5"
+                        />
+                        Eliminar
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              );
+            })}
           </ul>
         )}
       </Card>

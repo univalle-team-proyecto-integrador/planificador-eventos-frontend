@@ -70,7 +70,11 @@
 		{"id":"m034","type":"file","file":"mejoras/2026-10-16-034-calendario-vacio-en-eventos-vencidos.md","x":200,"y":6560,"width":300,"height":140},
 		{"id":"p034","type":"text","text":"Mejora 034\nCalendario vacio en eventos vencidos\n2026-10-16","x":-240,"y":6560,"width":260,"height":120,"color":"1"},
 		{"id":"m035","type":"file","file":"mejoras/2026-10-16-035-pospuestas-fuera-de-vencidas-y-plegadas.md","x":200,"y":6740,"width":300,"height":140},
-		{"id":"p035","type":"text","text":"Mejora 035\nPospuestas fuera de Vencidas y plegadas\n2026-10-16","x":-240,"y":6740,"width":260,"height":120,"color":"1"}
+		{"id":"p035","type":"text","text":"Mejora 035\nPospuestas fuera de Vencidas y plegadas\n2026-10-16","x":-240,"y":6740,"width":260,"height":120,"color":"1"},
+		{"id":"m036","type":"file","file":"mejoras/2026-10-16-036-pospuesta-vuelve-al-plan-desde-el-detalle.md","x":200,"y":6920,"width":300,"height":140},
+		{"id":"p036","type":"text","text":"Mejora 036\nLa pospuesta vuelve al plan\n2026-10-16","x":-240,"y":6920,"width":260,"height":120,"color":"1"},
+		{"id":"m037","type":"file","file":"mejoras/2026-10-16-037-el-motivo-de-la-posposicion-se-ve.md","x":200,"y":7100,"width":300,"height":140},
+		{"id":"p037","type":"text","text":"Mejora 037\nEl motivo de la posposicion\n2026-10-16","x":-240,"y":7100,"width":260,"height":120,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"proyecto","fromSide":"right","toNode":"flujo","toSide":"left"},
@@ -142,6 +146,10 @@
 		{"id":"e69","fromNode":"indice","fromSide":"bottom","toNode":"m034","toSide":"top"},
 		{"id":"e70","fromNode":"p034","fromSide":"right","toNode":"m034","toSide":"left"},
 		{"id":"e71","fromNode":"indice","fromSide":"bottom","toNode":"m035","toSide":"top"},
-		{"id":"e72","fromNode":"p035","fromSide":"right","toNode":"m035","toSide":"left"}
+		{"id":"e72","fromNode":"p035","fromSide":"right","toNode":"m035","toSide":"left"},
+		{"id":"e73","fromNode":"indice","fromSide":"bottom","toNode":"m036","toSide":"top"},
+		{"id":"e74","fromNode":"p036","fromSide":"right","toNode":"m036","toSide":"left"},
+		{"id":"e75","fromNode":"indice","fromSide":"bottom","toNode":"m037","toSide":"top"},
+		{"id":"e76","fromNode":"p037","fromSide":"right","toNode":"m037","toSide":"left"}
 	]
 }
