@@ -47,6 +47,15 @@ export const seedHoras = (fecha, horas) => {
   estado.horasPorFecha[fecha] = Number(horas) || 0;
 };
 
+/**
+ * Siembra el estado de una gestión. Junto a `seedHoras`, para poder preparar el
+ * escenario sin tener que recorrer el PATCH de estado entero.
+ */
+export const seedEstado = (id, estadoGestión) => {
+  const previa = (estado.subtareas[id] ??= {});
+  previa.estado = estadoGestión;
+};
+
 export const getProfile = async () => clonar(estado.perfil);
 
 /** Forma de CapacidadDTO: la que devuelve PUT /api/users/capacity. */
@@ -131,6 +140,15 @@ export const reprogramarSubtask = async (id, { nuevaFecha, nuevasHoras }) => {
     fechaObjetivo: nuevaFecha,
     fechaObjetivoOriginal: fechaOriginal,
     horasEstimadas: horas,
+    // Reprogramar es la salida de la posposición: una pospuesta recupera su día
+    // y vuelve a `pendiente`, igual que en `SubtareaService.reprogramar`. Sin
+    // esto el mock dejaba la gestión en `pospuesta` con una fecha nueva, que es
+    // un estado que el backend nunca devuelve: en desarrollo se veía algo que
+    // en producción no pasa. Se conserva el estado anterior en los demás casos,
+    // y si no había no se inventa la clave.
+    ...(previa.estado
+      ? { estado: previa.estado === 'pospuesta' ? 'pendiente' : previa.estado }
+      : {}),
   };
 
   // 200 con la SubtareaDTO plana: sin envoltorio y sin campos de conflicto.

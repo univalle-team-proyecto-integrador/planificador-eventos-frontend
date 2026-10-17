@@ -36,3 +36,4 @@
 | 2026-10-16 | 033 | Las acciones de TaskCard se distinguen por el borde, no por el relleno | [2026-10-16-033-acciones-con-contorno-en-taskcard](2026-10-16-033-acciones-con-contorno-en-taskcard.md) |
 | 2026-10-16 | 034 | El calendario de fecha límite se quedaba vacío en los eventos ya vencidos | [2026-10-16-034-calendario-vacio-en-eventos-vencidos](2026-10-16-034-calendario-vacio-en-eventos-vencidos.md) |
 | 2026-10-16 | 035 | Las pospuestas salen de Vencidas y se plegan debajo | [2026-10-16-035-pospuestas-fuera-de-vencidas-y-plegadas](2026-10-16-035-pospuestas-fuera-de-vencidas-y-plegadas.md) |
+| 2026-10-16 | 036 | Una pospuesta vuelve al plan desde el detalle del evento | [2026-10-16-036-pospuesta-vuelve-al-plan-desde-el-detalle](2026-10-16-036-pospuesta-vuelve-al-plan-desde-el-detalle.md) |

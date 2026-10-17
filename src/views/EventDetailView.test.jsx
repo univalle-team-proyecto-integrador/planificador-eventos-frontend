@@ -230,3 +230,139 @@ describe('guardado de una gestión editada', () => {
     expect(container.textContent).not.toContain('sigue por encima');
   });
 });
+
+/**
+ * La primera acción de cada gestión depende de su estado (`PRIMERA_ACCION`).
+ *
+ * El caso que importa es la pospuesta: ni "Reabrir" ni "Completar" la
+ * deshacían, así que se quedaba en `/evento/:id` sin ninguna forma de volver al
+ * plan. La salida es reprogramarla, que es lo que hace el backend
+ * (`SubtareaService.reprogramar` la devuelve a `pendiente`). Estas pruebas
+ * fijan que el botón sea el correcto según el estado y que el que ofrece la
+ * vuelta al plan abra el modal.
+ */
+describe('la primera acción de una gestión depende de su estado', () => {
+  let container;
+  let root;
+
+  beforeEach(() => {
+    global.IS_REACT_ACT_ENVIRONMENT = true;
+    window.localStorage.clear();
+    saveSession({ token: 'abc', nombre: 'Santiago Perez' });
+
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+
+  afterEach(() => {
+    act(() => root.unmount());
+    container.remove();
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  const renderConEstado = async (estado) => {
+    const subtarea = { ...SUBTAREA, estado };
+
+    const fetchMock = vi.fn(async (url) => {
+      const ruta = String(url);
+
+      if (/\/api\/eventos\/9\/subtareas$/.test(ruta)) {
+        return respuestaJson([subtarea]);
+      }
+      if (/\/api\/eventos\/9$/.test(ruta)) {
+        return respuestaJson({ ...EVENTO, subtareas: [subtarea] });
+      }
+      if (/\/api\/tipos-evento/.test(ruta)) {
+        return respuestaJson([{ idTipoEvento: 1, nombre: 'Boda' }]);
+      }
+
+      return respuestaJson([]);
+    });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    await act(async () => {
+      root.render(
+        <NotificationsProvider>
+          <SearchProvider>
+            <MemoryRouter initialEntries={['/evento/9']}>
+              <Routes>
+                <Route path="/evento/:id" element={<EventDetailView />} />
+              </Routes>
+            </MemoryRouter>
+          </SearchProvider>
+        </NotificationsProvider>
+      );
+    });
+
+    await vi.waitFor(() => {
+      expect(container.textContent).toContain('Confirmar proveedor');
+    });
+
+    return fetchMock;
+  };
+
+  /** Los botones de la fila de la gestión, por su `aria-label`. */
+  const acciones = () =>
+    [...container.querySelectorAll('button')]
+      .map((b) => b.getAttribute('aria-label') ?? '')
+      .filter((aria) => aria.length > 0);
+
+  it('una pendiente ofrece Completar', async () => {
+    await renderConEstado('pendiente');
+
+    expect(acciones()).toContain('Marcar Confirmar proveedor como completada');
+    expect(acciones()).not.toContain(
+      'Reprogramar Confirmar proveedor para devolverla al plan'
+    );
+  });
+
+  it('una ejecutada ofrece Reabrir', async () => {
+    await renderConEstado('ejecutada');
+
+    expect(acciones()).toContain('Marcar Confirmar proveedor como pendiente');
+    expect(acciones()).not.toContain(
+      'Reprogramar Confirmar proveedor para devolverla al plan'
+    );
+  });
+
+  it('una pospuesta ofrece Reprogramar y no Completar', async () => {
+    await renderConEstado('pospuesta');
+
+    // Esta es la razón del cambio: "Completar" sobre una pospuesta la marcaba
+    // como hecha, que no es lo mismo que devolverla al plan.
+    expect(acciones()).toContain(
+      'Reprogramar Confirmar proveedor para devolverla al plan'
+    );
+    expect(acciones()).not.toContain(
+      'Marcar Confirmar proveedor como completada'
+    );
+  });
+
+  it('la pospuesta abre el ReprogramarModal al pulsar Reprogramar', async () => {
+    const fetchMock = await renderConEstado('pospuesta');
+
+    const boton = [...container.querySelectorAll('button')].find(
+      (b) =>
+        b.getAttribute('aria-label') ===
+        'Reprogramar Confirmar proveedor para devolverla al plan'
+    );
+    expect(boton).toBeTruthy();
+
+    await act(async () => {
+      boton.click();
+    });
+
+    await vi.waitFor(() => {
+      expect(container.querySelector('[role="dialog"]')).toBeTruthy();
+    });
+
+    // No se manda ningún PATCH todavía: abrir el modal no cambia nada.
+    const metodos = fetchMock.mock.calls
+      .filter(([, opciones]) => opciones?.method)
+      .map(([, opciones]) => opciones.method);
+    expect(metodos).not.toContain('PATCH');
+  });
+});
