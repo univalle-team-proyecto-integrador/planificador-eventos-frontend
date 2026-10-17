@@ -11,6 +11,7 @@ import {
   isEventToday,
   normalizeEvent,
   normalizeSubtask,
+  notaLegible,
   rangoDeDias,
   UPCOMING_RANGES,
 } from './taskMetrics';
@@ -322,6 +323,62 @@ describe('taskMetrics', () => {
       expect(
         getDesfase({ date: '2027-01-05', originalDate: '2026-12-20' })
       ).toEqual({ tipo: 'postergada', dias: 16 });
+    });
+  });
+
+  // La nota es el motivo del último cambio de estado. `esNotaObligatoria` obliga
+  // a escribirla al posponer, y hasta ahora el normalizador la tiraba: nadie la
+  // mostraba nunca.
+  describe('nota del último cambio de estado', () => {
+    it('normaliza la nota que envía el backend', () => {
+      expect(
+        normalizeSubtask({
+          idSubtarea: 1,
+          notaExplicativa: 'Proveedor sin disponibilidad',
+        }).note
+      ).toBe('Proveedor sin disponibilidad');
+    });
+
+    it('deja la nota en null si no la hay', () => {
+      expect(normalizeSubtask({ idSubtarea: 1 }).note).toBeNull();
+      expect(normalizeSubtask({}).note).toBeNull();
+    });
+
+    it('acepta la nota ya normalizada', () => {
+      expect(normalizeSubtask({ note: 'Ya normalizada' }).note).toBe(
+        'Ya normalizada'
+      );
+    });
+
+    it('entrecomilla la nota para pintarla', () => {
+      expect(notaLegible({ note: 'Proveedor sin disponibilidad' })).toBe(
+        '“Proveedor sin disponibilidad”'
+      );
+    });
+
+    it('devuelve vacío cuando no hay nota, para que no se pinte nada', () => {
+      expect(notaLegible({})).toBe('');
+      expect(notaLegible({ note: null })).toBe('');
+      expect(notaLegible({ note: '   ' })).toBe('');
+      expect(notaLegible(null)).toBe('');
+    });
+
+    // El backend no limita la longitud de `notaExplicativa`, así que puede
+    // llegar un párrafo. Se recorta para que la fila no se descuadre; el texto
+    // entero sigue en el `title` del elemento.
+    it('recorta una nota larga y colapsa los espacios', () => {
+      const larga = 'a'.repeat(200);
+      const nota = notaLegible({ note: `  ${larga}\n con   saltos  ` });
+
+      expect(nota.startsWith('“aaa')).toBe(true);
+      expect(nota.endsWith('…”')).toBe(true);
+      // 90 de nota + los puntos suspensivos + las dos comillas.
+      expect(nota).toHaveLength(93);
+      expect(nota).not.toContain('\n');
+    });
+
+    it('no recorta una nota que ya cabe', () => {
+      expect(notaLegible({ note: 'Corta' })).toBe('“Corta”');
     });
   });
 });

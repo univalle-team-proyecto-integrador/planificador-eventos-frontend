@@ -262,8 +262,8 @@ describe('la primera acción de una gestión depende de su estado', () => {
     vi.unstubAllGlobals();
   });
 
-  const renderConEstado = async (estado) => {
-    const subtarea = { ...SUBTAREA, estado };
+  const renderConEstado = async (estado, extra = {}) => {
+    const subtarea = { ...SUBTAREA, estado, ...extra };
 
     const fetchMock = vi.fn(async (url) => {
       const ruta = String(url);
@@ -339,6 +339,23 @@ describe('la primera acción de una gestión depende de su estado', () => {
     expect(acciones()).not.toContain(
       'Marcar Confirmar proveedor como completada'
     );
+  });
+
+  it('muestra la nota del último cambio de estado', async () => {
+    await renderConEstado('pospuesta', {
+      notaExplicativa: 'Proveedor sin disponibilidad',
+    });
+
+    // En el detalle sí se muestra en cualquier estado: el usuario ya abrió esta
+    // gestión a propósito, así que el contexto es la gestión entera.
+    expect(container.textContent).toContain('“Proveedor sin disponibilidad”');
+  });
+
+  it('no inventa una nota si la gestión no la tiene', async () => {
+    await renderConEstado('pendiente');
+
+    expect(container.textContent).toContain('Confirmar proveedor');
+    expect(container.textContent).not.toContain('“”');
   });
 
   it('la pospuesta abre el ReprogramarModal al pulsar Reprogramar', async () => {

@@ -37,3 +37,4 @@
 | 2026-10-16 | 034 | El calendario de fecha límite se quedaba vacío en los eventos ya vencidos | [2026-10-16-034-calendario-vacio-en-eventos-vencidos](2026-10-16-034-calendario-vacio-en-eventos-vencidos.md) |
 | 2026-10-16 | 035 | Las pospuestas salen de Vencidas y se plegan debajo | [2026-10-16-035-pospuestas-fuera-de-vencidas-y-plegadas](2026-10-16-035-pospuestas-fuera-de-vencidas-y-plegadas.md) |
 | 2026-10-16 | 036 | Una pospuesta vuelve al plan desde el detalle del evento | [2026-10-16-036-pospuesta-vuelve-al-plan-desde-el-detalle](2026-10-16-036-pospuesta-vuelve-al-plan-desde-el-detalle.md) |
+| 2026-10-16 | 037 | El motivo de la posposición se ve | [2026-10-16-037-el-motivo-de-la-posposicion-se-ve](2026-10-16-037-el-motivo-de-la-posposicion-se-ve.md) |

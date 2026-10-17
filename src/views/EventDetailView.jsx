@@ -24,7 +24,7 @@ import { FieldSuccess } from '../components/ui/FieldSuccess';
 import { WorkloadSummary } from '../components/ui/WorkloadSummary';
 import { getEventAccent } from '../utils/eventAccent';
 import { getEventTypeIcon } from '../utils/eventTypeIcons';
-import { getTaskMetrics, toDateKey } from '../utils/taskMetrics';
+import { getTaskMetrics, notaLegible, toDateKey } from '../utils/taskMetrics';
 import { requireSubtaskResponse } from '../utils/subtaskResponse';
 import {
   esConflicto,
@@ -1964,6 +1964,21 @@ export function EventDetailView() {
                       <p className="mt-1 text-xs text-muted-text">
                         Fecha límite: {formatDate(subtask.date)}
                       </p>
+                      {/* El motivo del último cambio de estado. Aquí sí se
+                          muestra en cualquier estado, no solo en las pospuestas:
+                          el usuario ya abrió esta gestión a propósito, así que
+                          el contexto es la gestión entera y el porqué interesa
+                          igual. `notaLegible` devuelve '' cuando no hay, y así
+                          no se pinta nada. Se llama dos veces porque es trivial
+                          y evita una constante por fila. */}
+                      {notaLegible(subtask) && (
+                        <p
+                          className="mt-1 text-xs italic text-muted-text"
+                          title={String(subtask.note ?? '')}
+                        >
+                          {notaLegible(subtask)}
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">

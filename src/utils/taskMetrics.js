@@ -146,7 +146,38 @@ export const normalizeSubtask = (payload) => ({
   // que la fecha cambia y es null en las que nunca se movieron, en cuyo caso no
   // hay nada que marcar.
   originalDate: payload?.originalDate ?? payload?.fechaObjetivoOriginal ?? null,
+  // Motivo del último cambio de estado. `esNotaObligatoria` obliga a escribirlo al
+  // posponer, así que es el texto que explica por qué una gestión está apartada
+  // del plan: sin él la pregunta no tiene respuesta en ninguna pantalla. Llega
+  // como `notaExplicativa` desde la `SubtareaDTO`.
+  note: payload?.note ?? payload?.notaExplicativa ?? null,
 });
+
+/**
+ * La nota tal como se puede pintar.
+ *
+ * El backend no le pone tope de longitud a `notaExplicativa`, así que puede
+ * llegar un párrafo, y solo se muestra en el grupo de pospuestas. Se colapsa a
+ * una línea: el texto entero sigue en el `title` del elemento, así que no se
+ * pierde para quien lo necesite y la fila no se descuadra.
+ *
+ * @returns {string} La nota entrecomillada y lista para pintar, o `''` si no hay.
+ */
+export const notaLegible = (task) => {
+  const nota = String(task?.note ?? '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!nota) {
+    return '';
+  }
+
+  const CORTE = 90;
+  const recortada =
+    nota.length > CORTE ? `${nota.slice(0, CORTE).trimEnd()}…` : nota;
+
+  return `“${recortada}”`;
+};
 
 /** Dias que se movió la gestión respecto a su fecha de planificación. */
 export const DESFASE_POSTERGADA = 'postergada';
