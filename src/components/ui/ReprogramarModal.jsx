@@ -184,7 +184,7 @@ export function ReprogramarModal({
               htmlFor="repro-horas"
               className="block text-sm font-medium text-secondary-text"
             >
-              Horas estimadas
+              Horas estimadas de trabajo
             </label>
             <input
               id="repro-horas"
