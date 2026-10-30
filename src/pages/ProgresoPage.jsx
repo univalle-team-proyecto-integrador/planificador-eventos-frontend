@@ -264,7 +264,7 @@ export const ProgresoPage = () => {
                 Resumen global
               </h3>
               <p className="mt-1 text-sm text-muted-text">
-                El avance se calcula principalmente con las horas estimadas.
+                El avance se calcula principalmente con las horas estimadas de trabajo.
               </p>
             </div>
             <WorkloadSummary

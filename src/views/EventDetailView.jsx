@@ -1309,10 +1309,10 @@ export function EventDetailView() {
                     onBlur={() => markEventTouched('fecha')}
                     aria-invalid={Boolean(eventErrors.fecha)}
                     aria-describedby={`edit-event-date-help${eventErrors.fecha
-                        ? ' edit-event-date-error'
-                        : isEventFieldSuccess('fecha')
-                          ? ' edit-event-date-success'
-                          : ''
+                      ? ' edit-event-date-error'
+                      : isEventFieldSuccess('fecha')
+                        ? ' edit-event-date-success'
+                        : ''
                       }`}
                     className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(eventErrors.fecha),
@@ -1652,10 +1652,10 @@ export function EventDetailView() {
                     onBlur={() => markSubtaskTouched('date')}
                     aria-invalid={Boolean(errors.date)}
                     aria-describedby={`subtask-date-help${errors.date
-                        ? ' subtask-date-error'
-                        : isSubtaskFieldSuccess('date')
-                          ? ' subtask-date-success'
-                          : ''
+                      ? ' subtask-date-error'
+                      : isSubtaskFieldSuccess('date')
+                        ? ' subtask-date-success'
+                        : ''
                       }`}
                     className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(errors.date),
@@ -1887,10 +1887,10 @@ export function EventDetailView() {
                     onBlur={() => markEditingSubtaskTouched('date')}
                     aria-invalid={Boolean(editingErrors.date)}
                     aria-describedby={`edit-subtask-date-help${editingErrors.date
-                        ? ' edit-subtask-date-error'
-                        : isEditingSubtaskFieldSuccess('date')
-                          ? ' edit-subtask-date-success'
-                          : ''
+                      ? ' edit-subtask-date-error'
+                      : isEditingSubtaskFieldSuccess('date')
+                        ? ' edit-subtask-date-success'
+                        : ''
                       }`}
                     className={`w-full rounded-md border bg-surface-raised p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(editingErrors.date),
@@ -1951,8 +1951,8 @@ export function EventDetailView() {
                     <div className="min-w-0">
                       <p
                         className={`font-medium ${subtask.state === 'ejecutada'
-                            ? 'text-muted-text line-through'
-                            : 'text-secondary-text'
+                          ? 'text-muted-text line-through'
+                          : 'text-secondary-text'
                           }`}
                       >
                         {subtask.title}
