@@ -1308,13 +1308,12 @@ export function EventDetailView() {
                     }
                     onBlur={() => markEventTouched('fecha')}
                     aria-invalid={Boolean(eventErrors.fecha)}
-                    aria-describedby={`edit-event-date-help${
-                      eventErrors.fecha
+                    aria-describedby={`edit-event-date-help${eventErrors.fecha
                         ? ' edit-event-date-error'
                         : isEventFieldSuccess('fecha')
                           ? ' edit-event-date-success'
                           : ''
-                    }`}
+                      }`}
                     className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(eventErrors.fecha),
                       isEventFieldSuccess('fecha')
@@ -1587,7 +1586,7 @@ export function EventDetailView() {
                     htmlFor="subtask-hours"
                     className="mb-1 block text-sm font-medium text-secondary-text"
                   >
-                    Horas estimadas *
+                    Horas estimadas de trabajo*
                   </label>
                   <input
                     id="subtask-hours"
@@ -1652,13 +1651,12 @@ export function EventDetailView() {
                     }
                     onBlur={() => markSubtaskTouched('date')}
                     aria-invalid={Boolean(errors.date)}
-                    aria-describedby={`subtask-date-help${
-                      errors.date
+                    aria-describedby={`subtask-date-help${errors.date
                         ? ' subtask-date-error'
                         : isSubtaskFieldSuccess('date')
                           ? ' subtask-date-success'
                           : ''
-                    }`}
+                      }`}
                     className={`w-full rounded-md border p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(errors.date),
                       isSubtaskFieldSuccess('date')
@@ -1823,7 +1821,7 @@ export function EventDetailView() {
                     htmlFor="edit-subtask-hours"
                     className="mb-1 block text-sm font-medium text-secondary-text"
                   >
-                    Horas estimadas *
+                    Horas estimadas de trabajo*
                   </label>
                   <input
                     id="edit-subtask-hours"
@@ -1888,13 +1886,12 @@ export function EventDetailView() {
                     }
                     onBlur={() => markEditingSubtaskTouched('date')}
                     aria-invalid={Boolean(editingErrors.date)}
-                    aria-describedby={`edit-subtask-date-help${
-                      editingErrors.date
+                    aria-describedby={`edit-subtask-date-help${editingErrors.date
                         ? ' edit-subtask-date-error'
                         : isEditingSubtaskFieldSuccess('date')
                           ? ' edit-subtask-date-success'
                           : ''
-                    }`}
+                      }`}
                     className={`w-full rounded-md border bg-surface-raised p-2.5 text-sm focus:ring-2 focus:ring-accent focus:outline-none ${inputBorderClass(
                       Boolean(editingErrors.date),
                       isEditingSubtaskFieldSuccess('date')
@@ -1953,11 +1950,10 @@ export function EventDetailView() {
                   <div className="flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <p
-                        className={`font-medium ${
-                          subtask.state === 'ejecutada'
+                        className={`font-medium ${subtask.state === 'ejecutada'
                             ? 'text-muted-text line-through'
                             : 'text-secondary-text'
-                        }`}
+                          }`}
                       >
                         {subtask.title}
                       </p>
