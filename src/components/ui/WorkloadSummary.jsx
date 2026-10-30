@@ -30,16 +30,15 @@ export function WorkloadSummary({
   return (
     <div className={`space-y-4 ${className}`.trim()}>
       <div
-        className={`grid grid-cols-2 gap-3 ${
-          eventCount === undefined
+        className={`grid grid-cols-2 gap-3 ${eventCount === undefined
             ? 'sm:grid-cols-4'
             : 'sm:grid-cols-3 lg:grid-cols-5'
-        }`}
+          }`}
       >
         {eventCount !== undefined && (
           <MetricCard label="Eventos" value={eventCount} />
         )}
-        <MetricCard label="Horas estimadas" value={formatHours(hoursTotal)} />
+        <MetricCard label="Horas estimadas de trabajo" value={formatHours(hoursTotal)} />
         <MetricCard
           label="Horas completadas"
           value={formatHours(hoursCompleted)}
@@ -63,7 +62,7 @@ export function WorkloadSummary({
       <p className="text-xs text-muted-text">
         {formatHours(hoursCompleted)} completadas ·{' '}
         {formatHours(hoursRemaining)} restantes · {formatHours(hoursTotal)}{' '}
-        estimadas
+        estimadas de trabajo
       </p>
     </div>
   );
